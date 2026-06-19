@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ListaGolden | Matrix Hub</title>
+    <style>
+        /* --- ARSENAL DE VARIABLES NEÓN CIBERPUNK --- */
+        :root {
+            --bg-matrix: #06060a;
+            --bg-card: #0d0d15;
+            --bg-nav: rgba(13, 13, 21, 0.75);
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff007f;
+            --neon-green: #39ff14;
+            --text-main: #e2e8f0;
+            --text-dim: #64748b;
+            --cyber-glow-cyan: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.2);
+            --cyber-glow-magenta: 0 0 10px rgba(255, 0, 127, 0.5), 0 0 20px rgba(255, 0, 127, 0.2);
+            --cyber-glow-green: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: var(--bg-matrix); color: var(--text-main); overflow-x: hidden; }
+
+        /* --- PANTALLA DE CARGA (SPLASH SCREEN) --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg-matrix); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
+        }
+        .rocket-loader { font-size: 50px; animation: launch 1.5s infinite ease-in-out; }
+        .splash-text { margin-top: 20px; color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); font-weight: bold; text-align: center; padding: 0 20px; }
+        @keyframes launch { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); text-shadow: var(--cyber-glow-cyan); } }
+
+        /* --- TOAST NOTIFICATIONS (SISTEMA ELEGANTE) --- */
+        #toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 10000;
+            display: flex; flex-direction: column; gap: 10px; max-width: 350px; width: calc(100% - 40px);
+        }
+        .cyber-toast {
+            background: rgba(13, 13, 21, 0.9);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: var(--cyber-glow-cyan);
+            color: var(--text-main);
+            padding: 15px 20px; border-radius: 6px;
+            font-size: 0.85rem; display: flex; align-items: center; justify-content: space-between;
+            backdrop-filter: blur(8px);
+            transform: translateX(120%); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cyber-toast.show { transform: translateX(0); }
+        .cyber-toast.success { border-color: var(--neon-green); box-shadow: var(--cyber-glow-green); }
+        .cyber-toast.error { border-color: var(--neon-magenta); box-shadow: var(--cyber-glow-magenta); }
+
+        /* --- BARRA SUPERIOR STICKY --- */
+        header {
+            position: sticky; top: 0; z-index: 1000;
+            background: var(--bg-nav); backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--neon-cyan); box-shadow: var(--cyber-glow-cyan);
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;
+        }
+        .header-left-zone { display: flex; align-items: center; gap: 15px; }
+        
+        /* SISTEMA DE NOTIFICACIONES (CAMPANA) */
+        .noti-bell-container { position: relative; cursor: pointer; font-size: 1.4rem; transition: transform 0.2s; padding: 5px; }
+        .noti-bell-container:hover { transform: scale(1.1); }
+        .noti-badge { position: absolute; top: -2px; right: -2px; background: var(--neon-magenta); color: #fff; font-size: 0.65rem; font-weight: bold; border-radius: 50%; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; box-shadow: var(--cyber-glow-magenta); }
+        
+        .bell-vibrate { animation: cyberVibrate 0.6s infinite alternate; color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); }
+        @keyframes cyberVibrate {
+            0% { transform: rotate(0deg); } 20% { transform: rotate(8deg); }
+            40% { transform: rotate(-8deg); } 60% { transform: rotate(4deg); }
+            80% { transform: rotate(-4deg); } 100% { transform: rotate(0deg); }
+        }
+
+        .logo { font-size: 1.2rem; font-weight: bold; color: #fff; text-shadow: var(--cyber-glow-magenta); }
+        @media(min-width: 480px) { .logo { font-size: 1.5rem; } }
+
+        .user-nav-status { display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .avatar-frame { position: relative; width: 45px; height: 45px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, var(--neon-magenta), var(--neon-cyan)); }
+        .avatar-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; }
+        .badge-premium { padding: 2px 8px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; border: 1px solid var(--neon-magenta); box-shadow: var(--cyber-glow-magenta); color: var(--neon-magenta); }
+        .badge-free { padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; border: 1px solid var(--text-dim); color: var(--text-dim); }
+
+        /* --- DISEÑO DE NAVEGACIÓN --- */
+        .nav-tabs { display: flex; justify-content: center; gap: 10px; background: #09090f; padding: 10px; border-bottom: 1px solid #1e1e2f; overflow-x: auto; white-space: nowrap; }
+        .tab-btn { background: transparent; border: 1px solid var(--text-dim); color: var(--text-main); padding: 8px 16px; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 0.85rem; }
+        .tab-btn.active, .tab-btn:hover { border-color: var(--neon-cyan); box-shadow: var(--cyber-glow-cyan); color: var(--neon-cyan); }
+
+        /* --- CONTENEDORES DE PÁGINAS --- */
+        .page-view { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .page-view.active { display: block; }
+        h2 { text-shadow: var(--cyber-glow-cyan); margin-bottom: 20px; text-transform: uppercase; color: var(--neon-cyan); }
+
+        /* --- FILTROS AVANZADOS --- */
+        .filter-section { background: var(--bg-card); padding: 15px; border: 1px solid #1e1e30; border-radius: 8px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .filter-select { background: #12121f; border: 1px solid var(--neon-cyan); color: #fff; padding: 8px; border-radius: 4px; }
+
+        /* --- REJILLA DE TARJETAS (CATÁLOGO) --- */
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        
+        .card { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; position: relative; transition: all 0.3s ease; }
+        .card.premium-style { border: 1px solid var(--neon-magenta); box-shadow: var(--cyber-glow-magenta); }
+        .card-header { display: flex; gap: 12px; margin-bottom: 12px; position: relative; }
+        .card-img { width: 65px; height: 65px; border-radius: 6px; object-fit: cover; border: 1px solid #222; }
+        .card-title-area { display: flex; flex-direction: column; justify-content: center; width: 100%; }
+        .badge-destacado { position: absolute; top: 0; right: 0; background: var(--neon-magenta); color: #000; font-size: 0.65rem; font-weight: bold; padding: 2px 5px; border-radius: 3px; box-shadow: var(--cyber-glow-magenta); }
+        .fav-star { position: absolute; bottom: 0; right: 0; font-size: 1.3rem; cursor: pointer; color: var(--text-dim); }
+        .fav-star.active { color: #ffd700; text-shadow: 0 0 8px #ffd700; }
+        .card-desc { font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px; line-height: 1.4; min-height: 40px; }
+        .card-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 12px; background: #09090f; padding: 6px; border-radius: 4px; }
+        
+        /* EXCLUSIVO PANEL ADMIN: VISUALIZADOR CATSUB */
+        .catsub-status-badge { display: inline-block; background: #1a1a2e; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-bottom: 8px; text-shadow: var(--cyber-glow-cyan); }
+
+        .slide-details { display: none; background: #09090f; padding: 10px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 12px; border-left: 2px solid var(--neon-cyan); }
+        .energy-bar-bg { width: 100%; height: 6px; background: #222; border-radius: 3px; margin-top: 5px; overflow: hidden; }
+        .energy-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); width: 0%; box-shadow: 0 0 5px var(--neon-green); }
+        
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-cyber { padding: 8px; font-size: 0.75rem; font-weight: bold; border: 1px solid; cursor: pointer; border-radius: 4px; text-align: center; text-transform: uppercase; background: transparent; transition: 0.2s; text-decoration: none;}
+        .btn-primary { border-color: var(--neon-green); color: var(--neon-green); grid-column: span 2; }
+        .btn-primary:hover { background: rgba(57, 255, 20, 0.1); box-shadow: 0 0 10px var(--neon-green); }
+        .btn-sec { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .btn-sec:hover { background: rgba(0, 240, 255, 0.1); box-shadow: var(--cyber-glow-cyan); }
+        .btn-extra { border-color: var(--neon-magenta); color: var(--neon-magenta); grid-column: span 2; font-style: italic; }
+        .btn-extra:hover { background: rgba(255, 0, 127, 0.1); box-shadow: var(--cyber-glow-magenta); }
+        
+        .lazy-trigger-btn { width: 100%; padding: 15px; margin: 20px 0; background: #12121f; border: 1px dashed var(--neon-cyan); color: var(--neon-cyan); cursor: pointer; text-transform: uppercase; font-weight: bold;}
+
+        /* --- PANEL DE ADMINISTRACIÓN --- */
+        .metrics-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .metric-box { background: #12121f; border: 1px solid #1e1e30; padding: 15px; text-align: center; border-radius: 6px; }
+        .metric-val { font-size: 1.8rem; font-weight: bold; color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); }
+        .metric-label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); margin-top: 5px; }
+        
+        .admin-layout { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        @media(min-width: 768px) { .admin-layout { grid-template-columns: 1fr 1fr; } }
+        
+        .cyber-form { background: var(--bg-card); border: 1px solid var(--neon-cyan); padding: 20px; border-radius: 8px; box-shadow: var(--cyber-glow-cyan); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; color: var(--neon-cyan); margin-bottom: 5px; text-transform: uppercase; }
+        .form-control { width: 100%; background: #09090f; border: 1px solid #1e1e30; color: #fff; padding: 10px; border-radius: 4px; }
+        .form-control:focus { border-color: var(--neon-cyan); outline: none; box-shadow: var(--cyber-glow-cyan); }
+        
+        .status-alert-box { background: #1a1118; border: 1px solid var(--neon-magenta); padding: 12px; border-radius: 6px; margin-top: 15px; display: none; font-size: 0.8rem; line-height: 1.4; color: #ffb3d1; }
+
+        /* --- MONETIZACIÓN --- */
+        .pricing-toggle { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 30px; }
+        .plans-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 800px; margin: 0 auto; }
+        @media(min-width: 600px) { .plans-grid { grid-template-columns: 1fr 1fr; } }
+        .plan-card { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 8px; padding: 25px; text-align: center; position: relative; }
+        .plan-card.premium-plan { border-color: var(--neon-magenta); box-shadow: var(--cyber-glow-magenta); }
+        .plan-price { font-size: 2rem; font-weight: bold; margin: 15px 0; color: #fff; }
+        .plan-features { list-style: none; margin: 20px 0; text-align: left; font-size: 0.85rem; line-height: 1.8; color: #cbd5e1; }
+        .plan-features li::before { content: "⚡ "; color: var(--neon-cyan); }
+        
+        .payment-methods { display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        .pay-method-btn { background: #09090f; border: 1px solid #1e1e30; color: #fff; padding: 6px 12px; font-size: 0.75rem; border-radius: 4px; cursor: pointer; }
+        .pay-method-btn.selected { border-color: var(--neon-green); color: var(--neon-green); box-shadow: 0 0 8px rgba(57,255,20,0.4); }
+
+        /* --- NOTIFICACIONES PANEL --- */
+        .notification-item { background: #12121f; border-left: 3px solid var(--neon-cyan); border-radius: 4px; padding: 12px; margin-bottom: 12px; position: relative; }
+        .notification-item.unread { border-left-color: var(--neon-magenta); background: #17111c; }
+        .notification-item.saved { border-left-color: var(--neon-green); }
+        .noti-time { font-size: 0.7rem; color: var(--text-dim); margin-top: 4px; }
+        .noti-action-row { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-small { padding: 4px 8px; font-size: 0.7rem; border-radius: 3px; border: 1px solid; cursor: pointer; background: transparent; text-transform: uppercase; font-weight: bold; }
+        .btn-small-save { border-color: var(--neon-green); color: var(--neon-green); }
+        .btn-small-del { border-color: #ef4444; color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <!-- CONTENEDOR FLOTANTE PARA TOASTS -->
+    <div id="toast-container"></div>
+
+    <div id="splash-screen">
+        <div class="rocket-loader">🚀</div>
+        <div id="splash-msg" class="splash-text">Sincronizando con la matriz...</div>
+    </div>
+
+    <header>
+        <div class="header-left-zone">
+            <div class="noti-bell-container" id="bell-wrapper" onclick="switchPage('notificaciones')">
+                <span>🔔</span>
+                <div id="bell-count" class="noti-badge" style="display:none;">0</div>
+            </div>
+            <div class="logo">@ListaGolden // SYSTEM</div>
+        </div>
+        <div class="user-nav-status" onclick="switchPage('admin')">
+            <div id="nav-badge" class="badge-free">GRATIS</div>
+            <span id="nav-username" style="font-weight: bold; color: var(--neon-cyan);">@invitado</span>
+            <div class="avatar-frame">
+                <img id="nav-avatar" src="https://res.cloudinary.com/dq7omdvi0/image/upload/f_auto,q_auto/IMG_20260617_141752_451_ilxcin" alt="User Matrix">
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchPage('catalogo')">📢 Catálogo</button>
+        <button class="tab-btn" onclick="switchPage('favoritos')">⭐ Favoritos</button>
+        <button class="tab-btn" onclick="switchPage('suscripcion')">💎 Suscribirse</button>
+        <button class="tab-btn" onclick="switchPage('admin')">🛠️ Mi Panel</button>
+        <button class="tab-btn" id="tab-noti-btn" onclick="switchPage('notificaciones')">💬 Avisos</button>
+    </nav>
+
+    <section id="page-notificaciones" class="page-view">
+        <h2>Centro de Comunicaciones Internas</h2>
+        <div class="filter-section" style="margin-bottom: 25px;">
+            <button class="tab-btn active" id="btn-noti-recientes" onclick="toggleNotiTab('recientes')">Recientes / Recibidas</button>
+            <button class="tab-btn" id="btn-noti-guardadas" onclick="toggleNotiTab('guardadas')">📁 Guardadas</button>
+        </div>
+        <div id="notifications-container"></div>
+    </section>
+
+    <main id="page-catalogo" class="page-view active">
+        <h2>Catálogo de Red</h2>
+        <div class="filter-section">
+            <select id="filter-curacion" class="filter-select" onchange="renderCatalogo()">
+                <option value="all">Filtros Avanzados (Todos)</option>
+                <option value="destacados">⭐ Destacados</option>
+                <option value="populares">🔥 Populares</option>
+            </select>
+            <select id="filter-categoria" class="filter-select" onchange="renderCatalogo()">
+                <option value="all">Todas las Categorías</option>
+                <option value="IA">IA & Tecnología</option>
+                <option value="Finanzas">Finanzas</option>
+                <option value="Entretenimiento">Entretenimiento</option>
+            </select>
+            <select id="filter-subs" class="filter-select" onchange="renderCatalogo()">
+                <option value="all">Cualquier Volumen</option>
+                <option value="+100">+100 Suscriptores</option>
+                <option value="+500">+500 Suscriptores</option>
+                <option value="+1000">+1000 Suscriptores</option>
+            </select>
+        </div>
+        <div id="catalog-container" class="catalog-grid"></div>
+        <button id="lazy-btn" class="lazy-trigger-btn" onclick="showMoreChannels()">Cargar matriz de datos (+7)</button>
+    </main>
+
+    <section id="page-favoritos" class="page-view">
+        <h2>Mis Canales Favoritos</h2>
+        <div id="favs-container" class="catalog-grid"></div>
+    </section>
+
+    <section id="page-suscripcion" class="page-view">
+        <h2>Terminal de Membresías</h2>
+        <div class="metrics-container" style="max-width: 800px; margin: 0 auto 30px auto;">
+            <div class="metric-box" style="border-color: var(--neon-magenta)">
+                <div id="subs-current-plan" class="metric-val">GRATIS</div>
+                <div class="metric-label">Tu Estado Actual</div>
+            </div>
+            <div class="metric-box">
+                <div id="subs-date" class="metric-val" style="font-size:1rem; padding-top:10px;">Indefinido</div>
+                <div class="metric-label">Vencimiento</div>
+            </div>
+        </div>
+        <div class="pricing-toggle">
+            <span>Mensual</span>
+            <input type="checkbox" id="billing-cycle" onchange="updatePricingDisplay()">
+            <span>Anual</span>
+        </div>
+        <div class="plans-grid">
+            <div class="plan-card">
+                <h3>PLAN BASE</h3>
+                <div class="plan-price">FREE</div>
+                <button class="btn-cyber btn-sec" style="width:100%;" disabled>Activo por defecto</button>
+            </div>
+            <div class="plan-card premium-plan">
+                <div class="badge-destacado">RECOMENDADO</div>
+                <h3>PLAN GPLUS</h3>
+                <div id="gplus-price-tag" class="plan-price">9.99 USDT</div>
+                <button class="btn-cyber btn-primary" style="width:100%;" onclick="solicitarSuscripcion()">Contratar GPlus 🚀</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="page-admin" class="page-view">
+        <h2>Consola de Administración Central</h2>
+        
+        <div class="metrics-container">
+            <div class="metric-box"><div id="m-fav" class="metric-val">0</div><div class="metric-label">Favoritos ⭐</div></div>
+            <div class="metric-box"><div id="m-tot" class="metric-val">0</div><div class="metric-label">Mis Canales 📢</div></div>
+            <div class="metric-box"><div id="m-pub" class="metric-val">0</div><div class="metric-label">Publicados ✅</div></div>
+            <div class="metric-box"><div id="m-rev" class="metric-val">0</div><div class="metric-label">En Revisión ⏳</div></div>
+        </div>
+
+        <div class="admin-layout">
+            <div class="cyber-form">
+                <h3 id="form-action-title" style="color: var(--neon-cyan); margin-bottom:15px;">Inyectar Canal Estructurado</h3>
+                <input type="hidden" id="edit-index" value="-1">
+                
+                <div class="form-group">
+                    <label>ID Numérico Telegram Propietario</label>
+                    <input type="text" id="form-tg-userid" class="form-control" placeholder="Ej: 6272829292" onchange="syncUserGlobal()">
+                </div>
+                <div class="form-group">
+                    <label>Nombre de Usuario de Telegram</label>
+                    <input type="text" id="form-tg-username" class="form-control" placeholder="Ej: @Neuromante" onchange="syncUserGlobal()">
+                </div>
+                <div class="form-group">
+                    <label>ID Único de tu Canal</label>
+                    <input type="text" id="form-canal-id" class="form-control" placeholder="Ej: g_iatlg">
+                </div>
+                <div class="form-group">
+                    <label>Título del Canal</label>
+                    <input type="text" id="form-canal-titulo" class="form-control" placeholder="Ej: IA Inteligencia Pro">
+                </div>
+                <div class="form-group">
+                    <label>Enlace (@ del Canal)</label>
+                    <input type="text" id="form-canal-handle" class="form-control" placeholder="Ej: @IATLG">
+                </div>
+                <div class="form-group">
+                    <label>Clasificación CatSub Base</label>
+                    <select id="form-canal-catsub" class="form-control">
+                        <option value="+100">+100 suscriptores</option>
+                        <option value="+500">+500 suscriptores</option>
+                        <option value="+1000">+1000 suscriptores</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado en Matriz</label>
+                    <select id="form-canal-estado" class="form-control" onchange="triggerStatusAlert(this.value)">
+                        <option value="En revisión">⏳ En revisión</option>
+                        <option value="Publicado">✅ Publicado</option>
+                    </select>
+                    <div id="status-alert" class="status-alert-box"></div>
+                </div>
+                
+                <button class="btn-cyber btn-primary" style="width:100%; margin-top:10px;" onclick="guardarCanalYNotificar()">Procesar Transmisión Manual 🚀</button>
+            </div>
+
+            <div>
+                <h3 style="color: var(--neon-magenta); margin-bottom:15px;">Tus Canales Sincronizados</h3>
+                <div id="user-channels-list" style="display:flex; flex-direction:column; gap:15px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const MI_USUARIO_TELEGRAM = "ListaGolden"; 
+
+        // BANCO DE DATOS INICIALES CON CAMPO `catsub` INTEGRADO
+        const DEFAULT_CHANNELS = [
+            { id_canal: "g_iatlg", titulo: "IA TLG", telegram_handle: "@IATLG", url_imagen: "", id_user_telegram_admin: "6272829292", categorias: ["IA"], catsub: "+100", rating: 4.5, reseñas: 2, isPopular: true, isPremium: true, isDestacado: true, estado: "Publicado", puntuacion_calidad: 95 },
+            { id_canal: "cyber_fin", titulo: "Finanzas Matrix", telegram_handle: "@CyberFinanzas", url_imagen: "", id_user_telegram_admin: "11111111", categorias: ["Finanzas"], catsub: "+500", rating: 4.2, reseñas: 8, isPopular: false, isPremium: false, isDestacado: false, estado: "Publicado", puntuacion_calidad: 70 },
+            { id_canal: "tlg_ent", titulo: "Zona Entretenimiento", telegram_handle: "@ZonaFun", url_imagen: "", id_user_telegram_admin: "6272829292", categorias: ["Entretenimiento"], catsub: "+1000", rating: 4.9, reseñas: 22, isPopular: true, isPremium: false, isDestacado: true, estado: "Publicado", puntuacion_calidad: 88 }
+        ];
+
+        let canales = [];
+        let usuarioActual = { id_tg: "6272829292", username_tg: "@Neuromante", isPremium: true, favoritos: ["g_iatlg"], plan_fecha_fin: "2027-06-17" };
+        let notificaciones = [];
+        let notiCurrentTab = "recientes";
+        let limitVisible = 7;
+
+        window.onload = function() {
+            if (!localStorage.getItem("listaGolden_canales")) localStorage.setItem("listaGolden_canales", JSON.stringify(DEFAULT_CHANNELS));
+            if (!localStorage.getItem("listaGolden_usuario")) localStorage.setItem("listaGolden_usuario", JSON.stringify(usuarioActual));
+            if (!localStorage.getItem("listaGolden_notificaciones")) localStorage.setItem("listaGolden_notificaciones", JSON.stringify([]));
+            
+            canales = JSON.parse(localStorage.getItem("listaGolden_canales"));
+            usuarioActual = JSON.parse(localStorage.getItem("listaGolden_usuario"));
+            notificaciones = JSON.parse(localStorage.getItem("listaGolden_notificaciones"));
+
+            limpiarNotificacionesExpiradas24h();
+            syncNavbarUI();
+            updateBellUI();
+            triggerSplashScreen();
+            renderCatalogo();
+            renderFavoritos();
+            renderAdminPanel();
+        };
+
+        // --- MOTOR MODERNO DE NOTIFICACIONES FLOTANTES (TOASTS) ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `cyber-toast ${type}`;
+            toast.innerHTML = `<span>⚡ ${message}</span><span style="cursor:pointer;margin-left:10px;color:var(--text-dim)" onclick="this.parentElement.remove()">✕</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add("show"), 50);
+
+            // Auto-eliminar a los 4 segundos
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        function triggerSplashScreen() {
+            const screen = document.getElementById("splash-screen");
+            screen.style.display = "flex"; screen.style.opacity = "1";
+            setTimeout(() => {
+                screen.style.opacity = "0";
+                setTimeout(() => screen.style.display = "none", 500);
+            }, 1000);
+        }
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            
+            if(pageId === 'notificaciones') {
+                document.getElementById('tab-noti-btn').classList.add('active');
+                marcarTodasComoLeidas();
+                renderNotificaciones();
+            } else {
+                const targetBtn = Array.from(document.querySelectorAll('.nav-tabs .tab-btn')).find(b => b.getAttribute('onclick').includes(pageId));
+                if(targetBtn) targetBtn.classList.add('active');
+            }
+        }
+
+        function limpiarNotificacionesExpiradas24h() {
+            const limite24Horas = 24 * 60 * 60 * 1000;
+            const ahora = Date.now();
+            notificaciones = notificaciones.filter(n => (ahora - n.timestamp < limite24Horas) || n.saved === true);
+            localStorage.setItem("listaGolden_notificaciones", JSON.stringify(notificaciones));
+        }
+
+        function updateBellUI() {
+            const bell = document.getElementById("bell-wrapper");
+            const badge = document.getElementById("bell-count");
+            const sinLeer = notificaciones.filter(n => n.id_user_telegram_admin === usuarioActual.id_tg && n.unread).length;
+
+            if (sinLeer > 0) {
+                badge.innerText = sinLeer; badge.style.display = "flex";
+                bell.classList.add("bell-vibrate");
+            } else {
+                badge.style.display = "none"; bell.classList.remove("bell-vibrate");
+            }
+        }
+
+        function marcarTodasComoLeidas() {
+            notificaciones.forEach(n => { if(n.id_user_telegram_admin === usuarioActual.id_tg) n.unread = false; });
+            localStorage.setItem("listaGolden_notificaciones", JSON.stringify(notificaciones));
+            updateBellUI();
+        }
+
+        function toggleNotiTab(tab) {
+            notiCurrentTab = tab;
+            document.getElementById("btn-noti-recientes").classList.toggle("active", tab === "recientes");
+            document.getElementById("btn-noti-guardadas").classList.toggle("active", tab === "guardadas");
+            renderNotificaciones();
+        }
+
+        function renderNotificaciones() {
+            const container = document.getElementById("notifications-container"); container.innerHTML = "";
+            let filtradas = notificaciones.filter(n => n.id_user_telegram_admin === usuarioActual.id_tg && n.saved === (notiCurrentTab === "guardadas"));
+
+            if(!filtradas.length) {
+                container.innerHTML = `<p style="color:var(--text-dim); padding:10px;">Ningún vector de datos.</p>`;
+                return;
+            }
+            filtradas.forEach(n => {
+                container.innerHTML += `
+                    <div class="notification-item ${n.unread ? 'unread' : ''}">
+                        <div style="font-size:0.9rem;">${n.mensaje}</div>
+                        <div class="noti-time">Módulo de aviso seguro</div>
+                        <div class="noti-action-row">
+                            ${!n.saved ? `<button class="btn-small btn-small-save" onclick="guardarNotificacion('${n.id}')">💾 Guardar</button>` : ''}
+                            <button class="btn-small btn-small-del" onclick="eliminarNotificacion('${n.id}')">❌ Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function guardarNotificacion(id) {
+            const idx = notificaciones.findIndex(n => n.id === id);
+            if(idx > -1) {
+                notificaciones[idx].saved = true;
+                localStorage.setItem("listaGolden_notificaciones", JSON.stringify(notificaciones));
+                showToast("Notificación guardada en el archivo de memoria permanente.", "success");
+                renderNotificaciones();
+            }
+        }
+
+        function eliminarNotificacion(id) {
+            notificaciones = notificaciones.filter(n => n.id !== id);
+            localStorage.setItem("listaGolden_notificaciones", JSON.stringify(notificaciones));
+            showToast("Aviso purgado del sistema.");
+            renderNotificaciones(); updateBellUI();
+        }
+
+        function syncNavbarUI() {
+            document.getElementById("nav-username").innerText = usuarioActual.username_tg || "@invitado";
+            document.getElementById("nav-badge").className = usuarioActual.isPremium ? "badge-premium" : "badge-free";
+            document.getElementById("nav-badge").innerText = usuarioActual.isPremium ? "GPlus Activo" : "GRATIS";
+        }
+
+        function syncUserGlobal() {
+            usuarioActual.username_tg = document.getElementById("form-tg-username").value;
+            usuarioActual.id_tg = document.getElementById("form-tg-userid").value;
+            localStorage.setItem("listaGolden_usuario", JSON.stringify(usuarioActual));
+            syncNavbarUI(); updateBellUI(); renderAdminPanel();
+        }
+
+        function renderCatalogo() {
+            const container = document.getElementById("catalog-container"); container.innerHTML = "";
+            const fCuracion = document.getElementById("filter-curacion").value;
+            const fCat = document.getElementById("filter-categoria").value;
+            const fSubs = document.getElementById("filter-subs").value;
+
+            let filtrados = canales.filter(c => {
+                if (c.estado !== "Publicado") return false;
+                if (fCuracion === "destacados" && !c.isDestacado) return false;
+                if (fCuracion === "populares" && !c.isPopular) return false;
+                if (fCat !== "all" && !c.categorias.includes(fCat)) return false;
+                // Filtrado general dinámico por CatSub en catálogo
+                if (fSubs !== "all" && c.catsub !== fSubs) return false;
+                return true;
+            });
+
+            filtrados.slice(0, limitVisible).forEach(c => container.innerHTML += buildCardHtml(c, false));
+        }
+
+        // --- CONSTRUCTOR DE TARJETAS ADAPTABLE (MUESTRA CATSUB SÓLO EN ADMIN) ---
+        function buildCardHtml(c, isAdminCard = false) {
+            const isFav = usuarioActual.favoritos.includes(c.id_canal);
+            return `
+                <div class="card ${c.isPremium ? 'premium-style' : ''}">
+                    <div class="card-header">
+                        <div class="card-title-area">
+                            <!-- Inyección condicional exclusiva de CatSub en la tarjeta del panel del usuario -->
+                            ${isAdminCard ? `<div class="catsub-status-badge">📊 Rango: ${c.catsub || '+100 suscriptores'}</div>` : ''}
+                            <h4 style="color: #fff;">${c.titulo}</h4>
+                            <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                        </div>
+                        ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav('${c.id_canal}')">★</span>` : ''}
+                    </div>
+                    <p class="card-desc">Canal verificado asignado al ecosistema.</p>
+                    <div class="btn-grid">
+                        <a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary">Entrar</a>
+                        <button class="btn-cyber btn-sec" onclick="copyClip('https://t.me/${c.telegram_handle.replace('@','')}')">Link</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleFav(id) {
+            const idx = usuarioActual.favoritos.indexOf(id);
+            if(idx > -1) usuarioActual.favoritos.splice(idx, 1); else usuarioActual.favoritos.push(id);
+            localStorage.setItem("listaGolden_usuario", JSON.stringify(usuarioActual));
+            showToast("Lista de favoritos actualizada.");
+            renderCatalogo(); renderFavoritos(); renderAdminPanel();
+        }
+
+        function renderFavoritos() {
+            const container = document.getElementById("favs-container"); container.innerHTML = "";
+            let filtrados = canales.filter(c => usuarioActual.favoritos.includes(c.id_canal));
+            if(!filtrados.length) { container.innerHTML = "<p style='color:var(--text-dim)'>No hay favoritos.</p>"; return; }
+            filtrados.forEach(c => container.innerHTML += buildCardHtml(c, false));
+        }
+
+        function showMoreChannels() { limitVisible += 7; renderCatalogo(); }
+        
+        function copyClip(t) { 
+            navigator.clipboard.writeText(t); 
+            showToast("Enlace copiado al portapapeles con éxito.", "success"); 
+        }
+
+        // --- SISTEMA INTERACTIVO CRÍTICO DE SOLICITUDES CATSUB POR TELEGRAM ---
+        function procesarListaCatSub(idCanal, accion) {
+            const canalObj = canales.find(c => c.id_canal === idCanal);
+            if(!canalObj) return;
+
+            // Construcción del Payload con la información del perfil del usuario y los datos solicitados
+            let payload = `🌐 SOLICITUD LISTA CATSUB 🌐\n\n`;
+            payload += `🔹 ACCIÓN: ${accion.toUpperCase()} canal de la lista CatSub\n`;
+            payload += `👤 USERNAME SOLICITANTE: ${usuarioActual.username_tg}\n`;
+            payload += `🆔 ID TELEGRAM USER: ${usuarioActual.id_tg}\n`;
+            payload += `📢 CANAL ID: ${canalObj.id_canal}\n`;
+            payload += `📝 TÍTULO CANAL: ${canalObj.titulo}\n`;
+            payload += `🎯 ENLACE: ${canalObj.telegram_handle}\n`;
+            payload += `📊 RANGO ACTUAL: ${canalObj.catsub || '+100 suscriptores'}`;
+
+            showToast("Abriendo enlace seguro para comunicación en Telegram...", "success");
+            
+            // Abrir hilo de chat privado directo con la información estructurada
+            setTimeout(() => {
+                window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
+            }, 800);
+        }
+
+        // --- RENDEREADO DEL PANEL DE ADMINISTRACIÓN ---
+        function renderAdminPanel() {
+            document.getElementById("m-fav").innerText = usuarioActual.favoritos.length;
+            let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+            document.getElementById("m-tot").innerText = misCanales.length;
+            document.getElementById("m-pub").innerText = misCanales.filter(c => c.estado === "Publicado").length;
+            document.getElementById("m-rev").innerText = misCanales.filter(c => c.estado === "En revisión").length;
+
+            document.getElementById("form-tg-userid").value = usuarioActual.id_tg;
+            document.getElementById("form-tg-username").value = usuarioActual.username_tg;
+
+            const container = document.getElementById("user-channels-list"); container.innerHTML = "";
+            if(!misCanales.length) { container.innerHTML = "<p style='color:var(--text-dim)'>No posees canales asociados a tu ID.</p>"; return; }
+
+            misCanales.forEach((c) => {
+                // Inyectamos la tarjeta llamando a buildCardHtml pasando true en `isAdminCard`
+                container.innerHTML += `
+                    <div style="background:#12121f; padding:15px; border-radius:6px; border:1px solid #1e1e30; margin-bottom:15px;">
+                        ${buildCardHtml(c, true)}
+                        
+                        <!-- Panel de control de Listas CatSub por cada canal del usuario -->
+                        <div style="margin-top:12px; background:#09090f; padding:10px; border-radius:4px; border:1px dashed var(--neon-cyan)">
+                            <div style="font-size:0.75rem; margin-bottom:8px; color:var(--text-main)">Gestionar en Listas del Servidor:</div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                                <button class="btn-small btn-small-save" style="font-size:0.65rem;" onclick="procesarListaCatSub('${c.id_canal}', 'agregar')">➕ Unir a Lista</button>
+                                <button class="btn-small btn-small-del" style="font-size:0.65rem;" onclick="procesarListaCatSub('${c.id_canal}', 'quitar')">➖ Quitar de Lista</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function guardarCanalYNotificar() {
+            const canalId = document.getElementById("form-canal-id").value.trim();
+            const titulo = document.getElementById("form-canal-titulo").value.trim();
+            const handle = document.getElementById("form-canal-handle").value.trim();
+            const catsubSelected = document.getElementById("form-canal-catsub").value;
+
+            if(!canalId || !titulo || !handle) {
+                showToast("Error en la transmisión. Rellena los campos críticos.", "error");
+                return;
+            }
+
+            let nuevo = {
+                id_canal: canalId, titulo: titulo, telegram_handle: handle, url_imagen: "",
+                id_user_telegram_admin: usuarioActual.id_tg, categorias: ["IA"], catsub: catsubSelected, 
+                rating: 5.0, reseñas: 1, isPopular: false, isPremium: usuarioActual.isPremium, 
+                isDestacado: false, estado: document.getElementById("form-canal-estado").value
+            };
+
+            canales.push(nuevo);
+            localStorage.setItem("listaGolden_canales", JSON.stringify(canales));
+            
+            showToast("Canal registrado e indexado correctamente.", "success");
+            renderCatalogo(); renderAdminPanel();
+        }
+
+        function updatePricingDisplay() {}
+        function solicitarSuscripcion() {
+            usuarioActual.isPremium = true;
+            localStorage.setItem("listaGolden_usuario", JSON.stringify(usuarioActual));
+            syncNavbarUI();
+            showToast("Solicitud de actualización enviada.", "success");
+        }
+    </script>
+</body>
+</html>
