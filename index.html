@@ -91,6 +91,8 @@
         .card-title-area { display: flex; flex-direction: column; justify-content: center; }
         .fav-star { position: absolute; top: 15px; right: 15px; font-size: 1.4rem; cursor: pointer; color: var(--text-dim); transition: color 0.2s; }
         .fav-star.active { color: var(--neon-gold); text-shadow: var(--cyber-glow-gold); }
+        .admin-delete-cross { position: absolute; top: 15px; right: 15px; font-size: 1.1rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+        .admin-delete-cross:hover { opacity: 1; text-shadow: 0 0 8px #ff0000; }
         
         /* MINI BARRA DE CALIDAD GOLDEN DISCRETA */
         .quality-container { margin: 10px 0; font-size: 0.75rem; color: var(--text-main); }
@@ -101,6 +103,7 @@
         .btn-cyber { padding: 8px; font-size: 0.75rem; font-weight: bold; border: 1px solid; cursor: pointer; border-radius: 6px; text-align: center; text-transform: uppercase; background: transparent; transition: 0.2s; text-decoration: none; color: #fff;}
         .btn-primary { border-color: var(--neon-green); color: var(--neon-green); grid-column: span 2; }
         .btn-primary:hover { background: rgba(57, 255, 20, 0.1); }
+        .btn-disabled { border-color: var(--text-dim) !important; color: var(--text-dim) !important; cursor: not-allowed !important; opacity: 0.5; }
 
         /* --- NAVBAR INFERIOR MODERNO NEÓN --- */
         .bottom-nav {
@@ -134,14 +137,12 @@
 
     <div id="toast-container"></div>
 
-    <!-- NOTIFICACIÓN DE RECOMENDACIÓN FLOTANTE -->
     <div id="cyber-recommend-popup">
         <button class="rec-close-btn" onclick="closeRecommendation()">✕</button>
         <div style="font-size: 0.7rem; font-weight: bold; color: var(--neon-magenta); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px;">⚡ Recomendación de Élite</div>
         <div id="rec-content-area"></div>
     </div>
 
-    <!-- PANTALLA DE CARGA -->
     <div id="splash-screen">
         <div class="rocket-loader">⚡</div>
         <div id="splash-msg" class="splash-text">ESTABLECIENDO ENLACE CON LA RED...</div>
@@ -163,19 +164,16 @@
         </div>
     </header>
 
-    <!-- CATALOGO -->
     <main id="page-catalogo" class="page-view active">
         <h2>Canales Indexados</h2>
         <div id="catalog-container" class="catalog-grid"></div>
     </main>
 
-    <!-- FAVORITOS -->
     <section id="page-favoritos" class="page-view">
         <h2>Tus Favoritos</h2>
         <div id="favs-container" class="catalog-grid"></div>
     </section>
 
-    <!-- MEMBRESÍA -->
     <section id="page-suscripcion" class="page-view">
         <h2>Membresías GPlus</h2>
         <div class="cyber-form" style="text-align: center;">
@@ -184,18 +182,17 @@
         </div>
     </section>
 
-    <!-- NOTIFICACIONES -->
     <section id="page-notificaciones" class="page-view">
         <h2>Terminal de Mensajes</h2>
         <div id="notifications-container"></div>
     </section>
 
-    <!-- PANEL ADMINISTRACIÓN -->
     <section id="page-admin" class="page-view">
         <h2>Consola del Propietario</h2>
         <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
             <div class="cyber-form">
                 <h3>Vincular Nuevo Canal</h3>
+                <div style="font-size:0.75rem; color:var(--text-dim); margin-bottom:12px;" id="quota-indicator">Cuota disponible: Calculando...</div>
                 <div class="form-group"><input type="text" id="form-canal-titulo" class="form-control" placeholder="Título"></div>
                 <div class="form-group"><input type="text" id="form-canal-handle" class="form-control" placeholder="@HandleTelegram"></div>
                 <div class="form-group">
@@ -213,7 +210,7 @@
                         <option value="Entretenimiento">Entretenimiento</option>
                     </select>
                 </div>
-                <button class="btn-cyber btn-primary" style="width:100%;" onclick="guardarCanal()">Inyectar Canal</button>
+                <button id="btn-inject-action" class="btn-cyber btn-primary" style="width:100%;" onclick="guardarCanal()">Inyectar Canal</button>
             </div>
             <div>
                 <h3>Tus Canales Solicitados</h3>
@@ -222,7 +219,6 @@
         </div>
     </section>
 
-    <!-- NAVEGACIÓN INFERIOR -->
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-catalogo" onclick="switchPage('catalogo')"><i>📢</i><span>Catálogo</span></div>
         <div class="nav-item" id="nav-favoritos" onclick="switchPage('favoritos')"><i>⭐</i><span>Favoritos</span></div>
@@ -388,7 +384,7 @@
                                 <span style="font-size:0.65rem; background:rgba(0, 240, 255, 0.1); color:var(--neon-cyan); padding:1px 5px; border-radius:3px;">📊 ${c.catsub}</span>
                             </div>
                         </div>
-                        ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav('${c.id_canal}')">★</span>` : ''}
+                        ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav('${c.id_canal}')">★</span>` : `<span class="admin-delete-cross" onclick="eliminarCanalAdmin('${c.id_canal}')">❌</span>`}
                     </div>
 
                     <div style="display:flex; align-items:center; gap:6px; margin: 6px 0; font-size:0.78rem;">
@@ -439,11 +435,24 @@
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
         }
 
+        // CONTROL DE ELIMINACIÓN DE CANALES CON RESTRICCIONES DE ESTADO
+        function eliminarCanalAdmin(idCanal) {
+            const canalObj = canales.find(c => c.id_canal === idCanal);
+            if (!canalObj) return;
+
+            if (canalObj.status === "en revisión") {
+                showToast("PROHIBIDO: Canal en fase de revisión activa de red.");
+            } else if (canalObj.status === "publicado" || !canalObj.status) {
+                let payload = `🛑 SOLICITUD DE REMOCIÓN 🛑\n\n👤 USER: ${usuarioActual.username_tg}\n🆔 ID: ${usuarioActual.id_tg}\n📢 CANAL A ELIMINAR: ${canalObj.telegram_handle}\n🔍 ID INTERNO: ${canalObj.id_canal}`;
+                window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
+                showToast("Abriendo pasarela de comunicación con soporte técnico.");
+            }
+        }
+
         // GESTIÓN DINÁMICA DE LA MEMBRESÍA EN EL PANEL DE ADMINISTRACIÓN
         function renderAdminPanel() {
             const container = document.getElementById("user-channels-list"); 
-            container.innerHTML = "";
-
+            
             // Consultar base de datos simulada según ID de Telegram
             const subInfo = REGISTRO_USUARIOS[usuarioActual.id_tg] || { plan: "Gratis (Básico)", inicio: "N/A", fin: "Sin Vencimiento" };
             
@@ -458,6 +467,23 @@
             container.innerHTML = subHtml;
 
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+            
+            // EVALUACIÓN DE RESTRICCIÓN DE CUOTAS DE CREACIÓN
+            const maxPermitido = usuarioActual.isPremium ? 3 : 1;
+            const quotaIndicator = document.getElementById("quota-indicator");
+            const btnInject = document.getElementById("btn-inject-action");
+
+            if (quotaIndicator && btnInject) {
+                quotaIndicator.innerText = `Canales vinculados: ${misCanales.length} / Máximo del Plan: ${maxPermitido}`;
+                if (misCanales.length >= maxPermitido) {
+                    btnInject.classList.add("btn-disabled");
+                    btnInject.innerText = "Límite de Inyecciones Alcanzado";
+                } else {
+                    btnInject.classList.remove("btn-disabled");
+                    btnInject.innerText = "Inyectar Canal";
+                }
+            }
+
             if(!misCanales.length) { 
                 container.innerHTML += "<p style='color:var(--text-dim)'>No hay canales vinculados a tu ID en los registros del servidor.</p>"; 
                 return; 
@@ -466,7 +492,7 @@
             misCanales.forEach(c => {
                 let statusBadge = `<span class="admin-internal-status status-review">Estado: ${c.status || 'en revisión'}</span>`;
                 container.innerHTML += `
-                    <div style="background:#12121f; padding:15px; border-radius:8px; margin-bottom:10px; border: 1px solid #1e1e30;">
+                    <div style="background:#12121f; padding:15px; border-radius:8px; margin-bottom:10px; border: 1px solid #1e1e30; position: relative;">
                         ${statusBadge}
                         ${buildCardHtml(c, true)}
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
@@ -480,6 +506,13 @@
 
         // EL USUARIO INYECTA EL CANAL, PERO ENTRA DIRECTAMENTE "EN REVISIÓN" DE MANERA MANUAL EN EL CÓDIGO INTERNO
         function guardarCanal() {
+            let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+            const maxPermitido = usuarioActual.isPremium ? 3 : 1;
+            
+            if (misCanales.length >= maxPermitido) {
+                return showToast(`Límite excedido. Tu plan actual solo permite ${maxPermitido} canal(es).`);
+            }
+
             const t = document.getElementById("form-canal-titulo").value;
             const h = document.getElementById("form-canal-handle").value;
             const cs = document.getElementById("form-canal-catsub").value;
