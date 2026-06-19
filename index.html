@@ -114,13 +114,20 @@
         .nav-item:hover, .nav-item.active { color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); }
         .nav-item.active i { transform: translateY(-4px); color: var(--neon-cyan); }
 
-        /* --- ADICIONALES ADMIN --- */
+        /* --- ADICIONALES ADMIN Y FILTROS --- */
         .catsub-status-badge { background: #1a1a2e; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
         .cyber-form { background: var(--bg-card); border: 1px solid var(--neon-cyan); padding: 20px; border-radius: 8px; }
         .form-group { margin-bottom: 12px; }
         .form-control { width: 100%; background: #09090f; border: 1px solid #1e1e30; color: #fff; padding: 10px; border-radius: 4px; }
         .admin-internal-status { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; display: inline-block; text-transform: uppercase; margin-top: 4px;}
         .status-review { background: rgba(255, 215, 0, 0.15); color: var(--neon-gold); border: 1px solid var(--neon-gold); }
+
+        /* NUEVOS ELEMENTOS DE MOTOR DE FILTRADO Y TARJETA MEMBRESÍA */
+        .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
+        .filter-btn.active { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
+        .sub-card { background: #12121f; border-left: 4px solid var(--neon-magenta); padding: 15px; margin-bottom: 20px; border-radius: 4px; box-shadow: var(--cyber-glow-magenta); }
     </style>
 </head>
 <body>
@@ -228,6 +235,13 @@
         const MI_USUARIO_TELEGRAM = "ListaGolden";
         const LISTA_PREMIUM_IDS = ["6272829292", "77777777", "99999999"];
 
+        // BASE DE DATOS DE REGISTRO DE SUSCRIPCIONES PREMIUM DE USUARIOS
+        const REGISTRO_USUARIOS = {
+            "6272829292": { plan: "GPlus Premium", inicio: "2026-01-15", fin: "2026-12-31" },
+            "77777777": { plan: "GPlus Premium", inicio: "2026-05-01", fin: "2026-08-01" },
+            "99999999": { plan: "GPlus Premium", inicio: "2026-02-20", fin: "2027-02-20" }
+        };
+
         const SPLASH_MESSAGES = [
             "Buscando trazas de datos cuánticos...", "Sincronizando pasarela con @ListaGolden...",
             "Inyectando neón en las tarjetas...", "Cargando algoritmos de calidad Golden..."
@@ -242,6 +256,7 @@
 
         let canales = [];
         let usuarioActual = { id_tg: "12345678", username_tg: "@Invitado", isPremium: false, favoritos: [] };
+        let filtroActual = "todos"; // Control del estado del filtro de la vista catálogo
 
         window.onload = function() {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe.user) {
@@ -301,26 +316,55 @@
             document.getElementById(`nav-${pageId}`).classList.add('active');
 
             if(pageId === 'favoritos') renderFavoritos();
+            if(pageId === 'catalogo') renderCatalogo();
+            if(pageId === 'admin') renderAdminPanel();
             
             // Cada cambio de sección profunda cuenta como interacción de sesión para la recomendación
             checkSessionForRecommendation(true);
         }
 
+        // MOTOR DE FILTRADO Y CLASIFICACIÓN
         function renderCatalogo() {
             const container = document.getElementById("catalog-container");
-            container.innerHTML = "";
+            container.innerHTML = `
+                <div class="filter-bar" style="grid-column: 1 / -1;">
+                    <button class="filter-btn ${filtroActual === 'todos' ? 'active' : ''}" onclick="aplicarFiltro('todos')">Todos</button>
+                    <button class="filter-btn ${filtroActual === 'destacado' ? 'active' : ''}" onclick="aplicarFiltro('destacado')">⭐ Destacados</button>
+                    <button class="filter-btn ${filtroActual === 'puntuacion' ? 'active' : ''}" onclick="aplicarFiltro('puntuacion')">Mejor Puntuación</button>
+                    <button class="filter-btn ${filtroActual === 'popular' ? 'active' : ''}" onclick="aplicarFiltro('popular')">🔥 Popular</button>
+                </div>
+            `;
 
-            // Mostrar solo los publicados en el catálogo general
-            let publicados = canales.filter(c => c.status === "publicado" || !c.status);
+            // Filtrar solo los publicados
+            let filtrados = canales.filter(c => c.status === "publicado" || !c.status);
 
-            let ordenados = [...publicados].sort((a, b) => {
-                if (a.isDestacado !== b.isDestacado) return b.isDestacado - a.isDestacado;
-                return b.isPremium - a.isPremium;
-            });
+            if (filtroActual === 'destacado') {
+                filtrados = filtrados.filter(c => c.isDestacado);
+            } else if (filtroActual === 'popular') {
+                filtrados = filtrados.filter(c => c.isPopular);
+            } else if (filtroActual === 'puntuacion') {
+                filtrados.sort((a, b) => b.rating - a.rating);
+            } else {
+                // Orden por defecto: Destacados primero, Premium después
+                filtrados.sort((a, b) => {
+                    if (a.isDestacado !== b.isDestacado) return b.isDestacado - a.isDestacado;
+                    return b.isPremium - a.isPremium;
+                });
+            }
 
-            ordenados.forEach(c => {
+            if(filtrados.length === 0) {
+                container.innerHTML += `<p style='color:var(--text-dim); grid-column: 1 / -1;'>No se encontraron canales en este módulo de filtrado.</p>`;
+                return;
+            }
+
+            filtrados.forEach(c => {
                 container.innerHTML += buildCardHtml(c, false);
             });
+        }
+
+        function aplicarFiltro(tipo) {
+            filtroActual = tipo;
+            renderCatalogo();
         }
 
         function buildCardHtml(c, isAdminCard = false) {
@@ -395,10 +439,29 @@
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
         }
 
+        // GESTIÓN DINÁMICA DE LA MEMBRESÍA EN EL PANEL DE ADMINISTRACIÓN
         function renderAdminPanel() {
-            const container = document.getElementById("user-channels-list"); container.innerHTML = "";
+            const container = document.getElementById("user-channels-list"); 
+            container.innerHTML = "";
+
+            // Consultar base de datos simulada según ID de Telegram
+            const subInfo = REGISTRO_USUARIOS[usuarioActual.id_tg] || { plan: "Gratis (Básico)", inicio: "N/A", fin: "Sin Vencimiento" };
+            
+            // Inyectar tarjeta informativa de la membresía GPlus
+            let subHtml = `
+                <div class="sub-card">
+                    <h4 style="color:var(--neon-magenta); margin-bottom: 5px;">Estatus de Membresía Red Golden</h4>
+                    <p style="font-size:0.9rem;">Plan asignado: <strong style="color:var(--neon-cyan);">${subInfo.plan}</strong></p>
+                    <p style="font-size:0.75rem; color:var(--text-dim); margin-top: 4px;">Periodo de validez: ${subInfo.inicio} hasta ${subInfo.fin}</p>
+                </div>
+            `;
+            container.innerHTML = subHtml;
+
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
-            if(!misCanales.length) { container.innerHTML = "<p style='color:var(--text-dim)'>No hay canales vinculados a tu ID.</p>"; return; }
+            if(!misCanales.length) { 
+                container.innerHTML += "<p style='color:var(--text-dim)'>No hay canales vinculados a tu ID en los registros del servidor.</p>"; 
+                return; 
+            }
             
             misCanales.forEach(c => {
                 let statusBadge = `<span class="admin-internal-status status-review">Estado: ${c.status || 'en revisión'}</span>`;
