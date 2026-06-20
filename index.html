@@ -41,7 +41,7 @@
         .cyber-toast { background: rgba(13, 13, 21, 0.95); border: 1px solid var(--neon-cyan); box-shadow: var(--cyber-glow-cyan); color: var(--text-main); padding: 15px; border-radius: 6px; font-size: 0.85rem; transform: translateX(120%); transition: transform 0.3s ease; backdrop-filter: blur(8px); }
         .cyber-toast.show { transform: translateX(0); }
 
-        /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM / DESTACADOS (ESQUINA INFERIOR IZQUIERDA) --- */
+        /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM / DESTACADOS --- */
         #cyber-recommend-popup {
             position: fixed; bottom: 85px; left: 20px; z-index: 1500;
             width: 310px; background: rgba(13, 13, 21, 0.98);
@@ -76,7 +76,7 @@
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         
         /* TARJETA MEJORADA */
-        .card { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: all 0.3s ease; }
+        .card { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
         .card.premium-highlight { border: 2px solid var(--neon-magenta); box-shadow: var(--cyber-glow-magenta); background: linear-gradient(145deg, #0d0d15, #170b1c); }
         
         /* CONTENEDOR DE ETIQUETAS */
@@ -86,15 +86,15 @@
         .badge-destacado { background: var(--neon-gold); color: #000; box-shadow: var(--cyber-glow-gold); }
         .badge-popular { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
 
-        .card-header { display: flex; gap: 12px; margin-bottom: 8px; }
+        .card-header { display: flex; gap: 12px; margin-bottom: 8px; position: relative; }
         .card-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid #2c2c44; }
-        .card-title-area { display: flex; flex-direction: column; justify-content: center; }
-        .fav-star { position: absolute; top: 15px; right: 15px; font-size: 1.4rem; cursor: pointer; color: var(--text-dim); transition: color 0.2s; }
+        .card-title-area { display: flex; flex-direction: column; justify-content: center; padding-right: 25px; }
+        .fav-star { position: absolute; top: 0; right: 0; font-size: 1.4rem; cursor: pointer; color: var(--text-dim); transition: color 0.2s; z-index: 10; }
         .fav-star.active { color: var(--neon-gold); text-shadow: var(--cyber-glow-gold); }
-        .admin-delete-cross { position: absolute; top: 15px; right: 15px; font-size: 1.1rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
+        .admin-delete-cross { position: absolute; top: 0; right: 0; font-size: 1.1rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; z-index: 10; }
         .admin-delete-cross:hover { opacity: 1; text-shadow: 0 0 8px #ff0000; }
         
-        /* MINI BARRA DE CALIDAD GOLDEN DISCRETA */
+        /* MINI BARRA DE CALIDAD */
         .quality-container { margin: 10px 0; font-size: 0.75rem; color: var(--text-main); }
         .quality-bar-bg { width: 100%; height: 5px; background: #1b1b2f; border-radius: 3px; margin-top: 4px; overflow: hidden; }
         .quality-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); width: 0%; }
@@ -105,7 +105,7 @@
         .btn-primary:hover { background: rgba(57, 255, 20, 0.1); }
         .btn-disabled { border-color: var(--text-dim) !important; color: var(--text-dim) !important; cursor: not-allowed !important; opacity: 0.5; }
 
-        /* --- NAVBAR INFERIOR MODERNO NEÓN --- */
+        /* --- NAVBAR INFERIOR MODERNO --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
             background: var(--bg-nav); backdrop-filter: blur(15px);
@@ -117,23 +117,22 @@
         .nav-item:hover, .nav-item.active { color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); }
         .nav-item.active i { transform: translateY(-4px); color: var(--neon-cyan); }
 
-        /* --- ADICIONALES ADMIN Y FILTROS --- */
-        .catsub-status-badge { background: #1a1a2e; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+        /* --- FORMULARIOS Y EXTRA ADMIN --- */
         .cyber-form { background: var(--bg-card); border: 1px solid var(--neon-cyan); padding: 20px; border-radius: 8px; }
         .form-group { margin-bottom: 12px; }
         .form-control { width: 100%; background: #09090f; border: 1px solid #1e1e30; color: #fff; padding: 10px; border-radius: 4px; }
-        .admin-internal-status { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; display: inline-block; text-transform: uppercase; margin-top: 4px;}
+        .admin-internal-status { font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; display: inline-block; text-transform: uppercase; margin-bottom: 8px;}
         .status-review { background: rgba(255, 215, 0, 0.15); color: var(--neon-gold); border: 1px solid var(--neon-gold); }
         .status-published { background: rgba(57, 255, 20, 0.15); color: var(--neon-green); border: 1px solid var(--neon-green); }
 
-        /* NUEVOS ELEMENTOS DE MOTOR DE FILTRADO Y TARJETA MEMBRESÍA */
+        /* MOTOR DE FILTRADO Y SUSCRIPCIÓN */
         .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
         .filter-bar::-webkit-scrollbar { display: none; }
         .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
         .filter-btn.active { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
         .sub-card { background: #12121f; border-left: 4px solid var(--neon-magenta); padding: 15px; margin-bottom: 20px; border-radius: 4px; box-shadow: var(--cyber-glow-magenta); }
 
-        /* ESTILOS INTERNOS NOTIFICACIONES COMPLETA */
+        /* NOTIFICACIONES */
         .noti-item { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; margin-bottom: 12px; position: relative; }
         .noti-item.system-alert { border-left: 3px solid var(--neon-cyan); }
         .noti-time { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; font-style: italic; }
@@ -224,6 +223,18 @@
                         <option value="Entretenimiento">Entretenimiento</option>
                     </select>
                 </div>
+                
+                <div style="font-size: 0.8rem; color: var(--neon-cyan); margin-bottom: 8px; font-weight: bold;">Configuración de Enlaces Opcionales:</div>
+                <div class="form-group">
+                    <input type="text" id="form-canal-url-chat" class="form-control" placeholder="URL Chat de la Comunidad (Ej: https://t.me/TuChat)">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="form-canal-url-bot" class="form-control" placeholder="URL Bot Oficial (Ej: https://t.me/TuBot)">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="form-canal-url-web" class="form-control" placeholder="URL Sitio Web (Ej: https://tuweb.com)">
+                </div>
+
                 <div style="display: flex; gap:10px;">
                     <button id="btn-inject-action" class="btn-cyber btn-primary" style="width:100%;" onclick="guardarCanal()">Inyectar Canal</button>
                     <button id="btn-cancel-edit" class="btn-cyber" style="border-color: var(--text-dim); color: var(--text-dim); display:none;" onclick="resetAdminForm()">Cancelar</button>
@@ -262,13 +273,13 @@
             "Inyectando neón en las tarjetas...", "Cargando algoritmos de calidad Golden..."
         ];
 
-        // Se han añadido las propiedades ad_on, social_chat, bot_oficial y enlace_web con valores mezclados para pruebas
+        // Se corrigieron los datos por defecto para que incluyan rutas completas válidas si las flags están en true
         const DEFAULT_CHANNELS = [
-            { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 98, status: "publicado", ad_on: true, social_chat: true, bot_oficial: false, enlace_web: true },
-            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "11111111", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 84, status: "publicado", ad_on: false, social_chat: true, bot_oficial: true, enlace_web: false },
-            { id_canal: "c3", titulo: "Cyber Hacking Nodes", telegram_handle: "@CyberNodes", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "22222222", catsub: "+100", categoria: "Ciberseguridad", rating: 4.2, resenas: 34, isPopular: false, isPremium: false, isDestacado: true, quality: 72, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false },
-            { id_canal: "c4", titulo: "Lista Golden 🚀", telegram_handle: "@ListaGolden", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+1000", categoria: "Entretenimiento", rating: 4.7, resenas: 15, isPopular: false, isPremium: true, isDestacado: true, quality: 99, status: "publicado", ad_on: true, social_chat: true, bot_oficial: true, enlace_web: true },
-            { id_canal: "c5", titulo: "Indie Gaming Guild", telegram_handle: "@IndieGuild", url_imagen: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&q=80", id_user_telegram_admin: "33333333", catsub: "+100", categoria: "Entretenimiento", rating: 4.0, resenas: 18, isPopular: false, isPremium: false, isDestacado: false, quality: 60, status: "publicado", ad_on: false, social_chat: false, bot_oficial: false, enlace_web: false }
+            { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 98, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
+            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "11111111", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 84, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
+            { id_canal: "c3", titulo: "Cyber Hacking Nodes", telegram_handle: "@CyberNodes", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "22222222", catsub: "+100", categoria: "Ciberseguridad", rating: 4.2, resenas: 34, isPopular: false, isPremium: false, isDestacado: true, quality: 72, status: "publicado", ad_on: true, social_chat: false, url_chat: "", bot_oficial: false, url_bot: "", enlace_web: false, url_web: "" },
+            { id_canal: "c4", titulo: "Lista Golden 🚀", telegram_handle: "@ListaGolden", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+1000", categoria: "Entretenimiento", rating: 4.7, resenas: 15, isPopular: false, isPremium: true, isDestacado: true, quality: 99, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/ListaGoldenChat", bot_oficial: true, url_bot: "https://t.me/ListaGolden_bot", enlace_web: true, url_web: "https://listagolden.com" },
+            { id_canal: "c5", titulo: "Indie Gaming Guild", telegram_handle: "@IndieGuild", url_imagen: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&q=80", id_user_telegram_admin: "33333333", catsub: "+100", categoria: "Entretenimiento", rating: 4.0, resenas: 18, isPopular: false, isPremium: false, isDestacado: false, quality: 60, status: "publicado", ad_on: false, social_chat: false, url_chat: "", bot_oficial: false, url_bot: "", enlace_web: false, url_web: "" }
         ];
 
         let canales = [];
@@ -393,48 +404,53 @@
             if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">⭐ Destacado</span>`;
             if(c.isPopular) badgesHtml += `<span class="tag-badge badge-popular">🔥 Popular</span>`;
 
-            // Lógica de construcción de botones extras condicionales (Regla de Oro)
+            // CORREGIDO: Lógica limpia para construcción de enlaces usando propiedades reales. fallback inteligente si están vacías.
             let extraButtonsHtml = "";
             if (c.ad_on === true) {
                 extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}?text=Deseo%20anunciarme%20en%20el%20canal%20${encodeURIComponent(c.telegram_handle)}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
             }
             if (c.social_chat === true) {
-                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
+                let chatUrl = c.url_chat ? c.url_chat : `https://t.me/${c.telegram_handle.replace('@','')}`;
+                extraButtonsHtml += `<a href="${chatUrl}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
             }
             if (c.bot_oficial === true) {
-                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}_bot" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
+                let botUrl = c.url_bot ? c.url_bot : `https://t.me/${c.telegram_handle.replace('@','')}_bot`;
+                extraButtonsHtml += `<a href="${botUrl}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
             }
             if (c.enlace_web === true) {
-                extraButtonsHtml += `<a href="${c.url_web ? c.url_web : '#'}" target="_blank" class="btn-cyber" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
+                let webUrl = c.url_web ? c.url_web : '#';
+                extraButtonsHtml += `<a href="${webUrl}" target="_blank" class="btn-cyber ${webUrl === '#' ? 'btn-disabled' : ''}" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
             }
 
             return `
                 <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
-                    <div class="badge-row">${badgesHtml}</div>
-                    <div class="card-header">
-                        <img class="card-img" src="${c.url_imagen}" alt="Media">
-                        <div class="card-title-area">
-                            <h4 style="color:#fff; font-size:1.02rem;">${c.titulo}</h4>
-                            <span style="font-size:0.75rem; color:var(--neon-cyan); font-weight:bold;">${c.telegram_handle}</span>
-                            <div style="display:flex; gap:6px; margin-top:4px;">
-                                <span style="font-size:0.65rem; background:#1e1e30; color:#cbd5e1; padding:2px 5px; border-radius:3px;">📂 ${c.categoria || 'General'}</span>
-                                <span style="font-size:0.65rem; background:rgba(0, 240, 255, 0.1); color:var(--neon-cyan); padding:1px 5px; border-radius:3px;">📊 ${c.catsub}</span>
+                    <div>
+                        <div class="badge-row">${badgesHtml}</div>
+                        <div class="card-header">
+                            <img class="card-img" src="${c.url_imagen}" alt="Media">
+                            <div class="card-title-area">
+                                <h4 style="color:#fff; font-size:1.02rem;">${c.titulo}</h4>
+                                <span style="font-size:0.75rem; color:var(--neon-cyan); font-weight:bold;">${c.telegram_handle}</span>
+                                <div style="display:flex; gap:6px; margin-top:4px;">
+                                    <span style="font-size:0.65rem; background:#1e1e30; color:#cbd5e1; padding:2px 5px; border-radius:3px;">📂 ${c.categoria || 'General'}</span>
+                                    <span style="font-size:0.65rem; background:rgba(0, 240, 255, 0.1); color:var(--neon-cyan); padding:1px 5px; border-radius:3px;">📊 ${c.catsub}</span>
+                                </div>
                             </div>
+                            ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav('${c.id_canal}')">★</span>` : `<span class="admin-delete-cross" onclick="eliminarCanalAdmin('${c.id_canal}')">❌</span>`}
                         </div>
-                        ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav('${c.id_canal}')">★</span>` : `<span class="admin-delete-cross" onclick="eliminarCanalAdmin('${c.id_canal}')">❌</span>`}
-                    </div>
 
-                    <div style="display:flex; align-items:center; gap:6px; margin: 6px 0; font-size:0.78rem;">
-                        <span style="color:var(--neon-gold); font-weight:bold;">⭐ ${c.rating ? c.rating.toFixed(1) : '5.0'}</span>
-                        <span style="color:var(--text-dim); font-size:0.7rem;">(${c.resenas || 1} reseñas)</span>
-                    </div>
-                    
-                    <div class="quality-container">
-                        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-dim); margin-bottom:2px;">
-                            <span>Calidad Golden</span>
-                            <span style="color:var(--neon-green); font-weight:bold;">${c.quality}%</span>
+                        <div style="display:flex; align-items:center; gap:6px; margin: 6px 0; font-size:0.78rem;">
+                            <span style="color:var(--neon-gold); font-weight:bold;">⭐ ${c.rating ? c.rating.toFixed(1) : '5.0'}</span>
+                            <span style="color:var(--text-dim); font-size:0.7rem;">(${c.resenas || 1} reseñas)</span>
                         </div>
-                        <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
+                        
+                        <div class="quality-container">
+                            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-dim); margin-bottom:2px;">
+                                <span>Calidad Golden</span>
+                                <span style="color:var(--neon-green); font-weight:bold;">${c.quality}%</span>
+                            </div>
+                            <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
+                        </div>
                     </div>
 
                     <div class="btn-grid">
@@ -520,7 +536,7 @@
             }
             
             misCanales.forEach(c => {
-                let isPub = c.status === "publicado";
+                let isPub = c.status === "publicado" || !c.status;
                 let statusClass = isPub ? "status-published" : "status-review";
                 let statusText = isPub ? "Publicado" : "En Revisión";
                 let statusBadge = `<span class="admin-internal-status ${statusClass}">Estado: ${statusText}</span>`;
@@ -538,6 +554,7 @@
             });
         }
 
+        // CORREGIDO: Ahora carga los campos de URLs opcionales en el formulario al editar
         function cargarCanalParaEditar(idCanal) {
             const c = canales.find(ch => ch.id_canal === idCanal);
             if(!c) return;
@@ -547,6 +564,10 @@
             document.getElementById("form-canal-handle").value = c.telegram_handle;
             document.getElementById("form-canal-catsub").value = c.catsub;
             document.getElementById("form-canal-categoria").value = c.categoria || "IA & Tecnología";
+            
+            document.getElementById("form-canal-url-chat").value = c.url_chat || "";
+            document.getElementById("form-canal-url-bot").value = c.url_bot || "";
+            document.getElementById("form-canal-url-web").value = c.url_web || "";
 
             document.getElementById("admin-form-title").innerText = "Modificar Canal Activo";
             const btnInject = document.getElementById("btn-inject-action");
@@ -561,17 +582,25 @@
             document.getElementById("form-canal-id").value = "";
             document.getElementById("form-canal-titulo").value = "";
             document.getElementById("form-canal-handle").value = "";
+            document.getElementById("form-canal-url-chat").value = "";
+            document.getElementById("form-canal-url-bot").value = "";
+            document.getElementById("form-canal-url-web").value = "";
             document.getElementById("admin-form-title").innerText = "Vincular Nuevo Canal";
             document.getElementById("btn-cancel-edit").style.display = "none";
             renderAdminPanel();
         }
 
+        // CORREGIDO: El guardado procesa y actualiza dinámicamente las propiedades de enlaces condicionales
         function guardarCanal() {
             const editId = document.getElementById("form-canal-id").value;
             const t = document.getElementById("form-canal-titulo").value;
             const h = document.getElementById("form-canal-handle").value;
             const cs = document.getElementById("form-canal-catsub").value;
             const cat = document.getElementById("form-canal-categoria").value;
+            
+            const uChat = document.getElementById("form-canal-url-chat").value.trim();
+            const uBot = document.getElementById("form-canal-url-bot").value.trim();
+            const uWeb = document.getElementById("form-canal-url-web").value.trim();
             
             if(!t || !h) return showToast("Por favor introduce los campos requeridos.");
 
@@ -585,6 +614,16 @@
                     canales[index].telegram_handle = h;
                     canales[index].catsub = cs;
                     canales[index].categoria = cat;
+                    
+                    // Modifica flags basándose en si pusiste texto en las URLs
+                    canales[index].url_chat = uChat;
+                    canales[index].social_chat = uChat !== "";
+                    
+                    canales[index].url_bot = uBot;
+                    canales[index].bot_oficial = uBot !== "";
+                    
+                    canales[index].url_web = uWeb;
+                    canales[index].enlace_web = uWeb !== "";
                     
                     if(exactMatch) {
                         canales[index].status = "publicado";
@@ -629,9 +668,12 @@
                     quality: 75,
                     status: nuevoStatus,
                     ad_on: false,
-                    social_chat: false,
-                    bot_oficial: false,
-                    enlace_web: false
+                    social_chat: uChat !== "",
+                    url_chat: uChat,
+                    bot_oficial: uBot !== "",
+                    url_bot: uBot,
+                    enlace_web: uWeb !== "",
+                    url_web: uWeb
                 };
 
                 canales.push(nuevoCanal);
