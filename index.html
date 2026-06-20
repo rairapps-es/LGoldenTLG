@@ -899,67 +899,75 @@
         }
 
         function renderOrderPanel() {
-            const container = document.getElementById("orders-log-container");
-            if (!container) return;
+    const container = document.getElementById("orders-log-container");
+    if (!container) return;
 
-            if (pedidosBoosters.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-dim); font-size: 0.75rem;">Sin registros de transmisiones pendientes en este ciclo.</p>`;
-                return;
+    if (pedidosBoosters.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-dim); font-size: 0.75rem;">Sin registros de transmisiones pendientes en este ciclo.</p>`;
+        return;
+    }
+
+    let html = "";
+    let dataCambioDetectado = false;
+
+    pedidosBoosters.forEach(o => {
+        const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
+        let isAlreadyActiveInCode = (canalAsociado && canalAsociado[o.booster_key] === true);
+
+        let statusBadge = "";
+        
+        // SOLUCIÓN: Si o.fecha_pedido no existe, usamos la fecha y hora actual como respaldo
+        let fechaPedidoSegura = o.fecha_pedido || new Date().toLocaleString();
+        let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${fechaPedidoSegura}</div>`;
+
+        if (isAlreadyActiveInCode) {
+            statusBadge = `<span class="status-badge-active">ACTIVO</span>`;
+            
+            if (!o.fecha_verificacion_raw) {
+                const ahora = new Date();
+                o.fecha_verificacion_raw = ahora.toISOString();
+                dataCambioDetectado = true;
             }
 
-            let html = "";
-            let dataCambioDetectado = false;
+            const fechaVerif = new Date(o.fecha_verificacion_raw);
+            const fechaFin = new Date(fechaVerif);
+            fechaFin.setDate(fechaFin.getDate() + 30);
 
-            pedidosBoosters.forEach(o => {
-                const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
-                let isAlreadyActiveInCode = (canalAsociado && canalAsociado[o.booster_key] === true);
+            const strVerif = fechaVerif.toLocaleDateString() + " " + fechaVerif.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const strFin = fechaFin.toLocaleDateString() + " " + fechaFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-                let statusBadge = "";
-                let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${o.fecha_pedido}</div>`;
-
-                if (isAlreadyActiveInCode) {
-                    statusBadge = `<span class="status-badge-active">ACTIVO</span>`;
-                    
-                    // Si acaba de ser verificado en el código listado manual, calcular +30 días
-                    if (!o.fecha_verificacion_raw) {
-                        const ahora = new Date();
-                        o.fecha_verificacion_raw = ahora.toISOString();
-                        dataCambioDetectado = true;
-                    }
-
-                    const fechaVerif = new Date(o.fecha_verificacion_raw);
-                    const fechaFin = new Date(fechaVerif);
-                    fechaFin.setDate(fechaFin.getDate() + 30);
-
-                    const strVerif = fechaVerif.toLocaleDateString() + " " + fechaVerif.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    const strFin = fechaFin.toLocaleDateString() + " " + fechaFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                    fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${strVerif}</div>`;
-                    fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${strFin}</div>`;
-                } else {
-                    statusBadge = `<span class="status-badge-process">EN PROCESO</span>`;
-                    fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación en consola...</div>`;
-                }
-
-                html += `
-                    <div class="order-row">
-                        <div>
-                            <strong style="color: #fff;">${o.titulo_booster}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${o.canal_handle}</span>
-                            <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:4px; display:flex; flex-direction:column; gap:2px;">
-                                ${fechasInfoHtml}
-                                <span style="font-size:0.6rem; color:#475569; margin-top:2px;">Vía ${o.metodo_pago} (${o.precio})</span>
-                            </div>
-                        </div>
-                        <div>${statusBadge}</div>
-                    </div>
-                `;
-            });
-
-            if (dataCambioDetectado) {
-                localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
-            }
-            container.innerHTML = html;
+            fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${strVerif}</div>`;
+            fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${strFin}</div>`;
+        } else {
+            statusBadge = `<span class="status-badge-process">EN PROCESO</span>`;
+            fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación en consola...</div>`;
         }
+
+        // Respaldo para evitar 'undefined' en otros campos clave
+        let tituloSeguro = o.titulo_booster || "Potenciador";
+        let handleSeguro = o.canal_handle || "@canal";
+        let metodoPagoSeguro = o.metodo_pago || "Manual";
+        let precioSeguro = o.precio || o.price || "N/A"; // Revisa si tu objeto usa 'price' en inglés
+
+        html += `
+            <div class="order-row">
+                <div>
+                    <strong style="color: #fff;">${tituloSeguro}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${handleSeguro}</span>
+                    <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:4px; display:flex; flex-direction:column; gap:2px;">
+                        ${fechasInfoHtml}
+                        <span style="font-size:0.6rem; color:#475569; margin-top:2px;">Vía ${metodoPagoSeguro} (${precioSeguro})</span>
+                    </div>
+                </div>
+                <div>${statusBadge}</div>
+            </div>
+        `;
+    });
+
+    if (dataCambioDetectado) {
+        localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
+    }
+    container.innerHTML = html;
+}
         /* --- FIN SECCIÓN TIENDA --- */
 
         function cargarCanalParaEditar(idCanal) {
