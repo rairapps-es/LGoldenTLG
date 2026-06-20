@@ -234,10 +234,9 @@
                 <div id="user-channels-list"></div>
             </div>
         </div>
-        <button class="btn-cyber" style="border-color: #ff0055; color: #ff0055; margin-bottom: 20px; width: 100%;" onclick="resetBaseDeDatos()">
-    🚨 COMPLETO: Resetear Matriz de Datos
-</button>
-
+        <button class="btn-cyber" style="border-color: #ff0055; color: #ff0055; margin-top: 20px; margin-bottom: 20px; width: 100%;" onclick="resetBaseDeDatos()">
+            🚨 COMPLETO: Resetear Matriz de Datos
+        </button>
     </section>
 
     <nav class="bottom-nav">
@@ -263,12 +262,13 @@
             "Inyectando neón en las tarjetas...", "Cargando algoritmos de calidad Golden..."
         ];
 
+        // Se han añadido las propiedades ad_on, social_chat, bot_oficial y enlace_web con valores mezclados para pruebas
         const DEFAULT_CHANNELS = [
-            { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 98, status: "publicado" },
-            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "11111111", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 84, status: "publicado" },
-            { id_canal: "c3", titulo: "Cyber Hacking Nodes", telegram_handle: "@CyberNodes", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "22222222", catsub: "+100", categoria: "Ciberseguridad", rating: 4.2, resenas: 34, isPopular: false, isPremium: false, isDestacado: true, quality: 72, status: "publicado" },
-            { id_canal: "c4", titulo: "Lista Golden 🚀", telegram_handle: "@ListaGolden", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+1000", categoria: "Entretenimiento", rating: 4.7, resenas: 15, isPopular: false, isPremium: true, isDestacado: true, quality: 99, status: "publicado" },
-            { id_canal: "c5", titulo: "Indie Gaming Guild", telegram_handle: "@IndieGuild", url_imagen: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&q=80", id_user_telegram_admin: "33333333", catsub: "+100", categoria: "Entretenimiento", rating: 4.0, resenas: 18, isPopular: false, isPremium: false, isDestacado: false, quality: 60, status: "publicado" }
+            { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 98, status: "publicado", ad_on: true, social_chat: true, bot_oficial: false, enlace_web: true },
+            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "11111111", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 84, status: "publicado", ad_on: false, social_chat: true, bot_oficial: true, enlace_web: false },
+            { id_canal: "c3", titulo: "Cyber Hacking Nodes", telegram_handle: "@CyberNodes", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "22222222", catsub: "+100", categoria: "Ciberseguridad", rating: 4.2, resenas: 34, isPopular: false, isPremium: false, isDestacado: true, quality: 72, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false },
+            { id_canal: "c4", titulo: "Lista Golden 🚀", telegram_handle: "@ListaGolden", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+1000", categoria: "Entretenimiento", rating: 4.7, resenas: 15, isPopular: false, isPremium: true, isDestacado: true, quality: 99, status: "publicado", ad_on: true, social_chat: true, bot_oficial: true, enlace_web: true },
+            { id_canal: "c5", titulo: "Indie Gaming Guild", telegram_handle: "@IndieGuild", url_imagen: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&q=80", id_user_telegram_admin: "33333333", catsub: "+100", categoria: "Entretenimiento", rating: 4.0, resenas: 18, isPopular: false, isPremium: false, isDestacado: false, quality: 60, status: "publicado", ad_on: false, social_chat: false, bot_oficial: false, enlace_web: false }
         ];
 
         let canales = [];
@@ -393,6 +393,21 @@
             if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">⭐ Destacado</span>`;
             if(c.isPopular) badgesHtml += `<span class="tag-badge badge-popular">🔥 Popular</span>`;
 
+            // Lógica de construcción de botones extras condicionales (Regla de Oro)
+            let extraButtonsHtml = "";
+            if (c.ad_on === true) {
+                extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}?text=Deseo%20anunciarme%20en%20el%20canal%20${encodeURIComponent(c.telegram_handle)}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
+            }
+            if (c.social_chat === true) {
+                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
+            }
+            if (c.bot_oficial === true) {
+                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}_bot" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
+            }
+            if (c.enlace_web === true) {
+                extraButtonsHtml += `<a href="${c.url_web ? c.url_web : '#'}" target="_blank" class="btn-cyber" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
+            }
+
             return `
                 <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
                     <div class="badge-row">${badgesHtml}</div>
@@ -424,6 +439,7 @@
 
                     <div class="btn-grid">
                         <a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary">Entrar al Canal</a>
+                        ${extraButtonsHtml}
                     </div>
                 </div>
             `;
@@ -611,7 +627,11 @@
                     isPremium: usuarioActual.isPremium, 
                     isDestacado: false, 
                     quality: 75,
-                    status: nuevoStatus
+                    status: nuevoStatus,
+                    ad_on: false,
+                    social_chat: false,
+                    bot_oficial: false,
+                    enlace_web: false
                 };
 
                 canales.push(nuevoCanal);
@@ -743,28 +763,25 @@
         function closeRecommendation() {
             document.getElementById("cyber-recommend-popup").classList.remove("show");
         }
-        function resetBaseDeDatos() {
-    if (confirm("⚠️ ¿Estás seguro de que deseas purgar TODA la memoria local de la app?")) {
-        // Elimina las claves globales
-        localStorage.removeItem("golden_canales");
-        localStorage.removeItem("golden_notificaciones");
-        localStorage.removeItem("golden_notificaciones_historico");
-        localStorage.removeItem("golden_session_clicks");
-        
-        // Elimina el registro de favoritos específico del usuario actual
-        if (usuarioActual && usuarioActual.id_tg) {
-            localStorage.removeItem(`favs_${usuarioActual.id_tg}`);
-        }
-        
-        showToast("Memoria purgada. Reiniciando terminal...");
-        
-        // Recarga la página inmediatamente para restaurar los valores por defecto
-        setTimeout(() => {
-            window.location.reload();
-        }, 1500);
-    }
-}
 
+        function resetBaseDeDatos() {
+            if (confirm("⚠️ ¿Estás seguro de que deseas purgar TODA la memoria local de la app?")) {
+                localStorage.removeItem("golden_canales");
+                localStorage.removeItem("golden_notificaciones");
+                localStorage.removeItem("golden_notificaciones_historico");
+                localStorage.removeItem("golden_session_clicks");
+                
+                if (usuarioActual && usuarioActual.id_tg) {
+                    localStorage.removeItem(`favs_${usuarioActual.id_tg}`);
+                }
+                
+                showToast("Memoria purgada. Reiniciando terminal...");
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+        }
     </script>
 </body>
 </html>
