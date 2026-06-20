@@ -26,7 +26,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, monospace; }
         body { background-color: var(--bg-matrix); color: var(--text-main); padding-bottom: 80px; overflow-x: hidden; }
 
-        /* --- PANTALLA DE CARGA (3 SEGUNDOS ESTRICTOS) --- */
+        /* --- PANTALLA DE CARGA --- */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: var(--bg-matrix); z-index: 9999;
@@ -42,7 +42,7 @@
         .cyber-toast { background: rgba(13, 13, 21, 0.95); border: 1px solid var(--neon-cyan); box-shadow: var(--cyber-glow-cyan); color: var(--text-main); padding: 15px; border-radius: 6px; font-size: 0.85rem; transform: translateX(120%); transition: transform 0.3s ease; backdrop-filter: blur(8px); }
         .cyber-toast.show { transform: translateX(0); }
 
-        /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM / DESTACADOS --- */
+        /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
         #cyber-recommend-popup {
             position: fixed; bottom: 85px; left: 20px; z-index: 1500;
             width: 310px; background: rgba(13, 13, 21, 0.98);
@@ -104,9 +104,9 @@
         .btn-cyber { padding: 8px; font-size: 0.75rem; font-weight: bold; border: 1px solid; cursor: pointer; border-radius: 6px; text-align: center; text-transform: uppercase; background: transparent; transition: 0.2s; text-decoration: none; color: #fff;}
         .btn-primary { border-color: var(--neon-green); color: var(--neon-green); grid-column: span 2; }
         .btn-primary:hover { background: rgba(57, 255, 20, 0.1); }
-        .btn-disabled { border-color: var(--text-dim) !important; color: var(--text-dim) !important; cursor: not-allowed !important; opacity: 0.5; }
+        .btn-disabled { border-color: var(--text-dim) !important; color: var(--text-dim) !important; cursor: not-allowed !important; opacity: 0.4; }
 
-        /* --- NAVBAR INFERIOR MODERNO --- */
+        /* --- NAVBAR INFERIOR --- */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 65px;
             background: var(--bg-nav); backdrop-filter: blur(15px);
@@ -118,7 +118,7 @@
         .nav-item:hover, .nav-item.active { color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); }
         .nav-item.active i { transform: translateY(-4px); color: var(--neon-cyan); }
 
-        /* --- FORMULARIOS Y EXTRA ADMIN --- */
+        /* --- FORMULARIOS --- */
         .cyber-form { background: var(--bg-card); border: 1px solid var(--neon-cyan); padding: 20px; border-radius: 8px; }
         .form-group { margin-bottom: 12px; }
         .form-control { width: 100%; background: #09090f; border: 1px solid #1e1e30; color: #fff; padding: 10px; border-radius: 4px; }
@@ -126,7 +126,7 @@
         .status-review { background: rgba(255, 215, 0, 0.15); color: var(--neon-gold); border: 1px solid var(--neon-gold); }
         .status-published { background: rgba(57, 255, 20, 0.15); color: var(--neon-green); border: 1px solid var(--neon-green); }
 
-        /* MOTOR DE FILTRADO Y SUSCRIPCIÓN */
+        /* MOTOR DE FILTRADO */
         .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
         .filter-bar::-webkit-scrollbar { display: none; }
         .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
@@ -145,7 +145,7 @@
         .btn-noti-del { border-color: var(--neon-magenta); color: var(--neon-magenta); }
         .btn-noti-del:hover { background: rgba(255, 0, 127, 0.1); }
 
-        /* --- TIENDA DE POTENCIADORES GAMIFICADA --- */
+        /* --- TIENDA DE POTENCIADORES --- */
         .booster-category { margin-bottom: 30px; background: rgba(20, 20, 35, 0.4); padding: 15px; border-radius: 12px; border: 1px dashed rgba(0, 240, 255, 0.2); }
         .category-title { color: var(--neon-magenta); font-size: 1.1rem; text-shadow: var(--cyber-glow-magenta); margin-bottom: 15px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
         
@@ -197,10 +197,10 @@
 
         /* PANEL DE PEDIDOS */
         .order-panel { margin-top: 25px; background: #09090f; border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; }
-        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #141424; font-size: 0.8rem; }
+        .order-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #141424; font-size: 0.8rem; }
         .order-row:last-child { border-bottom: none; }
-        .status-badge-process { background: rgba(255, 215, 0, 0.2); color: var(--neon-gold); border: 1px solid var(--neon-gold); padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; }
-        .status-badge-active { background: rgba(57, 255, 20, 0.2); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; box-shadow: var(--cyber-glow-green); }
+        .status-badge-process { background: rgba(255, 215, 0, 0.15); color: var(--neon-gold); border: 1px solid var(--neon-gold); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; letter-spacing: 0.5px; }
+        .status-badge-active { background: rgba(57, 255, 20, 0.15); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; box-shadow: var(--cyber-glow-green); letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -260,7 +260,7 @@
                 </div>
                 <div class="booster-actions">
                     <div class="cyber-power-core">Desactivado</div>
-                    <button class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('isDestacado', 'Filtro Catálogo Destacado', '15 USD', 'Posicionamiento superior fijo + Filtro estrella premium')">Modificar</button>
+                    <button id="btn-booster-isDestacado" class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('isDestacado', 'Filtro Catálogo Destacado', '15 USD', 'Posicionamiento superior fijo + Filtro estrella premium')">Modificar</button>
                 </div>
             </div>
 
@@ -271,7 +271,7 @@
                 </div>
                 <div class="booster-actions">
                     <div class="cyber-power-core">Desactivado</div>
-                    <button class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('ad_on', 'Ads On Plus', '10 USD', 'Inyección de botón publicitario directo monetizable')">Modificar</button>
+                    <button id="btn-booster-ad_on" class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('ad_on', 'Ads On Plus', '10 USD', 'Inyección de botón publicitario directo monetizable')">Modificar</button>
                 </div>
             </div>
         </div>
@@ -286,7 +286,7 @@
                 </div>
                 <div class="booster-actions">
                     <div class="cyber-power-core">Desactivado</div>
-                    <button class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('enlace_web', 'Enlace Web Externo', '8 USD', 'Botón de redirección web externa de alta conversión')">Modificar</button>
+                    <button id="btn-booster-enlace_web" class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('enlace_web', 'Enlace Web Externo', '8 USD', 'Botón de redirección web externa de alta conversión')">Modificar</button>
                 </div>
             </div>
         </div>
@@ -301,7 +301,7 @@
                 </div>
                 <div class="booster-actions">
                     <div class="cyber-power-core">Desactivado</div>
-                    <button class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('bot_oficial', 'Bot Oficial Interconectado', '12 USD', 'Enlace directo a bot automatizado de Telegram')">Modificar</button>
+                    <button id="btn-booster-bot_oficial" class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('bot_oficial', 'Bot Oficial Interconectado', '12 USD', 'Enlace directo a bot automatizado de Telegram')">Modificar</button>
                 </div>
             </div>
 
@@ -312,7 +312,7 @@
                 </div>
                 <div class="booster-actions">
                     <div class="cyber-power-core">Desactivado</div>
-                    <button class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('social_chat', 'Chat de la Comunidad', '7 USD', 'Redirección a grupo de Telegram nativo asociado')">Modificar</button>
+                    <button id="btn-booster-social_chat" class="btn-cyber btn-primary" style="font-size: 0.7rem; padding: 4px 10px;" onclick="openBoosterModal('social_chat', 'Chat de la Comunidad', '7 USD', 'Redirección a grupo de Telegram nativo asociado')">Modificar</button>
                 </div>
             </div>
         </div>
@@ -487,6 +487,9 @@
             if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
             canales = JSON.parse(localStorage.getItem("golden_canales"));
 
+            // --- APLICACIÓN REGLA DE ORO DE SESIÓN (PREMIUM PREDETERMINADO) ---
+            aplicarReglaOroPremium();
+
             if (!localStorage.getItem("golden_notificaciones")) localStorage.setItem("golden_notificaciones", JSON.stringify([]));
             notificaciones = JSON.parse(localStorage.getItem("golden_notificaciones"));
 
@@ -508,6 +511,19 @@
             renderPotenciadores();
             checkSessionForRecommendation();
         };
+
+        // Regla de Oro: Forzar Destacado para usuarios Premium en su primer canal asociado
+        function aplicarReglaOroPremium() {
+            if (usuarioActual.isPremium) {
+                let primerCanalPropio = canales.find(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+                if (primerCanalPropio) {
+                    if (primerCanalPropio.isDestacado !== true) {
+                        primerCanalPropio.isDestacado = true;
+                        localStorage.setItem("golden_canales", JSON.stringify(canales));
+                    }
+                }
+            }
+        }
 
         function showToast(msg) {
             const container = document.getElementById("toast-container");
@@ -717,7 +733,7 @@
             });
         }
 
-        /* --- MOTOR DINÁMICO DE POTENCIADORES (REGLA DE ORO CENTRAL) --- */
+        /* --- MOTOR DINÁMICO DE POTENCIADORES (REGLA DE ORO INTEGRADA) --- */
         function populateBoosterSelectors() {
             const mainSelector = document.getElementById("booster-channel-selector");
             const modalSelector = document.getElementById("m-booster-channel");
@@ -755,6 +771,7 @@
             
             boostersKeys.forEach(key => {
                 const card = document.getElementById(`booster-card-${key}`);
+                const button = document.getElementById(`btn-booster-${key}`);
                 if (!card) return;
 
                 const coreStatus = card.querySelector(".cyber-power-core");
@@ -764,12 +781,46 @@
                     isActive = !!canalObj[key];
                 }
 
+                // Bloqueo Anti-Duplicados y Regla de Oro Premium
+                let estaEnProceso = pedidosBoosters.some(p => p.id_canal === canalObj?.id_canal && p.booster_key === key);
+
                 if (isActive) {
                     card.className = "booster-card active-core";
                     if (coreStatus) coreStatus.innerText = "ACTIVO ⚡";
+                    
+                    if (button) {
+                        // Regla de Oro: Si es Premium y es isDestacado, no se puede cambiar/desactivar
+                        if (usuarioActual.isPremium && key === "isDestacado" && canalObj.id_user_telegram_admin === usuarioActual.id_tg) {
+                            button.className = "btn-cyber btn-disabled";
+                            button.innerText = "Fijo Premium 💎";
+                            button.onclick = null;
+                        } else {
+                            button.className = "btn-cyber btn-disabled";
+                            button.innerText = "Ya Activado";
+                            button.onclick = null;
+                        }
+                    }
+                } else if (estaEnProceso) {
+                    card.className = "booster-card inactive-core";
+                    if (coreStatus) coreStatus.innerText = "VERIFICANDO ⏳";
+                    if (button) {
+                        button.className = "btn-cyber btn-disabled";
+                        button.innerText = "En Proceso";
+                        button.onclick = null;
+                    }
                 } else {
                     card.className = "booster-card inactive-core";
-                    if (coreStatus) coreStatus.innerText = "Inactivo";
+                    if (coreStatus) coreStatus.innerText = "Desactivado";
+                    if (button) {
+                        button.className = "btn-cyber btn-primary";
+                        button.innerText = "Modificar";
+                        button.onclick = (e) => {
+                            let nameMap = { "isDestacado": "Filtro Catálogo Destacado", "ad_on": "Ads On Plus", "enlace_web": "Enlace Web Externo", "bot_oficial": "Bot Oficial Interconectado", "social_chat": "Chat de la Comunidad" };
+                            let priceMap = { "isDestacado": "15 USD", "ad_on": "10 USD", "enlace_web": "8 USD", "bot_oficial": "12 USD", "social_chat": "7 USD" };
+                            let benefitMap = { "isDestacado": "Posicionamiento superior fijo", "ad_on": "Inyección de botón publicitario", "enlace_web": "Botón de redirección web", "bot_oficial": "Enlace directo a bot", "social_chat": "Redirección a grupo de debate" };
+                            openBoosterModal(key, nameMap[key], priceMap[key], benefitMap[key]);
+                        };
+                    }
                 }
             });
         }
@@ -784,8 +835,6 @@
             document.getElementById("m-booster-title").innerText = `Inyectar: ${name}`;
             document.getElementById("m-booster-price").innerText = price;
             document.getElementById("m-booster-benefits").innerText = benefits;
-            
-            // Forzar Sincronización del selector del modal con la tienda
             document.getElementById("m-booster-channel").value = selector.value;
 
             document.getElementById("booster-modal").style.display = "flex";
@@ -805,16 +854,24 @@
             if(!canalId) return showToast("Por favor selecciona un canal válido.");
 
             const canalObj = canales.find(c => c.id_canal === canalId);
+            
+            // Seguridad Extra Anti-Duplicación
+            let duplicado = pedidosBoosters.some(p => p.id_canal === canalId && p.booster_key === key);
+            if (duplicado || canalObj[key] === true) {
+                closeBoosterModal();
+                return showToast("Operación denegada: Este canal ya posee una transmisión activa.");
+            }
+
             const ahora = new Date();
             const timestamp = ahora.toLocaleDateString() + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-            // Crear el registro de pedido local
             const nuevoPedido = {
                 id_pedido: "order_" + Date.now(),
                 id_canal: canalId,
                 booster_key: key,
                 titulo_booster: document.getElementById("m-booster-title").innerText.replace("Inyectar: ", ""),
-                fecha: timestamp,
+                fecha_pedido: timestamp,
+                fecha_verificacion_raw: null, 
                 canal_handle: canalObj.telegram_handle,
                 precio: price,
                 metodo_pago: payment
@@ -823,11 +880,10 @@
             pedidosBoosters.unshift(nuevoPedido);
             localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
             
-            showToast("Transmisión de pedido guardada en local. Abriendo canal privado...");
+            showToast("Transmisión registrada como EN PROCESO. Abriendo canal privado...");
             closeBoosterModal();
             renderPotenciadores();
 
-            // Desplegar payload formal hacia Telegram
             let payload = `⚡ NUEVA SOLICITUD DE POTENCIADOR ⚡\n\n` +
                           `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
                           `🆔 ID USUARIO: ${usuarioActual.id_tg}\n` +
@@ -852,29 +908,56 @@
             }
 
             let html = "";
-            pedidosBoosters.forEach(o => {
-                // REGLA DE ORO AUTOMÁTICA: Verificar si el potenciador ya fue encendido en el código
-                const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
-                let isAlreadyActiveInCode = false;
-                
-                if (canalAsociado && canalAsociado[o.booster_key] === true) {
-                    isAlreadyActiveInCode = true;
-                }
+            let dataCambioDetectado = false;
 
-                const statusBadge = isAlreadyActiveInCode 
-                    ? `<span class="status-badge-active">ACTIVO</span>` 
-                    : `<span class="status-badge-process">EN PROCESO</span>`;
+            pedidosBoosters.forEach(o => {
+                const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
+                let isAlreadyActiveInCode = (canalAsociado && canalAsociado[o.booster_key] === true);
+
+                let statusBadge = "";
+                let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${o.fecha_pedido}</div>`;
+
+                if (isAlreadyActiveInCode) {
+                    statusBadge = `<span class="status-badge-active">ACTIVO</span>`;
+                    
+                    // Si acaba de ser verificado en el código listado manual, calcular +30 días
+                    if (!o.fecha_verificacion_raw) {
+                        const ahora = new Date();
+                        o.fecha_verificacion_raw = ahora.toISOString();
+                        dataCambioDetectado = true;
+                    }
+
+                    const fechaVerif = new Date(o.fecha_verificacion_raw);
+                    const fechaFin = new Date(fechaVerif);
+                    fechaFin.setDate(fechaFin.getDate() + 30);
+
+                    const strVerif = fechaVerif.toLocaleDateString() + " " + fechaVerif.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const strFin = fechaFin.toLocaleDateString() + " " + fechaFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${strVerif}</div>`;
+                    fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${strFin}</div>`;
+                } else {
+                    statusBadge = `<span class="status-badge-process">EN PROCESO</span>`;
+                    fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación en consola...</div>`;
+                }
 
                 html += `
                     <div class="order-row">
                         <div>
                             <strong style="color: #fff;">${o.titulo_booster}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${o.canal_handle}</span>
-                            <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:2px;">📅 ${o.fecha} | Vía ${o.metodo_pago} (${o.precio})</div>
+                            <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:4px; display:flex; flex-direction:column; gap:2px;">
+                                ${fechasInfoHtml}
+                                <span style="font-size:0.6rem; color:#475569; margin-top:2px;">Vía ${o.metodo_pago} (${o.precio})</span>
+                            </div>
                         </div>
                         <div>${statusBadge}</div>
                     </div>
                 `;
             });
+
+            if (dataCambioDetectado) {
+                localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
+            }
             container.innerHTML = html;
         }
         /* --- FIN SECCIÓN TIENDA --- */
@@ -982,7 +1065,7 @@
                     resenas: 1,
                     isPopular: false, 
                     isPremium: usuarioActual.isPremium, 
-                    isDestacado: false, 
+                    isDestacado: usuarioActual.isPremium, // Se activa por defecto si es Premium
                     quality: 75,
                     status: nuevoStatus,
                     ad_on: false,
@@ -1111,6 +1194,18 @@
 
         function closeRecommendation() {
             document.getElementById("cyber-recommend-popup").classList.remove("show");
+        }
+
+        // Para simulación y desarrollo rápido en consola manual de cambios
+        function __simularVerificacionAdminEnCodigo(canalId, key, valor) {
+            let idx = canales.findIndex(c => c.id_canal === canalId);
+            if (idx !== -1) {
+                canales[idx][key] = valor;
+                localStorage.setItem("golden_canales", JSON.stringify(canales));
+                renderPotenciadores();
+                renderCatalogo();
+                showToast("Simulación: Canal modificado en listado manual.");
+            }
         }
 
         function resetBaseDeDatos() {
