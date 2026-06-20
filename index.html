@@ -234,6 +234,10 @@
                 <div id="user-channels-list"></div>
             </div>
         </div>
+        <button class="btn-cyber" style="border-color: #ff0055; color: #ff0055; margin-bottom: 20px; width: 100%;" onclick="resetBaseDeDatos()">
+    🚨 COMPLETO: Resetear Matriz de Datos
+</button>
+
     </section>
 
     <nav class="bottom-nav">
@@ -739,6 +743,28 @@
         function closeRecommendation() {
             document.getElementById("cyber-recommend-popup").classList.remove("show");
         }
+        function resetBaseDeDatos() {
+    if (confirm("⚠️ ¿Estás seguro de que deseas purgar TODA la memoria local de la app?")) {
+        // Elimina las claves globales
+        localStorage.removeItem("golden_canales");
+        localStorage.removeItem("golden_notificaciones");
+        localStorage.removeItem("golden_notificaciones_historico");
+        localStorage.removeItem("golden_session_clicks");
+        
+        // Elimina el registro de favoritos específico del usuario actual
+        if (usuarioActual && usuarioActual.id_tg) {
+            localStorage.removeItem(`favs_${usuarioActual.id_tg}`);
+        }
+        
+        showToast("Memoria purgada. Reiniciando terminal...");
+        
+        // Recarga la página inmediatamente para restaurar los valores por defecto
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    }
+}
+
     </script>
 </body>
 </html>
