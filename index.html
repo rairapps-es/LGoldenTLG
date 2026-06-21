@@ -504,35 +504,16 @@
 
     <script>
         const MI_USUARIO_TELEGRAM = "Airdayz";
+        const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
 
-// Base de datos de suscriptores (Los IDs son las llaves)
-// Asegúrate de que esto esté arriba de window.onload
-const REGISTRO_PREMIUM = {
-    "1320417199": {
-        nombre: "Neuromante",
-        fechaInicio: "2026-06-01",
-        fechaFin: "2026-07-01",
-        duracion: "Mensual",
-        activado: true,
-        estadoPago: "Pagado"
-    },
-    "77777777": {
-        nombre: "UsuarioAlpha",
-        fechaInicio: "2026-05-15",
-        fechaFin: "2026-08-15",
-        duracion: "Trimestral",
-        activado: true,
-        estadoPago: "Pagado"
-    }
-};
-// Variable que contendrá los datos del usuario logueado actualmente
-let variablesMembresia = {
-    fechaInicio: "-",
-    fechaFin: "-",
-    duracion: "N/A",
-    activado: false,
-    estadoPago: "No suscrito"
-};
+        // VARIABLES MANUALES DE CONFIGURACIÓN DE MEMBRESÍA
+        let variablesMembresia = {
+            fechaInicio: "2026-06-01",
+            fechaFin: "2026-07-01",
+            duracion: "Mensual", // "Mensual" o "Anual"
+            activado: true,      // true o false
+            estadoPago: "Pagado" // "Pagado", "Esperando el pago" o "Comprobando el pago"
+        };
 
         const BD_MENSAJES_PREDEFINIDOS = [
             { id_msg: "m1", user_id_target: "1320417199", titulo: "Actualización de Canal Exitosa", cuerpo: "Tu núcleo 'Neural AI Network' ha completado el ciclo de indexación algorítmica.", tema: "Sistema" },
@@ -594,36 +575,8 @@ let variablesMembresia = {
 
             if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
 
-            // --- LÓGICA DE SINCRONIZACIÓN DE MEMBRESÍA ---
-const datosUsuario = REGISTRO_PREMIUM[usuarioActual.id_tg];
-
-if (datosUsuario) {
-    // Si el usuario existe en el registro, cargamos sus datos
-    variablesMembresia = { ...datosUsuario };
-    
-    // Verificación automática de expiración
-    const hoy = new Date();
-    const fechaFin = new Date(variablesMembresia.fechaFin);
-    
-    if (hoy > fechaFin) {
-        variablesMembresia.activado = false;
-        variablesMembresia.estadoPago = "Expirado";
-    }
-    
-    usuarioActual.isPremium = variablesMembresia.activado;
-} else {
-    // Si no es premium
-    usuarioActual.isPremium = false;
-}
-            // --- BLOQUE DE INICIALIZACIÓN CORREGIDO ---
-if (!localStorage.getItem("golden_canales_v2")) { 
-    // Si no existe la versión v2, sobrescribimos con los datos limpios de DEFAULT_CHANNELS
-    localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
-    // Marcamos que ya hicimos la limpieza para no volver a resetearlo
-    localStorage.setItem("golden_canales_v2", "true");
-}
-canales = JSON.parse(localStorage.getItem("golden_canales"));
-// ------------------------------------------
+            if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+            canales = JSON.parse(localStorage.getItem("golden_canales"));
 
             if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
             usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
@@ -667,25 +620,9 @@ canales = JSON.parse(localStorage.getItem("golden_canales"));
         }
 
         function triggerSplash() {
-    const screen = document.getElementById("splash-screen");
-    if (!screen) return; // Seguridad extra por si no existe el elemento
-
-    // Transición suave
-    screen.style.opacity = "0";
-    
-    // Eliminamos el elemento del DOM tras la transición para liberar memoria
-    setTimeout(() => {
-        screen.style.display = "none";
-    }, 500);
-}
-// --- MECANISMO DE SEGURIDAD (Si el código falla, quita el splash a los 5 segundos) ---
-setTimeout(() => {
-    const screen = document.getElementById("splash-screen");
-    if (screen && screen.style.display !== "none") {
-        console.warn("El splash fue forzado por timeout de seguridad.");
-        screen.style.display = "none";
-    }
-}, 5000);
+            const screen = document.getElementById("splash-screen");
+            setTimeout(() => { screen.style.opacity = "0"; setTimeout(() => screen.style.display = "none", 500); }, 1000);
+        }
 
         function switchPage(pageId) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
