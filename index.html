@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -42,18 +42,19 @@
         .cyber-toast { background: rgba(13, 13, 21, 0.95); border: 1px solid var(--neon-cyan); box-shadow: var(--cyber-glow-cyan); color: var(--text-main); padding: 15px; border-radius: 6px; font-size: 0.85rem; transform: translateX(120%); transition: transform 0.3s ease; backdrop-filter: blur(8px); }
         .cyber-toast.show { transform: translateX(0); }
 
-        /* --- CORRECCIÓN: ESTILOS DE LOS SLIDERS AUTOMÁTICOS --- */
+        /* --- SLIDERS DESLIZANTES NATIVOS --- */
         .slider-section { margin: 20px 0; overflow: hidden; }
         .slider-container {
             display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth;
             padding: 10px 5px; white-space: nowrap; scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
         .slider-container::-webkit-scrollbar { display: none; }
         .slider-card { flex: 0 0 285px; display: inline-block; vertical-align: top; }
         
         .user-premium-card {
             background: var(--bg-card); border: 1px solid #161625; border-radius: 10px;
-            padding: 12px; display: flex; flex-direction: column; gap: 8px;
+            padding: 12px; display: flex; flex-direction: column; gap: 8px; white-space: normal;
         }
         .user-card-top { display: flex; justify-content: space-between; align-items: center; }
         .user-stars-donor { color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); font-size: 0.8rem; }
@@ -391,10 +392,10 @@
         ];
 
         const TIENDA_POTENCIADORES = [
-            { key: "ad_on", nombre: "Contratar Destacado (Ad-On)", desc: "Aparece fijado arriba en las búsquedas y añade el botón de Anunciarse." },
-            { key: "social_chat", nombre: "Botón Extra Chat Comunidad", desc: "Vincula un botón directo al chat grupal de tu comunidad." },
-            { key: "bot_oficial", nombre: "Botón Extra Bot Oficial", desc: "Añade un botón directo para arrancar el asistente automático de tu bot." },
-            { key: "enlace_web", nombre: "Botón Extra URL Web corporativa", desc: "Muestra un hipervínculo directo hacia tu landing page o sitio externo." }
+            { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba en las búsquedas y añade el botón de Anunciarse." },
+            { key: "social_chat", nombre: "Chat Comunidad", desc: "Vincula un botón directo al chat grupal de tu comunidad." },
+            { key: "bot_oficial", nombre: "Bot Oficial", desc: "Añade un botón directo para arrancar el asistente automático de tu bot." },
+            { key: "enlace_web", nombre: "URL Web", desc: "Muestra un hipervínculo directo hacia tu landing page o sitio externo." }
         ];
 
         const DATA_DONADORES = [
@@ -448,7 +449,7 @@
             initSelectorCanalesBoosters();
             renderMembresiaPage();
 
-            // CORRECCIÓN: Inicialización de la rotación automática con efecto elegante
+            // Desplazamiento automático limpio sin saltos artificiales
             initSliderAutoScroll("donors-slider");
             initSliderAutoScroll("featured-slider");
         };
@@ -539,17 +540,19 @@
             aplicarFiltrosMaster(false);
         }
 
-        /* --- GENERADOR DE PLANTILLAS REUTILIZABLES (UNIFICACIÓN DE DISEÑO) --- */
+        /* --- GENERADOR DE PLANTILLAS REUTILIZABLES --- */
         function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = false) {
             const container = document.getElementById(targetContainerId);
             container.innerHTML = "";
 
             if (!isOwnerConsole) {
                 const btnLazy = document.getElementById("btn-lazy-load");
-                if(listaCanales.length <= canalesVisiblesCount) {
-                    btnLazy.style.display = "none";
-                } else {
-                    btnLazy.style.display = "block";
+                if (btnLazy) {
+                    if(listaCanales.length <= canalesVisiblesCount) {
+                        btnLazy.style.display = "none";
+                    } else {
+                        btnLazy.style.display = "block";
+                    }
                 }
                 listaCanales = listaCanales.slice(0, canalesVisiblesCount);
             }
@@ -571,7 +574,7 @@
                 if (c.bot_oficial === true) extraButtonsHtml += `<a href="${c.url_bot || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
                 if (c.enlace_web === true) extraButtonsHtml += `<a href="${c.url_web || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
 
-                // CORRECCIÓN REQUERIDA: Inyección del monitoreo de núcleos activos/desactivos para la consola del propietario
+                // CORRECCIÓN: Nombres reales de potenciadores en lugar de ON / OFF genéricos
                 let boostersMonitorHtml = "";
                 if (isOwnerConsole) {
                     boostersMonitorHtml = `<div style="margin-top:12px; padding-top:10px; border-top:1px dashed #202035; font-size:0.75rem;">
@@ -580,7 +583,7 @@
                     TIENDA_POTENCIADORES.forEach(p => {
                         let activo = c[p.key] === true;
                         boostersMonitorHtml += `<span style="padding:2px 6px; border-radius:4px; font-size:0.62rem; font-weight:bold; border: 1px solid ${activo ? 'rgba(57, 255, 20, 0.3)' : 'rgba(100, 116, 139, 0.2)'}; background:${activo ? 'rgba(57, 255, 20, 0.05)' : 'rgba(13, 13, 21, 0.5)'}; color:${activo ? 'var(--neon-green)' : 'var(--text-dim)'};">
-                            ${p.nombre.split(' ')[0]}: ${activo ? 'ON' : 'OFF'}
+                            ${p.nombre}: ${activo ? 'ON' : 'OFF'}
                         </span>`;
                     });
                     boostersMonitorHtml += `</div></div>`;
@@ -620,6 +623,7 @@
             if(target) target.classList.toggle("expanded");
         }
 
+        // CORRECCIÓN: Estado visual de favoritos interactivo e instantáneo en el catálogo
         function toggleFavorito(idCanal) {
             if(usuarioActual.favoritos.includes(idCanal)) {
                 usuarioActual.favoritos = usuarioActual.favoritos.filter(id => id !== idCanal);
@@ -631,6 +635,7 @@
             localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
             actualizarMetadatosContadores();
             
+            // Renderizado cruzado inteligente
             if(document.getElementById("page-catalogo").classList.contains("active")) aplicarFiltrosMaster(false);
             if(document.getElementById("page-favoritos").classList.contains("active")) renderFavoritos();
             if(document.getElementById("page-admin").classList.contains("active")) renderAdminPanel();
@@ -649,7 +654,7 @@
                     container.scrollLeft += scrollSpeed * direction;
                     
                     if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) {
-                        direction = -1; // Rebote elegante o reset continuo
+                        direction = -1;
                     } else if (container.scrollLeft <= 0) {
                         direction = 1;
                     }
@@ -657,6 +662,7 @@
             }, 30);
         }
 
+        // CORRECCIÓN: Slider recupera diseño y botones originales exactos
         function renderDonadoresSlider() {
             const container = document.getElementById("donors-slider");
             container.innerHTML = "";
@@ -848,7 +854,7 @@
             const fActualStr = fechaActual.toLocaleDateString('es-ES');
             const fFinStr = fechaFin.toLocaleDateString('es-ES');
 
-            if(!currentlyActivo) { // Variable mapeada
+            if(!actualmenteActivo) { 
                 let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
                 if(!yaExistePedido) {
                     pedidosBoosters.push({
