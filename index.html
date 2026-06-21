@@ -489,6 +489,17 @@
                 <div id="user-channels-list" class="catalog-grid" style="margin-top: 15px;"></div>
             </div>
         </div>
+        <button
+    class="btn-cyber"
+    style="
+        width:100%;
+        margin-top:15px;
+        border-color:#ff3333;
+        color:#ff3333;
+    "
+    onclick="resetearDatosApp()">
+    🗑️ Resetear Datos Locales
+</</button>
     </section>
 
     <nav class="bottom-nav">
@@ -1037,6 +1048,47 @@
 
         function closeFloatingModal() { document.getElementById("floating-channels-modal").style.display = "none"; }
         function closeRecommendation() { document.getElementById("cyber-recommend-popup").classList.remove("show"); }
+    
+    function restaurarSistema() {
+
+    if(!confirm("Restaurar configuración de fábrica?"))
+        return;
+
+    localStorage.setItem(
+        "golden_canales",
+        JSON.stringify(DEFAULT_CHANNELS)
+    );
+
+    localStorage.setItem(
+        "golden_favoritos",
+        JSON.stringify([])
+    );
+
+    const mensajesIniciales =
+        BD_MENSAJES_PREDEFINIDOS.map(m => ({
+            ...m,
+            unread:true,
+            saved:false
+        }));
+
+    localStorage.setItem(
+        "golden_mensajes_usuarios",
+        JSON.stringify(mensajesIniciales)
+    );
+
+    sessionStorage.removeItem(
+        "campana_vista"
+    );
+
+    showToast(
+        "Sistema restaurado."
+    );
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+        
     </script>
 </body>
 </html>
