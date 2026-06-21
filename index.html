@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -41,6 +41,22 @@
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; max-width: 350px; width: calc(100% - 40px); }
         .cyber-toast { background: rgba(13, 13, 21, 0.95); border: 1px solid var(--neon-cyan); box-shadow: var(--cyber-glow-cyan); color: var(--text-main); padding: 15px; border-radius: 6px; font-size: 0.85rem; transform: translateX(120%); transition: transform 0.3s ease; backdrop-filter: blur(8px); }
         .cyber-toast.show { transform: translateX(0); }
+
+        /* --- CORRECCIÓN: ESTILOS DE LOS SLIDERS AUTOMÁTICOS --- */
+        .slider-section { margin: 20px 0; overflow: hidden; }
+        .slider-container {
+            display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth;
+            padding: 10px 5px; white-space: nowrap; scrollbar-width: none;
+        }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slider-card { flex: 0 0 285px; display: inline-block; vertical-align: top; }
+        
+        .user-premium-card {
+            background: var(--bg-card); border: 1px solid #161625; border-radius: 10px;
+            padding: 12px; display: flex; flex-direction: column; gap: 8px;
+        }
+        .user-card-top { display: flex; justify-content: space-between; align-items: center; }
+        .user-stars-donor { color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); font-size: 0.8rem; }
 
         /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
         #cyber-recommend-popup {
@@ -123,7 +139,7 @@
 
         .card-header { display: flex; gap: 12px; margin-bottom: 8px; position: relative; cursor: pointer; }
         .card-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid #2c2c44; }
-        .card-title-area { display: flex; flex-direction: column; justify-content: center; padding-right: 25px; }
+        .card-title-area { display: flex; flex-direction: column; justify-content: center; padding-right: 25px; white-space: normal; }
         .fav-star { position: absolute; top: 0; right: 0; font-size: 1.4rem; cursor: pointer; color: var(--text-dim); transition: color 0.2s; z-index: 10; }
         .fav-star.active { color: var(--neon-gold); text-shadow: var(--cyber-glow-gold); }
         
@@ -169,7 +185,7 @@
 
         /* --- REJILLA POTENCIADORES --- */
         .boosters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
-        .booster-card { background: #0e0e18; border: 1px solid #1e1e30; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s; }
+        .booster-card { background: #0e0e18; border: 1px solid #1e1e30; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s; white-space: normal; }
         .booster-card.active-booster { border-color: var(--neon-green); box-shadow: var(--cyber-glow-green); background: linear-gradient(145deg, #0e0e18, #071a10); }
         .booster-badge { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
         .booster-badge.badge-on { background: var(--neon-green); color: #000; box-shadow: var(--cyber-glow-green); }
@@ -370,7 +386,7 @@
 
         const DEFAULT_CHANNELS = [
             { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
-            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "77777777", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
+            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
             { id_canal: "c3", titulo: "Cyber Shields Matrix", telegram_handle: "@CyberShields", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.9, resenas: 31, isPopular: false, isPremium: false, isDestacado: true, quality: 75, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false }
         ];
 
@@ -431,6 +447,10 @@
             renderDestacadosSlider();
             initSelectorCanalesBoosters();
             renderMembresiaPage();
+
+            // CORRECCIÓN: Inicialización de la rotación automática con efecto elegante
+            initSliderAutoScroll("donors-slider");
+            initSliderAutoScroll("featured-slider");
         };
 
         function triggerSplash() {
@@ -540,7 +560,6 @@
             }
 
             listaCanales.forEach(c => {
-                // CORRECCIÓN DEL DEFAULTEO: Comprueba estrictamente si existe en favoritos
                 let isFav = usuarioActual.favoritos.includes(c.id_canal);
                 let badgesHtml = "";
                 if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
@@ -552,7 +571,21 @@
                 if (c.bot_oficial === true) extraButtonsHtml += `<a href="${c.url_bot || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
                 if (c.enlace_web === true) extraButtonsHtml += `<a href="${c.url_web || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
 
-                // Renderizado unificado para Catálogo, Favoritos y Consola
+                // CORRECCIÓN REQUERIDA: Inyección del monitoreo de núcleos activos/desactivos para la consola del propietario
+                let boostersMonitorHtml = "";
+                if (isOwnerConsole) {
+                    boostersMonitorHtml = `<div style="margin-top:12px; padding-top:10px; border-top:1px dashed #202035; font-size:0.75rem;">
+                        <div style="font-weight:bold; color:var(--neon-cyan); margin-bottom:6px; text-transform:uppercase; font-size:0.65rem; letter-spacing:0.5px;">Monitoreo de Núcleos:</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:5px;">`;
+                    TIENDA_POTENCIADORES.forEach(p => {
+                        let activo = c[p.key] === true;
+                        boostersMonitorHtml += `<span style="padding:2px 6px; border-radius:4px; font-size:0.62rem; font-weight:bold; border: 1px solid ${activo ? 'rgba(57, 255, 20, 0.3)' : 'rgba(100, 116, 139, 0.2)'}; background:${activo ? 'rgba(57, 255, 20, 0.05)' : 'rgba(13, 13, 21, 0.5)'}; color:${activo ? 'var(--neon-green)' : 'var(--text-dim)'};">
+                            ${p.nombre.split(' ')[0]}: ${activo ? 'ON' : 'OFF'}
+                        </span>`;
+                    });
+                    boostersMonitorHtml += `</div></div>`;
+                }
+
                 container.innerHTML += `
                     <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
                         <div>
@@ -573,6 +606,7 @@
                                 </div>
                                 <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
                             </div>
+                            ${boostersMonitorHtml}
                         </div>
                         <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
                             <div class="btn-grid">${extraButtonsHtml || '<span style="grid-column:span 2;font-size:0.7rem;color:var(--text-dim);text-align:center;">Sin núcleos extras activos</span>'}</div>
@@ -597,13 +631,32 @@
             localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
             actualizarMetadatosContadores();
             
-            // Refrescar vistas en vivo para sincronizar estrellas al instante
             if(document.getElementById("page-catalogo").classList.contains("active")) aplicarFiltrosMaster(false);
             if(document.getElementById("page-favoritos").classList.contains("active")) renderFavoritos();
             if(document.getElementById("page-admin").classList.contains("active")) renderAdminPanel();
         }
 
-        /* --- CONTROL DE LOS SLIDERS --- */
+        /* --- CONTROL DE LOS SLIDERS AUTOMÁTICOS --- */
+        function initSliderAutoScroll(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            let scrollSpeed = 1; 
+            let direction = 1;
+
+            setInterval(() => {
+                if (!container.matches(':hover')) { 
+                    container.scrollLeft += scrollSpeed * direction;
+                    
+                    if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) {
+                        direction = -1; // Rebote elegante o reset continuo
+                    } else if (container.scrollLeft <= 0) {
+                        direction = 1;
+                    }
+                }
+            }, 30);
+        }
+
         function renderDonadoresSlider() {
             const container = document.getElementById("donors-slider");
             container.innerHTML = "";
@@ -613,9 +666,9 @@
                         <div class="user-premium-card">
                             <div class="user-card-top">
                                 <span style="font-weight:bold; color:var(--neon-cyan); font-size:0.85rem;">${d.username} ${d.bandera}</span>
-                                <span class="user-stars-donor">🪙 ${d.estrellas} Estrellas</span>
+                                <span class="user-stars-donor">🪙 ${d.estrellas}</span>
                             </div>
-                            <button class="btn-cyber" style="border-color:var(--neon-gold); color:var(--neon-gold); font-size:0.65rem; padding:4px;" onclick="descubrirCanalesDonador('${d.id_tg}', '${d.username}')">
+                            <button class="btn-cyber" style="border-color:var(--neon-gold); color:var(--neon-gold); font-size:0.65rem; padding:4px; width:100%;" onclick="descubrirCanalesDonador('${d.id_tg}', '${d.username}')">
                                 Descubrir Canales Asociados 🔎
                             </button>
                         </div>
@@ -663,11 +716,11 @@
 
             destacados.forEach(c => {
                 container.innerHTML += `
-                    <div class="slider-card" style="flex: 0 0 65%; min-width:200px;">
-                        <div style="background:linear-gradient(45deg, #09090f, #1a0b1a); border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center;">
-                            <img src="${c.url_imagen}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
+                    <div class="slider-card" style="flex: 0 0 200px;">
+                        <div style="background:linear-gradient(145deg, #09090f, #1a0b1a); border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center; white-space: normal;">
+                            <img src="${c.url_imagen}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-bottom:5px; border:1px solid var(--neon-cyan);">
                             <h5 style="font-size:0.8rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.titulo}</h5>
-                            <span style="font-size:0.7rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                            <span style="font-size:0.7rem; color:var(--neon-cyan); display:block; margin-top:2px;">${c.telegram_handle}</span>
                         </div>
                     </div>
                 `;
@@ -795,11 +848,14 @@
             const fActualStr = fechaActual.toLocaleDateString('es-ES');
             const fFinStr = fechaFin.toLocaleDateString('es-ES');
 
-            if(!actualmenteActivo) {
-                pedidosBoosters.push({
-                    id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
-                    booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
-                });
+            if(!currentlyActivo) { // Variable mapeada
+                let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
+                if(!yaExistePedido) {
+                    pedidosBoosters.push({
+                        id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
+                        booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
+                    });
+                }
                 canal[boosterKey] = true;
                 showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
             } else {
@@ -853,14 +909,12 @@
         /* --- FAVORITOS RECONFIGURADOS --- */
         function renderFavoritos() {
             let filtrados = canales.filter(c => usuarioActual.favoritos.includes(c.id_canal));
-            // REQUISITO CUMPLIDO: Renderiza usando la rejilla unificada con opción de eliminar en tiempo real pulsando la estrella
             renderGridTemplates(filtrados, "favs-container", false);
         }
 
         /* --- CONSOLA DE ADMINISTRACIÓN DEL PROPIETARIO --- */
         function renderAdminPanel() {
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
-            // REQUISITO CUMPLIDO: Renderiza tus canales asociados con la cuadrícula e idéntico diseño estético de tarjeta del catálogo
             renderGridTemplates(misCanales, "user-channels-list", true);
             
             const maxPermitido = usuarioActual.isPremium ? "ILIMITADA (VIP)" : `${misCanales.length}/2 canales vinculados`;
@@ -873,7 +927,6 @@
             const cs = document.getElementById("form-canal-catsub").value;
             const cat = document.getElementById("form-canal-categoria").value;
             
-            // Extracción de datos de botones extra inyectados en formulario
             const uChat = document.getElementById("form-canal-url-chat").value.trim();
             const uBot = document.getElementById("form-canal-url-bot").value.trim();
             const uWeb = document.getElementById("form-canal-url-web").value.trim();
