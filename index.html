@@ -506,14 +506,17 @@
         const MI_USUARIO_TELEGRAM = "Airdayz";
         const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
 
-        // VARIABLES MANUALES DE CONFIGURACIÓN DE MEMBRESÍA
-        let variablesMembresia = {
-            fechaInicio: "2026-06-01",
-            fechaFin: "2026-07-01",
-            duracion: "Mensual", // "Mensual" o "Anual"
-            activado: true,      // true o false
-            estadoPago: "Pagado" // "Pagado", "Esperando el pago" o "Comprobando el pago"
-        };
+// Ejemplo de 3 usuarios con diferentes estados de pago
+const ESTADOS_USUARIOS = {
+    "1320417199": { fechaInicio: "2026-06-01", fechaFin: "2026-07-01", duracion: "Mensual", plan: "GPlus Pro", estadoPago: "Pagado" },
+    "77777777": { fechaInicio: "2026-05-15", fechaFin: "2026-06-15", duracion: "Mensual", plan: "GPlus Base", estadoPago: "Esperando el pago" },
+    "99999999": { fechaInicio: "2026-01-01", fechaFin: "2027-01-01", duracion: "Anual", plan: "GPlus Ultra", estadoPago: "Comprobando el pago" }
+};
+
+// Lógica para asignar al usuario actual
+let variablesMembresia = ESTADOS_USUARIOS[usuarioActual.id_tg] || {
+    fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción"
+};
 
         const BD_MENSAJES_PREDEFINIDOS = [
             { id_msg: "m1", user_id_target: "1320417199", titulo: "Actualización de Canal Exitosa", cuerpo: "Tu núcleo 'Neural AI Network' ha completado el ciclo de indexación algorítmica.", tema: "Sistema" },
@@ -522,10 +525,14 @@
         ];
 
         const DEFAULT_CHANNELS = [
-            { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, url_resena: "https://t.me/ListaGolden?start=review_neural_network_vip", isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
-            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, url_resena: "https://t.me/ListaGolden?start=custom_crypto_reviews", isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
-            { id_canal: "c3", titulo: "Cyber Shields Matrix", telegram_handle: "@CyberShields", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.9, resenas: 31, url_resena: "https://t.me/ListaGolden?start=shields_feedback_node", isPopular: false, isPremium: false, isDestacado: true, quality: 75, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false }
-        ];
+    { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
+    { id_canal: "c2", titulo: "Crypto Alpha", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
+    { id_canal: "c3", titulo: "Cyber Shields", telegram_handle: "@CyberShields", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.9, resenas: 31, isPopular: false, isPremium: false, isDestacado: true, quality: 75, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false },
+    { id_canal: "c4", titulo: "Dev Ops Elite", telegram_handle: "@DevOpsHub", url_imagen: "https://images.unsplash.com/photo-1573164713714-d72e4c023839?w=400&q=80", id_user_telegram_admin: "77777777", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.8, resenas: 210, isPopular: true, isPremium: true, isDestacado: true, quality: 95, status: "publicado", ad_on: true, social_chat: true, bot_oficial: false, enlace_web: true },
+    { id_canal: "c5", titulo: "Fintech Growth", telegram_handle: "@FintechGrowth", url_imagen: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&q=80", id_user_telegram_admin: "99999999", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.2, resenas: 45, isPopular: false, isPremium: false, isDestacado: false, quality: 40, status: "publicado", ad_on: false, social_chat: false, bot_oficial: false, enlace_web: false },
+    { id_canal: "c6", titulo: "Zero Day Hunters", telegram_handle: "@ZeroDay", url_imagen: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.7, resenas: 62, isPopular: true, isPremium: true, isDestacado: true, quality: 85, status: "publicado", ad_on: true, social_chat: true, bot_oficial: true, enlace_web: false },
+    { id_canal: "c7", titulo: "Retro Gaming Lounge", telegram_handle: "@RetroLounge", url_imagen: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+100", categoria: "Entretenimiento", rating: 4.9, resenas: 120, isPopular: true, isPremium: false, isDestacado: false, quality: 30, status: "publicado", ad_on: false, social_chat: true, bot_oficial: false, enlace_web: false }
+];
 
         const TIENDA_POTENCIADORES = [
             { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba en las búsquedas." },
