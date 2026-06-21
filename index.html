@@ -87,7 +87,7 @@
         .badge-destacado { background: var(--neon-gold); color: #000; box-shadow: var(--cyber-glow-gold); }
         .badge-popular { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
 
-        .card-header { display: flex; gap: 12px; margin-bottom: 8px; position: relative; }
+        .card-header { display: flex; gap: 12px; margin-bottom: 8px; position: relative; cursor: pointer; }
         .card-img { width: 70px; height: 70px; border-radius: 8px; object-fit: cover; border: 1px solid #2c2c44; }
         .card-title-area { display: flex; flex-direction: column; justify-content: center; padding-right: 25px; }
         .fav-star { position: absolute; top: 0; right: 0; font-size: 1.4rem; cursor: pointer; color: var(--text-dim); transition: color 0.2s; z-index: 10; }
@@ -100,11 +100,22 @@
         .quality-bar-bg { width: 100%; height: 5px; background: #1b1b2f; border-radius: 3px; margin-top: 4px; overflow: hidden; }
         .quality-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); width: 0%; }
 
+        /* DESPLEGABLE ELEGANTE */
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
         .btn-cyber { padding: 8px; font-size: 0.75rem; font-weight: bold; border: 1px solid; cursor: pointer; border-radius: 6px; text-align: center; text-transform: uppercase; background: transparent; transition: 0.2s; text-decoration: none; color: #fff;}
         .btn-primary { border-color: var(--neon-green); color: var(--neon-green); grid-column: span 2; }
         .btn-primary:hover { background: rgba(57, 255, 20, 0.1); }
         .btn-disabled { border-color: var(--text-dim) !important; color: var(--text-dim) !important; cursor: not-allowed !important; opacity: 0.4; }
+
+        /* Contenedor colapsable animado */
+        .sliding-buttons-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sliding-buttons-wrapper.expanded {
+            max-height: 200px; /* Suficiente espacio para los botones */
+        }
 
         /* --- NAVBAR INFERIOR --- */
         .bottom-nav {
@@ -127,11 +138,15 @@
         .status-published { background: rgba(57, 255, 20, 0.15); color: var(--neon-green); border: 1px solid var(--neon-green); }
 
         /* MOTOR DE FILTRADO */
-        .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 20px; scrollbar-width: none; }
+        .filter-controls-area { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
         .filter-bar::-webkit-scrollbar { display: none; }
         .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
         .filter-btn.active { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
         .sub-card { background: #12121f; border-left: 4px solid var(--neon-magenta); padding: 15px; margin-bottom: 20px; border-radius: 4px; box-shadow: var(--cyber-glow-magenta); }
+
+        /* LAZY LOAD BUTTON */
+        .lazy-load-box { grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 15px; }
 
         /* NOTIFICACIONES */
         .noti-item { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; margin-bottom: 12px; position: relative; }
@@ -467,7 +482,10 @@
         let notificaciones = [];
         let pedidosBoosters = [];
         let usuarioActual = { id_tg: "12345678", username_tg: "@Invitado", isPremium: false, favoritos: [] };
+        
         let filtroActual = "todos";
+        let categoriaActual = "todas";
+        let canalesVisiblesCount = 3; // Límite inicial de Lazy Load
 
         window.onload = function() {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe.user) {
@@ -487,7 +505,6 @@
             if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
             canales = JSON.parse(localStorage.getItem("golden_canales"));
 
-            // --- APLICACIÓN REGLA DE ORO DE SESIÓN (PREMIUM PREDETERMINADO) ---
             aplicarReglaOroPremium();
 
             if (!localStorage.getItem("golden_notificaciones")) localStorage.setItem("golden_notificaciones", JSON.stringify([]));
@@ -512,7 +529,6 @@
             checkSessionForRecommendation();
         };
 
-        // Regla de Oro: Forzar Destacado para usuarios Premium en su primer canal asociado
         function aplicarReglaOroPremium() {
             if (usuarioActual.isPremium) {
                 let primerCanalPropio = canales.find(c => c.id_user_telegram_admin === usuarioActual.id_tg);
@@ -551,7 +567,7 @@
             document.getElementById(`nav-${pageId}`).classList.add('active');
 
             if(pageId === 'favoritos') renderFavoritos();
-            if(pageId === 'catalogo') renderCatalogo();
+            if(pageId === 'catalogo') { canalesVisiblesCount = 3; renderCatalogo(); }
             if(pageId === 'admin') renderAdminPanel();
             if(pageId === 'notificaciones') renderNotificaciones();
             if(pageId === 'potenciadores') { populateBoosterSelectors(); renderPotenciadores(); }
@@ -559,25 +575,66 @@
             checkSessionForRecommendation(true);
         }
 
-        function renderCatalogo() {
+        function toggleButtonsSlider(cardHeaderElement) {
+            const wrapper = cardHeaderElement.closest('.card').querySelector('.sliding-buttons-wrapper');
+            if(wrapper) {
+                wrapper.classList.toggle('expanded');
+            }
+        }
+
+        function loadMoreCanales() {
+            canalesVisiblesCount += 3;
+            renderCatalogo(true);
+        }
+
+        function renderCatalogo(isLazyLoadAppend = false) {
             const container = document.getElementById("catalog-container");
-            container.innerHTML = `
-                <div class="filter-bar" style="grid-column: 1 / -1;">
-                    <button class="filter-btn ${filtroActual === 'todos' ? 'active' : ''}" onclick="aplicarFiltro('todos')">Todos</button>
-                    <button class="filter-btn ${filtroActual === 'destacado' ? 'active' : ''}" onclick="aplicarFiltro('destacado')">⭐ Destacados</button>
-                    <button class="filter-btn ${filtroActual === 'puntuacion' ? 'active' : ''}" onclick="aplicarFiltro('puntuacion')">Mejor Puntuación</button>
-                    <button class="filter-btn ${filtroActual === 'popular' ? 'active' : ''}" onclick="aplicarFiltro('popular')">🔥 Popular</button>
-                </div>
-            `;
+            
+            if(!isLazyLoadAppend) {
+                container.innerHTML = `
+                    <div class="filter-controls-area">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size: 0.7rem; color: var(--neon-magenta); font-weight: bold; text-transform: uppercase; display:block; margin-bottom:4px;">Filtrar por Categoría Matrix:</label>
+                            <select id="catalog-category-filter" class="form-control" style="border-color: var(--neon-magenta);" onchange="aplicarCategoria(this.value)">
+                                <option value="todas" ${categoriaActual === 'todas' ? 'selected' : ''}>🌌 Todas las Categorías</option>
+                                <option value="IA & Tecnología" ${categoriaActual === 'IA & Tecnología' ? 'selected' : ''}>🤖 IA & Tecnología</option>
+                                <option value="Finanzas & Web3" ${categoriaActual === 'Finanzas & Web3' ? 'selected' : ''}>📈 Finanzas & Web3</option>
+                                <option value="Ciberseguridad" ${categoriaActual === 'Ciberseguridad' ? 'selected' : ''}>🛡️ Ciberseguridad</option>
+                                <option value="Entretenimiento" ${categoriaActual === 'Entretenimiento' ? 'selected' : ''}>🎮 Entretenimiento</option>
+                            </select>
+                        </div>
+                        <div class="filter-bar">
+                            <button class="filter-btn ${filtroActual === 'todos' ? 'active' : ''}" onclick="aplicarFiltro('todos')">Todos</button>
+                            <button class="filter-btn ${filtroActual === 'destacado' ? 'active' : ''}" onclick="aplicarFiltro('destacado')">⭐ Destacados</button>
+                            <button class="filter-btn ${filtroActual === 'puntuacion' ? 'active' : ''}" onclick="aplicarFiltro('puntuacion')">Peor a Mejor ⭐</button>
+                            <button class="filter-btn ${filtroActual === 'popular' ? 'active' : ''}" onclick="aplicarFiltro('popular')">🔥 Popular</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const oldLazyBox = container.querySelector(".lazy-load-box");
+                if(oldLazyBox) oldLazyBox.remove();
+            }
 
             let filtrados = canales.filter(c => c.status === "publicado" || !c.status);
 
+            // 1. Filtrar por Categoría primero
+            if (categoriaActual !== 'todas') {
+                filtrados = filtrados.filter(c => c.categoria === categoriaActual);
+            }
+
+            // 2. Filtrar o Clasificar por los botones de la barra
             if (filtroActual === 'destacado') {
                 filtrados = filtrados.filter(c => c.isDestacado);
             } else if (filtroActual === 'popular') {
                 filtrados = filtrados.filter(c => c.isPopular);
             } else if (filtroActual === 'puntuacion') {
-                filtrados.sort((a, b) => b.rating - a.rating);
+                // CORRECCIÓN SOLICITADA: Ordenar calculando puntuación de PEOR a MEJOR (Ascendente)
+                filtrados.sort((a, b) => {
+                    let ratingA = a.rating !== undefined ? a.rating : 5.0;
+                    let ratingB = b.rating !== undefined ? b.rating : 5.0;
+                    return ratingA - ratingB;
+                });
             } else {
                 filtrados.sort((a, b) => {
                     if (a.isDestacado !== b.isDestacado) return b.isDestacado - a.isDestacado;
@@ -586,17 +643,36 @@
             }
 
             if(filtrados.length === 0) {
-                container.innerHTML += `<p style='color:var(--text-dim); grid-column: 1 / -1;'>No se encontraron canales en este módulo de filtrado.</p>`;
+                container.innerHTML += `<p id="empty-catalog-msg" style='color:var(--text-dim); grid-column: 1 / -1;'>No se encontraron canales en este módulo de filtrado.</p>`;
                 return;
             }
 
-            filtrados.forEach(c => {
+            // Aplicar el bloque de Lazy Load (Cortar el array hasta el límite configurado)
+            let mostrados = filtrados.slice(0, canalesVisiblesCount);
+
+            mostrados.forEach(c => {
                 container.innerHTML += buildCardHtml(c, false);
             });
+
+            // Si hay más elementos en cola, inyectar botón dinámico de carga
+            if (filtrados.length > canalesVisiblesCount) {
+                container.innerHTML += `
+                    <div class="lazy-load-box">
+                        <button class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan); padding: 8px 30px;" onclick="loadMoreCanales()">Cargar más canales (+3) ⚡</button>
+                    </div>
+                `;
+            }
         }
 
         function aplicarFiltro(tipo) {
             filtroActual = tipo;
+            canalesVisiblesCount = 3; // Resetear contador al cambiar pestaña
+            renderCatalogo();
+        }
+
+        function aplicarCategoria(cat) {
+            categoriaActual = cat;
+            canalesVisiblesCount = 3; // Resetear contador al cambiar selector
             renderCatalogo();
         }
 
@@ -609,18 +685,24 @@
             if(c.isPopular) badgesHtml += `<span class="tag-badge badge-popular">🔥 Popular</span>`;
 
             let extraButtonsHtml = "";
+            let tieneBotonesExtra = false;
+
             if (c.ad_on === true) {
+                tieneBotonesExtra = true;
                 extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}?text=Deseo%20anunciarme%20en%20el%20canal%20${encodeURIComponent(c.telegram_handle)}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
             }
             if (c.social_chat === true) {
+                tieneBotonesExtra = true;
                 let chatUrl = c.url_chat ? c.url_chat : `https://t.me/${c.telegram_handle.replace('@','')}`;
                 extraButtonsHtml += `<a href="${chatUrl}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
             }
             if (c.bot_oficial === true) {
+                tieneBotonesExtra = true;
                 let botUrl = c.url_bot ? c.url_bot : `https://t.me/${c.telegram_handle.replace('@','')}_bot`;
                 extraButtonsHtml += `<a href="${botUrl}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
             }
             if (c.enlace_web === true) {
+                tieneBotonesExtra = true;
                 let webUrl = c.url_web ? c.url_web : '#';
                 extraButtonsHtml += `<a href="${webUrl}" target="_blank" class="btn-cyber ${webUrl === '#' ? 'btn-disabled' : ''}" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
             }
@@ -629,7 +711,7 @@
                 <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
                     <div>
                         <div class="badge-row">${badgesHtml}</div>
-                        <div class="card-header">
+                        <div class="card-header" onclick="${!isAdminCard ? 'toggleButtonsSlider(this)' : ''}">
                             <img class="card-img" src="${c.url_imagen}" alt="Media">
                             <div class="card-title-area">
                                 <h4 style="color:#fff; font-size:1.02rem;">${c.titulo}</h4>
@@ -639,7 +721,7 @@
                                     <span style="font-size:0.65rem; background:rgba(0, 240, 255, 0.1); color:var(--neon-cyan); padding:1px 5px; border-radius:3px;">📊 ${c.catsub}</span>
                                 </div>
                             </div>
-                            ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="toggleFav('${c.id_canal}')">★</span>` : `<span class="admin-delete-cross" onclick="eliminarCanalAdmin('${c.id_canal}')">❌</span>`}
+                            ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav('${c.id_canal}')">★</span>` : `<span class="admin-delete-cross" onclick="eliminarCanalAdmin('${c.id_canal}')">❌</span>`}
                         </div>
 
                         <div style="display:flex; align-items:center; gap:6px; margin: 6px 0; font-size:0.78rem;">
@@ -656,9 +738,11 @@
                         </div>
                     </div>
 
-                    <div class="btn-grid">
-                        <a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary">Entrar al Canal</a>
-                        ${extraButtonsHtml}
+                    <div class="sliding-buttons-wrapper ${isAdminCard || !tieneBotonesExtra ? 'expanded' : ''}">
+                        <div class="btn-grid">
+                            <a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary">Entrar al Canal</a>
+                            ${extraButtonsHtml}
+                        </div>
                     </div>
                 </div>
             `;
@@ -669,7 +753,7 @@
             if(idx > -1) usuarioActual.favoritos.splice(idx, 1); else usuarioActual.favoritos.push(id);
             localStorage.setItem(`favs_${usuarioActual.id_tg}`, JSON.stringify(usuarioActual.favoritos));
             showToast("Lista de favoritos sincronizada.");
-            renderCatalogo();
+            renderCatalogo(false);
             if(document.getElementById('page-favoritos').classList.contains('active')) renderFavoritos();
         }
 
@@ -733,7 +817,6 @@
             });
         }
 
-        /* --- MOTOR DINÁMICO DE POTENCIADORES (REGLA DE ORO INTEGRADA) --- */
         function populateBoosterSelectors() {
             const mainSelector = document.getElementById("booster-channel-selector");
             const modalSelector = document.getElementById("m-booster-channel");
@@ -781,7 +864,6 @@
                     isActive = !!canalObj[key];
                 }
 
-                // Bloqueo Anti-Duplicados y Regla de Oro Premium
                 let estaEnProceso = pedidosBoosters.some(p => p.id_canal === canalObj?.id_canal && p.booster_key === key);
 
                 if (isActive) {
@@ -789,7 +871,6 @@
                     if (coreStatus) coreStatus.innerText = "ACTIVO ⚡";
                     
                     if (button) {
-                        // Regla de Oro: Si es Premium y es isDestacado, no se puede cambiar/desactivar
                         if (usuarioActual.isPremium && key === "isDestacado" && canalObj.id_user_telegram_admin === usuarioActual.id_tg) {
                             button.className = "btn-cyber btn-disabled";
                             button.innerText = "Fijo Premium 💎";
@@ -855,7 +936,6 @@
 
             const canalObj = canales.find(c => c.id_canal === canalId);
             
-            // Seguridad Extra Anti-Duplicación
             let duplicado = pedidosBoosters.some(p => p.id_canal === canalId && p.booster_key === key);
             if (duplicado || canalObj[key] === true) {
                 closeBoosterModal();
@@ -899,76 +979,72 @@
         }
 
         function renderOrderPanel() {
-    const container = document.getElementById("orders-log-container");
-    if (!container) return;
+            const container = document.getElementById("orders-log-container");
+            if (!container) return;
 
-    if (pedidosBoosters.length === 0) {
-        container.innerHTML = `<p style="color: var(--text-dim); font-size: 0.75rem;">Sin registros de transmisiones pendientes en este ciclo.</p>`;
-        return;
-    }
-
-    let html = "";
-    let dataCambioDetectado = false;
-
-    pedidosBoosters.forEach(o => {
-        const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
-        let isAlreadyActiveInCode = (canalAsociado && canalAsociado[o.booster_key] === true);
-
-        let statusBadge = "";
-        
-        // SOLUCIÓN: Si o.fecha_pedido no existe, usamos la fecha y hora actual como respaldo
-        let fechaPedidoSegura = o.fecha_pedido || new Date().toLocaleString();
-        let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${fechaPedidoSegura}</div>`;
-
-        if (isAlreadyActiveInCode) {
-            statusBadge = `<span class="status-badge-active">ACTIVO</span>`;
-            
-            if (!o.fecha_verificacion_raw) {
-                const ahora = new Date();
-                o.fecha_verificacion_raw = ahora.toISOString();
-                dataCambioDetectado = true;
+            if (pedidosBoosters.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-dim); font-size: 0.75rem;">Sin registros de transmisiones pendientes en este ciclo.</p>`;
+                return;
             }
 
-            const fechaVerif = new Date(o.fecha_verificacion_raw);
-            const fechaFin = new Date(fechaVerif);
-            fechaFin.setDate(fechaFin.getDate() + 30);
+            let html = "";
+            let dataCambioDetectado = false;
 
-            const strVerif = fechaVerif.toLocaleDateString() + " " + fechaVerif.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const strFin = fechaFin.toLocaleDateString() + " " + fechaFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            pedidosBoosters.forEach(o => {
+                const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
+                let isAlreadyActiveInCode = (canalAsociado && canalAsociado[o.booster_key] === true);
 
-            fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${strVerif}</div>`;
-            fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${strFin}</div>`;
-        } else {
-            statusBadge = `<span class="status-badge-process">EN PROCESO</span>`;
-            fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación en consola...</div>`;
-        }
+                let statusBadge = "";
+                let fechaPedidoSegura = o.fecha_pedido || new Date().toLocaleString();
+                let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${fechaPedidoSegura}</div>`;
 
-        // Respaldo para evitar 'undefined' en otros campos clave
-        let tituloSeguro = o.titulo_booster || "Potenciador";
-        let handleSeguro = o.canal_handle || "@canal";
-        let metodoPagoSeguro = o.metodo_pago || "Manual";
-        let precioSeguro = o.precio || o.price || "N/A"; // Revisa si tu objeto usa 'price' en inglés
+                if (isAlreadyActiveInCode) {
+                    statusBadge = `<span class="status-badge-active">ACTIVO</span>`;
+                    
+                    if (!o.fecha_verificacion_raw) {
+                        const ahora = new Date();
+                        o.fecha_verificacion_raw = ahora.toISOString();
+                        dataCambioDetectado = true;
+                    }
 
-        html += `
-            <div class="order-row">
-                <div>
-                    <strong style="color: #fff;">${tituloSeguro}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${handleSeguro}</span>
-                    <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:4px; display:flex; flex-direction:column; gap:2px;">
-                        ${fechasInfoHtml}
-                        <span style="font-size:0.6rem; color:#475569; margin-top:2px;">Vía ${metodoPagoSeguro} (${precioSeguro})</span>
+                    const fechaVerif = new Date(o.fecha_verificacion_raw);
+                    const fechaFin = new Date(fechaVerif);
+                    fechaFin.setDate(fechaFin.getDate() + 30);
+
+                    const strVerif = fechaVerif.toLocaleDateString() + " " + fechaVerif.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const strFin = fechaFin.toLocaleDateString() + " " + fechaFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${strVerif}</div>`;
+                    fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${strFin}</div>`;
+                } else {
+                    statusBadge = `<span class="status-badge-process">EN PROCESO</span>`;
+                    fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación en consola...</div>`;
+                }
+
+                let tituloSeguro = o.titulo_booster || "Potenciador";
+                let handleSeguro = o.canal_handle || "@canal";
+                let metodoPagoSeguro = o.metodo_pago || "Manual";
+                let precioSeguro = o.precio || o.price || "N/A";
+
+                html += `
+                    <div class="order-row">
+                        <div>
+                            <strong style="color: #fff;">${tituloSeguro}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${handleSeguro}</span>
+                            <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:4px; display:flex; flex-direction:column; gap:2px;">
+                                ${fechasInfoHtml}
+                                <span style="font-size:0.6rem; color:#475569; margin-top:2px;">Vía ${metodoPagoSeguro} (${precioSeguro})</span>
+                            </div>
+                        </div>
+                        <div>${statusBadge}</div>
                     </div>
-                </div>
-                <div>${statusBadge}</div>
-            </div>
-        `;
-    });
+                `;
+            });
 
-    if (dataCambioDetectado) {
-        localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
-    }
-    container.innerHTML = html;
-}
-        /* --- FIN SECCIÓN TIENDA --- */
+            if (dataCambioDetectado) {
+                localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
+            }
+            container.innerHTML = html;
+        }
 
         function cargarCanalParaEditar(idCanal) {
             const c = canales.find(ch => ch.id_canal === idCanal);
@@ -1073,7 +1149,7 @@
                     resenas: 1,
                     isPopular: false, 
                     isPremium: usuarioActual.isPremium, 
-                    isDestacado: usuarioActual.isPremium, // Se activa por defecto si es Premium
+                    isDestacado: usuarioActual.isPremium,
                     quality: 75,
                     status: nuevoStatus,
                     ad_on: false,
@@ -1204,7 +1280,6 @@
             document.getElementById("cyber-recommend-popup").classList.remove("show");
         }
 
-        // Para simulación y desarrollo rápido en consola manual de cambios
         function __simularVerificacionAdminEnCodigo(canalId, key, valor) {
             let idx = canales.findIndex(c => c.id_canal === canalId);
             if (idx !== -1) {
