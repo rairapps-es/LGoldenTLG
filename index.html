@@ -69,6 +69,13 @@
         .avatar-frame { width: 40px; height: 40px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, var(--neon-magenta), var(--neon-cyan)); }
         .avatar-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; }
 
+        /* --- CARRUSEL EXCLUSIVO DESTACADOS --- */
+        .slider-section { margin-bottom: 25px; padding: 0 5px; }
+        .slider-container { display: flex; overflow-x: auto; gap: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 10px 5px; cursor: grab; }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slider-container:active { cursor: grabbing; }
+        .slider-card { flex: 0 0 85%; scroll-snap-align: start; min-width: 270px; max-width: 340px; }
+
         /* --- REJILLA DE CANALES Y TARJETAS --- */
         .page-view { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
         .page-view.active { display: block; }
@@ -96,7 +103,7 @@
         .admin-delete-cross:hover { opacity: 1; text-shadow: 0 0 8px #ff0000; }
         
         /* MINI BARRA DE CALIDAD */
-        .quality-container { margin: 10px 0; font-size: 0.75rem; color: var(--text-main); }
+        .quality-container { margin: 10px 0; font-size: 0.75rem; color: var(--text-main); cursor: pointer; }
         .quality-bar-bg { width: 100%; height: 5px; background: #1b1b2f; border-radius: 3px; margin-top: 4px; overflow: hidden; }
         .quality-bar-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)); width: 0%; }
 
@@ -114,8 +121,21 @@
             transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .sliding-buttons-wrapper.expanded {
-            max-height: 200px; /* Suficiente espacio para los botones */
+            max-height: 200px;
         }
+
+        /* --- TOOLTIP MODAL GOLDEN --- */
+        .golden-tooltip-modal {
+            position: fixed; z-index: 6000; background: rgba(13, 13, 21, 0.98);
+            border: 1px solid var(--neon-gold); box-shadow: var(--cyber-glow-gold);
+            border-radius: 8px; padding: 12px; width: 260px; font-size: 0.75rem;
+            backdrop-filter: blur(10px); display: none; pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .golden-tooltip-modal h5 { color: var(--neon-gold); margin-bottom: 6px; text-transform: uppercase; font-size: 0.8rem; }
+        .golden-tooltip-modal ul { list-style: none; padding-left: 0; margin-top: 4px; }
+        .golden-tooltip-modal ul li { margin-bottom: 3px; position: relative; padding-left: 10px; }
+        .golden-tooltip-modal ul li::before { content: "›"; position: absolute; left: 0; color: var(--neon-cyan); }
 
         /* --- NAVBAR INFERIOR --- */
         .bottom-nav {
@@ -139,6 +159,7 @@
 
         /* MOTOR DE FILTRADO */
         .filter-controls-area { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .filter-row-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
         .filter-bar::-webkit-scrollbar { display: none; }
         .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
@@ -173,7 +194,6 @@
         
         .booster-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; min-width: 120px; }
         
-        /* MOTOR DE ENERGÍA ACTIVO REGLA DE ORO */
         .cyber-power-core {
             padding: 4px 12px; font-size: 0.7rem; font-weight: 800; border-radius: 20px; text-align: center;
             letter-spacing: 1px; text-transform: uppercase;
@@ -221,6 +241,7 @@
 <body>
 
     <div id="toast-container"></div>
+    <div id="golden-tooltip" class="golden-tooltip-modal"></div>
 
     <div id="cyber-recommend-popup">
         <button class="rec-close-btn" onclick="closeRecommendation()">✕</button>
@@ -250,6 +271,10 @@
     </header>
 
     <main id="page-catalogo" class="page-view active">
+        <div class="slider-section">
+            <h3 style="color: var(--neon-gold); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">⚡ Destacados de la Red</h3>
+            <div id="featured-slider" class="slider-container"></div>
+        </div>
         <h2>Canales Indexados</h2>
         <div id="catalog-container" class="catalog-grid"></div>
     </main>
@@ -485,7 +510,9 @@
         
         let filtroActual = "todos";
         let categoriaActual = "todas";
-        let canalesVisiblesCount = 3; // Límite inicial de Lazy Load
+        let subcatActual = "todas";
+        let canalesVisiblesCount = 3;
+        let sliderInterval = null;
 
         window.onload = function() {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe.user) {
@@ -527,6 +554,7 @@
             populateBoosterSelectors();
             renderPotenciadores();
             checkSessionForRecommendation();
+            initSliderAutoplay();
         };
 
         function aplicarReglaOroPremium() {
@@ -539,6 +567,19 @@
                     }
                 }
             }
+        }
+
+        function agregarNotificacionAutomatica(contenido) {
+            const ahora = new Date();
+            const timestamp = ahora.toLocaleDateString() + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const nuevaNoti = {
+                id_noti: "noti_" + Date.now() + Math.random().toString(36).substr(2, 5),
+                fecha: timestamp,
+                contenido: contenido
+            };
+            notificaciones.unshift(nuevaNoti);
+            localStorage.setItem("golden_notificaciones", JSON.stringify(notificaciones));
+            renderNotificaciones();
         }
 
         function showToast(msg) {
@@ -567,7 +608,7 @@
             document.getElementById(`nav-${pageId}`).classList.add('active');
 
             if(pageId === 'favoritos') renderFavoritos();
-            if(pageId === 'catalogo') { canalesVisiblesCount = 3; renderCatalogo(); }
+            if(pageId === 'catalogo') { canalesVisiblesCount = 3; renderCatalogo(); initSliderAutoplay(); } else { clearInterval(sliderInterval); }
             if(pageId === 'admin') renderAdminPanel();
             if(pageId === 'notificaciones') renderNotificaciones();
             if(pageId === 'potenciadores') { populateBoosterSelectors(); renderPotenciadores(); }
@@ -585,28 +626,40 @@
         function loadMoreCanales() {
             canalesVisiblesCount += 3;
             renderCatalogo(true);
+            agregarNotificacionAutomatica("Expandiste el número de canales visibles en el catálogo principal.");
         }
 
         function renderCatalogo(isLazyLoadAppend = false) {
             const container = document.getElementById("catalog-container");
+            renderSliderDestacados();
             
             if(!isLazyLoadAppend) {
                 container.innerHTML = `
                     <div class="filter-controls-area">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label style="font-size: 0.7rem; color: var(--neon-magenta); font-weight: bold; text-transform: uppercase; display:block; margin-bottom:4px;">Filtrar por Categoría Matrix:</label>
-                            <select id="catalog-category-filter" class="form-control" style="border-color: var(--neon-magenta);" onchange="aplicarCategoria(this.value)">
-                                <option value="todas" ${categoriaActual === 'todas' ? 'selected' : ''}>🌌 Todas las Categorías</option>
-                                <option value="IA & Tecnología" ${categoriaActual === 'IA & Tecnología' ? 'selected' : ''}>🤖 IA & Tecnología</option>
-                                <option value="Finanzas & Web3" ${categoriaActual === 'Finanzas & Web3' ? 'selected' : ''}>📈 Finanzas & Web3</option>
-                                <option value="Ciberseguridad" ${categoriaActual === 'Ciberseguridad' ? 'selected' : ''}>🛡️ Ciberseguridad</option>
-                                <option value="Entretenimiento" ${categoriaActual === 'Entretenimiento' ? 'selected' : ''}>🎮 Entretenimiento</option>
-                            </select>
+                        <div class="filter-row-selectors">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size: 0.65rem; color: var(--neon-magenta); font-weight: bold; text-transform: uppercase; display:block; margin-bottom:4px;">Categoría Matrix:</label>
+                                <select id="catalog-category-filter" class="form-control" style="border-color: var(--neon-magenta); font-size:0.75rem; padding:6px;" onchange="aplicarCategoria(this.value)">
+                                    <option value="todas" ${categoriaActual === 'todas' ? 'selected' : ''}>🌌 Todas</option>
+                                    <option value="IA & Tecnología" ${categoriaActual === 'IA & Tecnología' ? 'selected' : ''}>🤖 IA & Tech</option>
+                                    <option value="Finanzas & Web3" ${categoriaActual === 'Finanzas & Web3' ? 'selected' : ''}>📈 Web3</option>
+                                    <option value="Ciberseguridad" ${categoriaActual === 'Ciberseguridad' ? 'selected' : ''}>🛡️ Ciberseg</option>
+                                    <option value="Entretenimiento" ${categoriaActual === 'Entretenimiento' ? 'selected' : ''}>🎮 Ocio</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size: 0.65rem; color: var(--neon-cyan); font-weight: bold; text-transform: uppercase; display:block; margin-bottom:4px;">Rango Subcat:</label>
+                                <select id="catalog-subcat-filter" class="form-control" style="border-color: var(--neon-cyan); font-size:0.75rem; padding:6px;" onchange="aplicarSubcat(this.value)">
+                                    <option value="todas" ${subcatActual === 'todas' ? 'selected' : ''}>🌐 Todos los tamaños</option>
+                                    <option value="+100" ${subcatActual === '+100' ? 'selected' : ''}>🚀 +100 subs</option>
+                                    <option value="+500" ${subcatActual === '+500' ? 'selected' : ''}>🔥 +500 subs</option>
+                                    <option value="+1000" ${subcatActual === '+1000' ? 'selected' : ''}>💎 +1000 subs</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="filter-bar">
                             <button class="filter-btn ${filtroActual === 'todos' ? 'active' : ''}" onclick="aplicarFiltro('todos')">Todos</button>
                             <button class="filter-btn ${filtroActual === 'destacado' ? 'active' : ''}" onclick="aplicarFiltro('destacado')">⭐ Destacados</button>
-                            <button class="filter-btn ${filtroActual === 'puntuacion' ? 'active' : ''}" onclick="aplicarFiltro('puntuacion')">Peor a Mejor ⭐</button>
                             <button class="filter-btn ${filtroActual === 'popular' ? 'active' : ''}" onclick="aplicarFiltro('popular')">🔥 Popular</button>
                         </div>
                     </div>
@@ -618,43 +671,30 @@
 
             let filtrados = canales.filter(c => c.status === "publicado" || !c.status);
 
-            // 1. Filtrar por Categoría primero
-            if (categoriaActual !== 'todas') {
-                filtrados = filtrados.filter(c => c.categoria === categoriaActual);
-            }
+            if (categoriaActual !== 'todas') filtrados = filtrados.filter(c => c.categoria === categoriaActual);
+            if (subcatActual !== 'todas') filtrados = filtrados.filter(c => c.catsub === subcatActual);
 
-            // 2. Filtrar o Clasificar por los botones de la barra
             if (filtroActual === 'destacado') {
                 filtrados = filtrados.filter(c => c.isDestacado);
             } else if (filtroActual === 'popular') {
                 filtrados = filtrados.filter(c => c.isPopular);
-            } else if (filtroActual === 'puntuacion') {
-                // CORRECCIÓN SOLICITADA: Ordenar calculando puntuación de PEOR a MEJOR (Ascendente)
-                filtrados.sort((a, b) => {
-                    let ratingA = a.rating !== undefined ? a.rating : 5.0;
-                    let ratingB = b.rating !== undefined ? b.rating : 5.0;
-                    return ratingA - ratingB;
-                });
-            } else {
-                filtrados.sort((a, b) => {
-                    if (a.isDestacado !== b.isDestacado) return b.isDestacado - a.isDestacado;
-                    return b.isPremium - a.isPremium;
-                });
             }
+
+            // CRÍTICO: ORDEN DE PRIORIDAD EXPLICITADO -> PREMIUM -> DESTACADO -> POPULAR
+            filtrados.sort((a, b) => {
+                const scoreA = (a.isPremium ? 4 : 0) + (a.isDestacado ? 2 : 0) + (a.isPopular ? 1 : 0);
+                const scoreB = (b.isPremium ? 4 : 0) + (b.isDestacado ? 2 : 0) + (b.isPopular ? 1 : 0);
+                return scoreB - scoreA;
+            });
 
             if(filtrados.length === 0) {
                 container.innerHTML += `<p id="empty-catalog-msg" style='color:var(--text-dim); grid-column: 1 / -1;'>No se encontraron canales en este módulo de filtrado.</p>`;
                 return;
             }
 
-            // Aplicar el bloque de Lazy Load (Cortar el array hasta el límite configurado)
             let mostrados = filtrados.slice(0, canalesVisiblesCount);
+            mostrados.forEach(c => { container.innerHTML += buildCardHtml(c, false); });
 
-            mostrados.forEach(c => {
-                container.innerHTML += buildCardHtml(c, false);
-            });
-
-            // Si hay más elementos en cola, inyectar botón dinámico de carga
             if (filtrados.length > canalesVisiblesCount) {
                 container.innerHTML += `
                     <div class="lazy-load-box">
@@ -664,16 +704,73 @@
             }
         }
 
+        function renderSliderDestacados() {
+            const slider = document.getElementById("featured-slider");
+            if (!slider) return;
+            let destacados = canales.filter(c => c.isDestacado && (c.status === "publicado" || !c.status));
+            if(destacados.length === 0) {
+                slider.parentElement.style.display = "none";
+                return;
+            }
+            slider.parentElement.style.display = "block";
+            slider.innerHTML = "";
+            destacados.forEach(c => {
+                slider.innerHTML += `<div class="slider-card">${buildCardHtml(c, false)}</div>`;
+            });
+        }
+
+        function initSliderAutoplay() {
+            clearInterval(sliderInterval);
+            const slider = document.getElementById("featured-slider");
+            if (!slider) return;
+            sliderInterval = setInterval(() => {
+                if (slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 10) {
+                    slider.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    slider.scrollBy({ left: 220, behavior: 'smooth' });
+                }
+            }, 3000);
+        }
+
         function aplicarFiltro(tipo) {
             filtroActual = tipo;
-            canalesVisiblesCount = 3; // Resetear contador al cambiar pestaña
+            canalesVisiblesCount = 3;
             renderCatalogo();
+            agregarNotificacionAutomatica(`Cambiaste el filtro de ordenación a: ${tipo.toUpperCase()}`);
         }
 
         function aplicarCategoria(cat) {
             categoriaActual = cat;
-            canalesVisiblesCount = 3; // Resetear contador al cambiar selector
+            canalesVisiblesCount = 3;
             renderCatalogo();
+            agregarNotificacionAutomatica(`Filtraste el catálogo por la categoría: ${cat}`);
+        }
+
+        function aplicarSubcat(sub) {
+            subcatActual = sub;
+            canalesVisiblesCount = 3;
+            renderCatalogo();
+            agregarNotificacionAutomatica(`Filtraste el catálogo por volumen de subcategoría: ${sub}`);
+        }
+
+        function showGoldenTooltip(e, score) {
+            const tooltip = document.getElementById("golden-tooltip");
+            tooltip.innerHTML = `
+                <h5>Calidad Golden: ${score}%</h5>
+                <p>Nivel de confiabilidad y actividad de este canal dentro de la Matrix Hub.</p>
+                <ul>
+                    <li><strong>¿Cómo funciona?</strong> Combina el feedback de reseñas, antigüedad y verificación de bots estables.</li>
+                    <li><strong>¿Cómo mejorarla?</strong> Adquiriendo potenciadores y manteniendo una tasa de publicación alta.</li>
+                    <li><strong>Beneficios:</strong> Los canales con mayor puntuación adquieren prioridad de indexación algorítmica.</li>
+                </ul>
+            `;
+            tooltip.style.display = "block";
+            tooltip.style.left = Math.min(e.clientX, window.innerWidth - 280) + "px";
+            tooltip.style.top = (e.clientY + 15) + "px";
+        }
+
+        function hideGoldenTooltip() {
+            document.getElementById("golden-tooltip").style.display = "none";
         }
 
         function buildCardHtml(c, isAdminCard = false) {
@@ -724,14 +821,17 @@
                             ${!isAdminCard ? `<span class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav('${c.id_canal}')">★</span>` : `<span class="admin-delete-cross" onclick="eliminarCanalAdmin('${c.id_canal}')">❌</span>`}
                         </div>
 
-                        <div style="display:flex; align-items:center; gap:6px; margin: 6px 0; font-size:0.78rem;">
-                            <span style="color:var(--neon-gold); font-weight:bold;">⭐ ${c.rating ? c.rating.toFixed(1) : '5.0'}</span>
+                        <div style="display:flex; align-items:center; gap:6px; margin: 6px 0; font-size:0.78rem; cursor:pointer;" onclick="event.stopPropagation(); window.open('https://t.me/ListaGolden', '_blank'); agregarNotificacionAutomatica('Redirección ejecutada a ListaGolden desde módulo de estrellas.');">
+                            <span style="color:var(--neon-gold); font-weight:bold; text-decoration: underline;">⭐ ${c.rating ? c.rating.toFixed(1) : '5.0'}</span>
                             <span style="color:var(--text-dim); font-size:0.7rem;">(${c.resenas || 1} reseñas)</span>
                         </div>
                         
-                        <div class="quality-container">
+                        <div class="quality-container" 
+                             onmousemove="showGoldenTooltip(event, ${c.quality})" 
+                             onmouseleave="hideGoldenTooltip()"
+                             onclick="event.stopPropagation();">
                             <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-dim); margin-bottom:2px;">
-                                <span>Calidad Golden</span>
+                                <span>Puntuación Golden</span>
                                 <span style="color:var(--neon-green); font-weight:bold;">${c.quality}%</span>
                             </div>
                             <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
@@ -740,7 +840,7 @@
 
                     <div class="sliding-buttons-wrapper ${isAdminCard || !tieneBotonesExtra ? 'expanded' : ''}">
                         <div class="btn-grid">
-                            <a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary">Entrar al Canal</a>
+                            <a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary" onclick="agregarNotificacionAutomatica('Acceso directo solicitado para canal: ' + '${c.telegram_handle}');">Entrar al Canal</a>
                             ${extraButtonsHtml}
                         </div>
                     </div>
@@ -750,7 +850,14 @@
 
         function toggleFav(id) {
             const idx = usuarioActual.favoritos.indexOf(id);
-            if(idx > -1) usuarioActual.favoritos.splice(idx, 1); else usuarioActual.favoritos.push(id);
+            const c = canales.find(ch => ch.id_canal === id);
+            if(idx > -1) {
+                usuarioActual.favoritos.splice(idx, 1);
+                agregarNotificacionAutomatica(`Eliminaste de favoritos el canal: ${c ? c.telegram_handle : id}`);
+            } else {
+                usuarioActual.favoritos.push(id);
+                agregarNotificacionAutomatica(`Añadiste a favoritos el canal: ${c ? c.telegram_handle : id}`);
+            }
             localStorage.setItem(`favs_${usuarioActual.id_tg}`, JSON.stringify(usuarioActual.favoritos));
             showToast("Lista de favoritos sincronizada.");
             renderCatalogo(false);
@@ -839,63 +946,41 @@
                 renderOrderPanel();
                 return;
             }
-
             const canalId = selector.value;
             const canalObj = canales.find(c => c.id_canal === canalId);
-            
-            if (canalObj) {
-                updateAllBoosterCardsVisuals(canalObj);
-            }
+            if (canalObj) updateAllBoosterCardsVisuals(canalObj);
             renderOrderPanel();
         }
 
         function updateAllBoosterCardsVisuals(canalObj) {
             const boostersKeys = ["isDestacado", "ad_on", "enlace_web", "bot_oficial", "social_chat"];
-            
             boostersKeys.forEach(key => {
                 const card = document.getElementById(`booster-card-${key}`);
                 const button = document.getElementById(`btn-booster-${key}`);
                 if (!card) return;
 
                 const coreStatus = card.querySelector(".cyber-power-core");
-                let isActive = false;
-
-                if (canalObj) {
-                    isActive = !!canalObj[key];
-                }
-
+                let isActive = canalObj ? !!canalObj[key] : false;
                 let estaEnProceso = pedidosBoosters.some(p => p.id_canal === canalObj?.id_canal && p.booster_key === key);
 
                 if (isActive) {
                     card.className = "booster-card active-core";
                     if (coreStatus) coreStatus.innerText = "ACTIVO ⚡";
-                    
                     if (button) {
-                        if (usuarioActual.isPremium && key === "isDestacado" && canalObj.id_user_telegram_admin === usuarioActual.id_tg) {
-                            button.className = "btn-cyber btn-disabled";
-                            button.innerText = "Fijo Premium 💎";
-                            button.onclick = null;
-                        } else {
-                            button.className = "btn-cyber btn-disabled";
-                            button.innerText = "Ya Activado";
-                            button.onclick = null;
-                        }
+                        button.className = "btn-cyber btn-disabled";
+                        button.innerText = (usuarioActual.isPremium && key === "isDestacado") ? "Fijo Premium 💎" : "Ya Activado";
+                        button.onclick = null;
                     }
                 } else if (estaEnProceso) {
                     card.className = "booster-card inactive-core";
                     if (coreStatus) coreStatus.innerText = "VERIFICANDO ⏳";
-                    if (button) {
-                        button.className = "btn-cyber btn-disabled";
-                        button.innerText = "En Proceso";
-                        button.onclick = null;
-                    }
+                    if (button) { button.className = "btn-cyber btn-disabled"; button.innerText = "En Proceso"; button.onclick = null; }
                 } else {
                     card.className = "booster-card inactive-core";
                     if (coreStatus) coreStatus.innerText = "Desactivado";
                     if (button) {
-                        button.className = "btn-cyber btn-primary";
-                        button.innerText = "Modificar";
-                        button.onclick = (e) => {
+                        button.className = "btn-cyber btn-primary"; button.innerText = "Modificar";
+                        button.onclick = () => {
                             let nameMap = { "isDestacado": "Filtro Catálogo Destacado", "ad_on": "Ads On Plus", "enlace_web": "Enlace Web Externo", "bot_oficial": "Bot Oficial Interconectado", "social_chat": "Chat de la Comunidad" };
                             let priceMap = { "isDestacado": "15 USD", "ad_on": "10 USD", "enlace_web": "8 USD", "bot_oficial": "12 USD", "social_chat": "7 USD" };
                             let benefitMap = { "isDestacado": "Posicionamiento superior fijo", "ad_on": "Inyección de botón publicitario", "enlace_web": "Botón de redirección web", "bot_oficial": "Enlace directo a bot", "social_chat": "Redirección a grupo de debate" };
@@ -908,22 +993,17 @@
 
         function openBoosterModal(key, name, price, benefits) {
             const selector = document.getElementById("booster-channel-selector");
-            if (!selector || !selector.value) {
-                return showToast("Error: Requiere inyectar o poseer un canal primero.");
-            }
+            if (!selector || !selector.value) return showToast("Error: Requiere inyectar o poseer un canal primero.");
 
             document.getElementById("m-booster-key").value = key;
             document.getElementById("m-booster-title").innerText = `Inyectar: ${name}`;
             document.getElementById("m-booster-price").innerText = price;
             document.getElementById("m-booster-benefits").innerText = benefits;
             document.getElementById("m-booster-channel").value = selector.value;
-
             document.getElementById("booster-modal").style.display = "flex";
         }
 
-        function closeBoosterModal() {
-            document.getElementById("booster-modal").style.display = "none";
-        }
+        function closeBoosterModal() { document.getElementById("booster-modal").style.display = "none"; }
 
         function enviarPedidoBooster() {
             const key = document.getElementById("m-booster-key").value;
@@ -933,11 +1013,9 @@
             const benefits = document.getElementById("m-booster-benefits").innerText;
 
             if(!canalId) return showToast("Por favor selecciona un canal válido.");
-
             const canalObj = canales.find(c => c.id_canal === canalId);
             
-            let duplicado = pedidosBoosters.some(p => p.id_canal === canalId && p.booster_key === key);
-            if (duplicado || canalObj[key] === true) {
+            if (pedidosBoosters.some(p => p.id_canal === canalId && p.booster_key === key) || canalObj[key] === true) {
                 closeBoosterModal();
                 return showToast("Operación denegada: Este canal ya posee una transmisión activa.");
             }
@@ -946,42 +1024,32 @@
             const timestamp = ahora.toLocaleDateString() + " " + ahora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             const nuevoPedido = {
-                id_pedido: "order_" + Date.now(),
-                id_canal: canalId,
-                booster_key: key,
+                id_pedido: "order_" + Date.now(), id_canal: canalId, booster_key: key,
                 titulo_booster: document.getElementById("m-booster-title").innerText.replace("Inyectar: ", ""),
-                fecha_pedido: timestamp,
-                fecha_verificacion_raw: null, 
-                canal_handle: canalObj.telegram_handle,
-                precio: price,
-                metodo_pago: payment
+                fecha_pedido: timestamp, fecha_verificacion_raw: null, canal_handle: canalObj.telegram_handle,
+                precio: price, metodo_pago: payment
             };
 
             pedidosBoosters.unshift(nuevoPedido);
             localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
             
+            agregarNotificacionAutomatica(`Solicitaste la inyección del potenciador ${key.toUpperCase()} para ${canalObj.telegram_handle}`);
             showToast("Transmisión registrada como EN PROCESO. Abriendo canal privado...");
             closeBoosterModal();
             renderPotenciadores();
 
             let payload = `⚡ NUEVA SOLICITUD DE POTENCIADOR ⚡\n\n` +
                           `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
-                          `🆔 ID USUARIO: ${usuarioActual.id_tg}\n` +
                           `📢 CANAL DESTINO: ${canalObj.titulo} (${canalObj.telegram_handle})\n` +
-                          `🔍 ID INTERNO CANAL: ${canalId}\n` +
                           `🔮 COMPONENTE POTENCIADOR: ${key.toUpperCase()}\n` +
-                          `📦 BENEFICIOS: ${benefits}\n` +
                           `💰 IMPORTE ESTIMADO: ${price}\n` +
-                          `💳 PASARELA DE PAGO: ${payment}\n` +
                           `📅 FECHA EMISIÓN: ${timestamp}`;
-
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
         }
 
         function renderOrderPanel() {
             const container = document.getElementById("orders-log-container");
             if (!container) return;
-
             if (pedidosBoosters.length === 0) {
                 container.innerHTML = `<p style="color: var(--text-dim); font-size: 0.75rem;">Sin registros de transmisiones pendientes en este ciclo.</p>`;
                 return;
@@ -993,56 +1061,35 @@
             pedidosBoosters.forEach(o => {
                 const canalAsociado = canales.find(c => c.id_canal === o.id_canal);
                 let isAlreadyActiveInCode = (canalAsociado && canalAsociado[o.booster_key] === true);
-
                 let statusBadge = "";
-                let fechaPedidoSegura = o.fecha_pedido || new Date().toLocaleString();
-                let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${fechaPedidoSegura}</div>`;
+                let fechasInfoHtml = `<div><span style="color:var(--neon-gold)">Pedido:</span> ${o.fecha_pedido}</div>`;
 
                 if (isAlreadyActiveInCode) {
                     statusBadge = `<span class="status-badge-active">ACTIVO</span>`;
-                    
-                    if (!o.fecha_verificacion_raw) {
-                        const ahora = new Date();
-                        o.fecha_verificacion_raw = ahora.toISOString();
-                        dataCambioDetectado = true;
-                    }
-
+                    if (!o.fecha_verificacion_raw) { o.fecha_verificacion_raw = new Date().toISOString(); dataCambioDetectado = true; }
                     const fechaVerif = new Date(o.fecha_verificacion_raw);
-                    const fechaFin = new Date(fechaVerif);
-                    fechaFin.setDate(fechaFin.getDate() + 30);
+                    const fechaFin = new Date(fechaVerif); fechaFin.setDate(fechaFin.getDate() + 30);
 
-                    const strVerif = fechaVerif.toLocaleDateString() + " " + fechaVerif.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    const strFin = fechaFin.toLocaleDateString() + " " + fechaFin.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                    fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${strVerif}</div>`;
-                    fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${strFin}</div>`;
+                    fechasInfoHtml += `<div style="color: var(--neon-green)">✔️ Verificado: ${fechaVerif.toLocaleDateString()}</div>`;
+                    fechasInfoHtml += `<div style="color: var(--neon-magenta); font-weight: bold;">🔒 Vence (30d): ${fechaFin.toLocaleDateString()}</div>`;
                 } else {
                     statusBadge = `<span class="status-badge-process">EN PROCESO</span>`;
-                    fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación en consola...</div>`;
+                    fechasInfoHtml += `<div style="color: var(--text-dim); font-style: italic;">Esperando verificación...</div>`;
                 }
-
-                let tituloSeguro = o.titulo_booster || "Potenciador";
-                let handleSeguro = o.canal_handle || "@canal";
-                let metodoPagoSeguro = o.metodo_pago || "Manual";
-                let precioSeguro = o.precio || o.price || "N/A";
 
                 html += `
                     <div class="order-row">
                         <div>
-                            <strong style="color: #fff;">${tituloSeguro}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${handleSeguro}</span>
+                            <strong style="color: #fff;">${o.titulo_booster}</strong> <span style="color: var(--neon-cyan); font-size:0.75rem;">${o.canal_handle}</span>
                             <div style="font-size: 0.65rem; color: var(--text-dim); margin-top:4px; display:flex; flex-direction:column; gap:2px;">
                                 ${fechasInfoHtml}
-                                <span style="font-size:0.6rem; color:#475569; margin-top:2px;">Vía ${metodoPagoSeguro} (${precioSeguro})</span>
                             </div>
                         </div>
                         <div>${statusBadge}</div>
                     </div>
                 `;
             });
-
-            if (dataCambioDetectado) {
-                localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
-            }
+            if (dataCambioDetectado) localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
             container.innerHTML = html;
         }
 
@@ -1055,7 +1102,6 @@
             document.getElementById("form-canal-handle").value = c.telegram_handle;
             document.getElementById("form-canal-catsub").value = c.catsub;
             document.getElementById("form-canal-categoria").value = c.categoria || "IA & Tecnología";
-            
             document.getElementById("form-canal-url-chat").value = c.url_chat || "";
             document.getElementById("form-canal-url-bot").value = c.url_bot || "";
             document.getElementById("form-canal-url-web").value = c.url_web || "";
@@ -1065,7 +1111,6 @@
             btnInject.classList.remove("btn-disabled");
             btnInject.innerText = "Actualizar y Enviar Solicitud";
             document.getElementById("btn-cancel-edit").style.display = "inline-block";
-            
             document.getElementById("admin-form-title").scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -1087,94 +1132,60 @@
             const h = document.getElementById("form-canal-handle").value;
             const cs = document.getElementById("form-canal-catsub").value;
             const cat = document.getElementById("form-canal-categoria").value;
-            
             const uChat = document.getElementById("form-canal-url-chat").value.trim();
             const uBot = document.getElementById("form-canal-url-bot").value.trim();
             const uWeb = document.getElementById("form-canal-url-web").value.trim();
             
             if(!t || !h) return showToast("Por favor introduce los campos requeridos.");
-
             let exactMatch = canales.find(c => c.telegram_handle.toLowerCase() === h.toLowerCase() && c.status === "publicado");
 
             if(editId) {
                 let index = canales.findIndex(c => c.id_canal === editId);
                 if(index !== -1) {
-                    canales[index].titulo = t;
-                    canales[index].telegram_handle = h;
-                    canales[index].catsub = cs;
-                    canales[index].categoria = cat;
-                    
-                    canales[index].url_chat = uChat;
-                    canales[index].social_chat = uChat !== "";
-                    
-                    canales[index].url_bot = uBot;
-                    canales[index].bot_oficial = uBot !== "";
-                    
-                    canales[index].url_web = uWeb;
-                    canales[index].enlace_web = uWeb !== "";
-                    
-                    if(exactMatch) {
-                        canales[index].status = "publicado";
-                    }
+                    canales[index].titulo = t; canales[index].telegram_handle = h; canales[index].catsub = cs; canales[index].categoria = cat;
+                    canales[index].url_chat = uChat; canales[index].social_chat = uChat !== "";
+                    canales[index].url_bot = uBot; canales[index].bot_oficial = uBot !== "";
+                    canales[index].url_web = uWeb; canales[index].enlace_web = uWeb !== "";
+                    if(exactMatch) canales[index].status = "publicado";
 
                     localStorage.setItem("golden_canales", JSON.stringify(canales));
+                    agregarNotificacionAutomatica(`Actualizaste los metadatos estructurales de: ${h}`);
                     showToast("Cambios guardados en local.");
 
-                    let payload = `📝 ALTERACIÓN DE CANAL INDEXADO 📝\n\n👤 OPERADOR: ${usuarioActual.username_tg}\n🆔 ID TG: ${usuarioActual.id_tg}\n🔍 ID CANAL: ${editId}\n📢 NUEVO TÍTULO: ${t}\n💎 HANDLE: ${h}\n📊 CLASIFICACIÓN: ${cs}\n📂 CATEGORÍA: ${cat}\n⚡ ESTATUS: ${canales[index].status || 'en revisión'}`;
+                    let payload = `📝 ALTERACIÓN DE CANAL INDEXADO 📝\n\n📢 NUEVO TÍTULO: ${t}\n💎 HANDLE: ${h}\n📊 CLASIFICACIÓN: ${cs}`;
                     window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
                 }
                 resetAdminForm();
             } else {
                 let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
                 const maxPermitido = usuarioActual.isPremium ? 3 : 1;
-                
-                if (misCanales.length >= maxPermitido) {
-                    return showToast(`Límite excedido. Tu plan actual solo permite ${maxPermitido} canal(es).`);
-                }
+                if (misCanales.length >= maxPermitido) return showToast(`Límite excedido. Máximo del plan: ${maxPermitido}`);
 
-                let nuevoStatus = "en revisión";
-                if(exactMatch) {
-                    nuevoStatus = "publicado";
-                }
-
+                let nuevoStatus = exactMatch ? "publicado" : "en revisión";
                 let nuevoCanal = {
-                    id_canal: "c_" + Date.now(), 
-                    titulo: t, 
-                    telegram_handle: h, 
-                    catsub: cs,
-                    categoria: cat,
+                    id_canal: "c_" + Date.now(), titulo: t, telegram_handle: h, catsub: cs, categoria: cat,
                     url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
-                    id_user_telegram_admin: usuarioActual.id_tg, 
-                    rating: 5.0, 
-                    resenas: 1,
-                    isPopular: false, 
-                    isPremium: usuarioActual.isPremium, 
-                    isDestacado: usuarioActual.isPremium,
-                    quality: 75,
-                    status: nuevoStatus,
-                    ad_on: false,
-                    social_chat: uChat !== "",
-                    url_chat: uChat,
-                    bot_oficial: uBot !== "",
-                    url_bot: uBot,
-                    enlace_web: uWeb !== "",
-                    url_web: uWeb
+                    id_user_telegram_admin: usuarioActual.id_tg, rating: 5.0, resenas: 1,
+                    isPopular: false, isPremium: usuarioActual.isPremium, isDestacado: usuarioActual.isPremium,
+                    quality: 75, status: nuevoStatus, ad_on: false, social_chat: uChat !== "", url_chat: uChat,
+                    bot_oficial: uBot !== "", url_bot: uBot, enlace_web: uWeb !== "", url_web: uWeb
                 };
 
                 canales.push(nuevoCanal);
                 localStorage.setItem("golden_canales", JSON.stringify(canales));
-                showToast(nuevoStatus === "publicado" ? "Canal mapeado y publicado automáticamente." : "Canal enviado a la terminal de moderación.");
+                agregarNotificacionAutomatica(`Inyectaste un nuevo canal en la red: ${h} (Status: ${nuevoStatus.toUpperCase()})`);
+                showToast(nuevoStatus === "publicado" ? "Canal mapeado automáticamente." : "Canal enviado a moderación.");
                 
-                let payload = `🚀 NUEVA INYECCIÓN DE CANAL 🚀\n\n👤 USER: ${usuarioActual.username_tg}\n🆔 ID: ${usuarioActual.id_tg}\n📢 CANAL: ${t}\n💎 HANDLE: ${h}\n📊 RANGO: ${cs}\n📂 EXTRA: ${cat}\n⚡ STATUS INICIAL: ${nuevoStatus}`;
+                let payload = `🚀 NUEVA INYECCIÓN DE CANAL 🚀\n\n📢 CANAL: ${t}\n💎 HANDLE: ${h}\n📊 RANGO: ${cs}`;
                 window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
-                
                 resetAdminForm();
             }
         }
 
         function procesarListaCatSub(idCanal, accion) {
             const canalObj = canales.find(c => c.id_canal === idCanal);
-            let payload = `🌐 SOLICITUD CATSUB 🌐\n\n🔹 ACCIÓN: ${accion.toUpperCase()}\n👤 USER: ${usuarioActual.username_tg}\n🆔 ID: ${usuarioActual.id_tg}\n📢 CANAL: ${canalObj.telegram_handle}\n📊 RANGO: ${canalObj.catsub}`;
+            agregarNotificacionAutomatica(`Solicitaste exportar la lista CatSub de ${canalObj.telegram_handle}`);
+            let payload = `🌐 SOLICITUD CATSUB 🌐\n\n🔹 ACCIÓN: ${accion.toUpperCase()}\n📢 CANAL: ${canalObj.telegram_handle}\n📊 RANGO: ${canalObj.catsub}`;
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
         }
 
@@ -1184,8 +1195,9 @@
 
             if (canalObj.status === "en revisión") {
                 showToast("PROHIBIDO: Canal en fase de revisión activa de red.");
-            } else if (canalObj.status === "publicado" || !canalObj.status) {
-                let payload = `🛑 SOLICITUD DE REMOCIÓN 🛑\n\n👤 USER: ${usuarioActual.username_tg}\n🆔 ID: ${usuarioActual.id_tg}\n📢 CANAL A ELIMINAR: ${canalObj.telegram_handle}\n🔍 ID INTERNO: ${canalObj.id_canal}`;
+            } else {
+                agregarNotificacionAutomatica(`Solicitaste la remoción de catálogo del canal: ${canalObj.telegram_handle}`);
+                let payload = `🛑 SOLICITUD DE REMOCIÓN 🛑\n\n📢 CANAL A ELIMINAR: ${canalObj.telegram_handle}\n🔍 ID INTERNO: ${canalObj.id_canal}`;
                 window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(payload)}`, '_blank');
                 showToast("Abriendo pasarela de comunicación con soporte técnico.");
             }
@@ -1194,13 +1206,11 @@
         function renderNotificaciones() {
             const container = document.getElementById("notifications-container");
             const countBadge = document.getElementById("bell-count");
-            
             if(!container) return;
             container.innerHTML = "";
 
             if(notificaciones.length > 0) {
-                countBadge.style.display = "flex";
-                countBadge.innerText = notificaciones.length;
+                countBadge.style.display = "flex"; countBadge.innerText = notificaciones.length;
             } else {
                 countBadge.style.display = "none";
                 container.innerHTML = "<p style='color:var(--text-dim)'>La terminal de mensajes está despejada. Sin avisos críticos.</p>";
@@ -1214,7 +1224,7 @@
                         <div class="noti-content">${n.contenido}</div>
                         <div class="noti-actions">
                             <button class="btn-noti-action btn-noti-save" onclick="guardarNotiLocal('${n.id_noti}')">💾 Guardar</button>
-                            <button class="btn-noti-action btn-noti-del" onclick="eliminarNoti('${n.id_noti}')">❌</button>
+                            <button class="btn-noti-action btn-noti-del" onclick="eliminarNoti('${n.id_noti}')">❌ Eliminar</button>
                         </div>
                     </div>
                 `;
@@ -1224,12 +1234,11 @@
         function guardarNotiLocal(idNoti) {
             const noti = notificaciones.find(n => n.id_noti === idNoti);
             if(!noti) return;
-            
             let respaldos = JSON.parse(localStorage.getItem("golden_notificaciones_historico") || "[]");
             if(!respaldos.some(r => r.id_noti === idNoti)) {
                 respaldos.push(noti);
                 localStorage.setItem("golden_notificaciones_historico", JSON.stringify(respaldos));
-                showToast("Notificación archivada.");
+                showToast("Notificación archivada en el historial permanente.");
             }
         }
 
@@ -1237,20 +1246,18 @@
             notificaciones = notificaciones.filter(n => n.id_noti !== idNoti);
             localStorage.setItem("golden_notificaciones", JSON.stringify(notificaciones));
             renderNotificaciones();
+            showToast("Mensaje removido de la terminal.");
         }
 
         function solicitarSuscripcion() {
+            agregarNotificacionAutomatica("Iniciaste solicitud para adquirir membresía Premium GPlus.");
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=Deseo%20adquirir%20rango%20Premium%20GPlus`, '_blank');
         }
 
         function checkSessionForRecommendation(isAction = false) {
             let sessionCount = parseInt(localStorage.getItem("golden_session_clicks") || "0");
-            sessionCount++;
-            localStorage.setItem("golden_session_clicks", sessionCount);
-
-            if (sessionCount % 5 === 0) {
-                launchRandomRecommendation();
-            }
+            sessionCount++; localStorage.setItem("golden_session_clicks", sessionCount);
+            if (sessionCount % 5 === 0) launchRandomRecommendation();
         }
 
         function launchRandomRecommendation() {
@@ -1276,20 +1283,7 @@
             popup.classList.add("show");
         }
 
-        function closeRecommendation() {
-            document.getElementById("cyber-recommend-popup").classList.remove("show");
-        }
-
-        function __simularVerificacionAdminEnCodigo(canalId, key, valor) {
-            let idx = canales.findIndex(c => c.id_canal === canalId);
-            if (idx !== -1) {
-                canales[idx][key] = valor;
-                localStorage.setItem("golden_canales", JSON.stringify(canales));
-                renderPotenciadores();
-                renderCatalogo();
-                showToast("Simulación: Canal modificado en listado manual.");
-            }
-        }
+        function closeRecommendation() { document.getElementById("cyber-recommend-popup").classList.remove("show"); }
 
         function resetBaseDeDatos() {
             if (confirm("⚠️ ¿Estás seguro de que deseas purgar TODA la memoria local?")) {
