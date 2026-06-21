@@ -575,8 +575,15 @@
 
             if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
 
-            if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
-            canales = JSON.parse(localStorage.getItem("golden_canales"));
+            // --- BLOQUE DE INICIALIZACIÓN CORREGIDO ---
+if (!localStorage.getItem("golden_canales_v2")) { 
+    // Si no existe la versión v2, sobrescribimos con los datos limpios de DEFAULT_CHANNELS
+    localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+    // Marcamos que ya hicimos la limpieza para no volver a resetearlo
+    localStorage.setItem("golden_canales_v2", "true");
+}
+canales = JSON.parse(localStorage.getItem("golden_canales"));
+// ------------------------------------------
 
             if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
             usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
