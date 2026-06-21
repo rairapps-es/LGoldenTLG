@@ -239,6 +239,12 @@
         .btn-msg-save:hover { background: rgba(57, 255, 20, 0.1); }
         .btn-msg-delete { border-color: #ff3333; color: #ff3333; }
         .btn-msg-delete:hover { background: rgba(255, 51, 51, 0.1); }
+
+        /* --- ADICIONES PANEL ADMIN INFO EXTENDED --- */
+        .admin-booster-info { font-size: 0.72rem; color: var(--text-dim); margin: 6px 0; background: #141424; padding: 6px; border-radius: 6px; border-left: 2px solid var(--neon-cyan); }
+        .admin-booster-info span { font-weight: bold; }
+        .booster-on-status { color: var(--neon-green); }
+        .booster-off-status { color: var(--neon-magenta); }
     </style>
 </head>
 <body>
@@ -462,6 +468,15 @@
         const MI_USUARIO_TELEGRAM = "Airdayz";
         const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
 
+        // VARIABLES MANUALES DE CONFIGURACIÓN DE MEMBRESÍA
+        let variablesMembresia = {
+            fechaInicio: "2026-06-01",
+            fechaFin: "2026-07-01",
+            duracion: "Mensual", // "Mensual" o "Anual"
+            activado: true,      // true o false
+            estadoPago: "Pagado" // "Pagado", "Esperando el pago" o "Comprobando el pago"
+        };
+
         const BD_MENSAJES_PREDEFINIDOS = [
             { id_msg: "m1", user_id_target: "1320417199", titulo: "Actualización de Canal Exitosa", cuerpo: "Tu núcleo 'Neural AI Network' ha completado el ciclo de indexación algorítmica.", tema: "Sistema" },
             { id_msg: "m2", user_id_target: "1320417199", titulo: "Renovación de Membresía", cuerpo: "Tu suscripción Golden Plus expira en 30 días.", tema: "Soporte" },
@@ -512,6 +527,11 @@
                     const tgUser = webApp.initDataUnsafe.user;
                     usuarioActual.id_tg = tgUser.id.toString();
                     usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
+                    
+                    // Sincronización Real de Imagen de Perfil de Telegram
+                    if (tgUser.photo_url) {
+                        document.getElementById("nav-avatar").src = tgUser.photo_url;
+                    }
                 }
             }
 
@@ -576,6 +596,7 @@
             if(pageId === 'admin') renderAdminPanel();
             if(pageId === 'catalogo') aplicarFiltrosMaster(true);
             if(pageId === 'favoritos') renderFavoritos();
+            if(pageId === 'suscripcion') renderMembresiaPage();
             
             if(pageId === 'notificaciones') {
                 sessionStorage.setItem("campana_vista", "true");
@@ -617,6 +638,22 @@
 
                 let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
 
+                // Inyección de información detallada de potenciadores si es la consola de administración
+                let adminInfoSection = "";
+                if (isOwnerConsole) {
+                    adminInfoSection = `
+                        <div class="admin-booster-info">
+                            <div>Destacado: <span class="${c.ad_on ? 'booster-on-status' : 'booster-off-status'}">${c.ad_on ? 'ON' : 'OFF'}</span></div>
+                            <div>Web URL: <span class="${c.enlace_web ? 'booster-on-status' : 'booster-off-status'}">${c.enlace_web ? 'ON' : 'OFF'}</span></div>
+                            <div>Chat: <span class="${c.social_chat ? 'booster-on-status' : 'booster-off-status'}">${c.social_chat ? 'ON' : 'OFF'}</span></div>
+                            <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
+                        </div>
+                        <button class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px; margin-bottom:10px;" onclick="invitarAPotenciar('${c.telegram_handle}')">
+                            Invitar a Potenciar 🚀
+                        </button>
+                    `;
+                }
+
                 container.innerHTML += `
                     <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
                         <div>
@@ -636,11 +673,21 @@
                             <div class="quality-container">
                                 <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
                             </div>
+                            ${adminInfoSection}
                         </div>
                         <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
                             <div class="btn-grid">${extraButtonsHtml}</div>
                         </div>
                     </div>`;
+            });
+        }
+
+        function invitarAPotenciar(handle) {
+            const link = `https://t.me/ListaGolden?start=boost_${handle.replace('@', '')}`;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast("Enlace de invitación Golden copiado.");
+            }).catch(() => {
+                showToast("Error al copiar enlace.");
             });
         }
 
@@ -665,7 +712,7 @@
                 categoria: cat,
                 url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
                 id_user_telegram_admin: usuarioActual.id_tg, 
-                quality: 50, 
+                quality: 20, 
                 status: "publicado", 
                 rating: 5.0, 
                 resenas: 1,
@@ -716,7 +763,6 @@
             localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos)); 
             actualizarMetadatosContadores(); 
             
-            // Sincronizar renders de forma reactiva
             aplicarFiltrosMaster(false);
             if(currentContainerId === 'favs-container' || document.getElementById('page-favoritos').classList.contains('active')) {
                 renderFavoritos();
@@ -766,13 +812,33 @@
             }); 
         }
 
+        // --- SISTEMA Y PANTALLA DE MEMBRESÍA ACTUALIZADA ---
         function renderMembresiaPage() { 
             const container = document.getElementById("membership-content-area"); 
+            if(!container) return;
+
+            let estadoActivacion = variablesMembresia.activado ? 
+                `<span style="color:var(--neon-green); font-weight:bold;">ACTIVADO</span>` : 
+                `<span style="color:var(--neon-magenta); font-weight:bold;">DESACTIVADO</span>`;
+
+            let colorPago = "var(--text-dim)";
+            if(variablesMembresia.estadoPago === "Pagado") colorPago = "var(--neon-green)";
+            if(variablesMembresia.estadoPago === "Comprobando el pago") colorPago = "var(--neon-gold)";
+            if(variablesMembresia.estadoPago === "Esperando el pago") colorPago = "var(--neon-magenta)";
+
             container.innerHTML = `
-                <div class="cyber-form" style="border-color: var(--neon-magenta)">
-                    <h3 style="color:var(--neon-cyan); margin-bottom:10px;">Membresía Operador</h3>
-                    <p style="margin-bottom:8px; font-size:0.9rem;">ID Terminal: <span style="color:var(--neon-magenta); font-weight:bold;">${usuarioActual.id_tg}</span></p>
-                    <p style="font-size:0.85rem; color:var(--text-dim);">Estado del Perfil: ${usuarioActual.isPremium ? '<span style="color:var(--neon-gold)">GOLDEN PLUS ACTIVO</span>' : 'Estándar Libre'}</p>
+                <div class="cyber-form" style="border-color: var(--neon-magenta); display: flex; flex-direction: column; gap: 12px;">
+                    <h3 style="color:var(--neon-cyan); margin-bottom: 5px; text-transform: uppercase;">Membresía Operador GPlus</h3>
+                    <p style="font-size:0.9rem; border-bottom: 1px dashed #1e1e30; padding-bottom: 8px;">ID Terminal: <span style="color:var(--neon-gold); font-weight:bold;">${usuarioActual.id_tg}</span></p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+                        <div>Fecha Inicio:<br><span style="color: #fff;">${variablesMembresia.fechaInicio}</span></div>
+                        <div>Fecha Fin:<br><span style="color: #fff;">${variablesMembresia.fechaFin}</span></div>
+                    </div>
+                    
+                    <div style="font-size: 0.85rem;">Duración del Ciclo: <span style="color: var(--neon-cyan); font-weight: bold;">${variablesMembresia.duracion}</span></div>
+                    <div style="font-size: 0.85rem;">Estado de Línea: ${estadoActivacion}</div>
+                    <div style="font-size: 0.85rem;">Estado de Cuenta: <span style="color: ${colorPago}; font-weight: bold; text-transform: uppercase;">${variablesMembresia.estadoPago}</span></div>
                 </div>`; 
         }
 
@@ -820,22 +886,35 @@
             const canal = canales.find(c => c.id_canal === canalId); 
             canal[boosterKey] = !actualmenteActivo; 
             
-            // Recalcular calidad visual basada en potenciadores activos
             let activos = 0;
             TIENDA_POTENCIADORES.forEach(p => { if(canal[p.key]) activos++; });
-            canal.quality = 20 + (activos * 20); // Base estática + incremento
+            canal.quality = 20 + (activos * 20);
 
             localStorage.setItem("golden_canales", JSON.stringify(canales)); 
             cargarPotenciadoresDelCanal(); 
+            actualizarMetadatosContadores();
             showToast(`Núcleo modificado de forma exitosa.`);
         }
 
         function renderFavoritos() { renderGridTemplates(canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), "favs-container", false); }
         function renderAdminPanel() { renderGridTemplates(canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), "user-channels-list", true); }
+        
+        // REVISIÓN Y RE-CÁLCULO DINÁMICO DE CONTADORES GLOBALES
         function actualizarMetadatosContadores() { 
-            let totalAsoc = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg).length; 
+            let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+            let totalAsoc = misCanales.length; 
+            
+            // Contador Real de Potenciadores Totales Activos
+            let totalBoostsActivos = 0;
+            misCanales.forEach(canal => {
+                TIENDA_POTENCIADORES.forEach(p => {
+                    if(canal[p.key] === true) totalBoostsActivos++;
+                });
+            });
+
             document.getElementById("nav-user-counter").innerText = `Asoc: ${totalAsoc}`; 
             document.getElementById("nav-favs-counter").innerText = `Favs: ${usuarioActual.favoritos.length}`; 
+            document.getElementById("nav-boosts-counter").innerText = `Boosts: ${totalBoostsActivos}`; 
         }
 
         function actualizarEstilosSincroPremium() { 
