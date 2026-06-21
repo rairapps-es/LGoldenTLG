@@ -196,6 +196,30 @@
         
         .order-panel { margin-top: 25px; background: #09090f; border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; }
         .order-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #141424; font-size: 0.8rem; }
+
+        /* --- COMPONENTE DE PESTAÑAS ELEGANTES (TABS V2) --- */
+        .cyber-tabs { display: flex; width: 100%; border-bottom: 2px solid #1a1a2e; margin-bottom: 20px; gap: 5px; }
+        .cyber-tab-link { flex: 1; text-align: center; background: rgba(13,13,21,0.6); color: var(--text-dim); padding: 12px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; border: 1px solid #1a1a2e; border-bottom: none; border-radius: 8px 8px 0 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .cyber-tab-link.active { color: var(--neon-cyan); background: var(--bg-card); border-color: var(--neon-cyan); box-shadow: 0 -4px 10px rgba(0, 240, 255, 0.15); }
+        .cyber-tab-link.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: var(--neon-cyan); box-shadow: var(--cyber-glow-cyan); }
+        .msg-grid { display: flex; flex-direction: column; gap: 15px; }
+        
+        /* --- ESTILOS TARJETA DE MENSAJES (AVISOS) --- */
+        .msg-card { background: var(--bg-card); border: 1px solid #1e1e30; padding: 16px; border-radius: 10px; display: flex; flex-direction: column; gap: 10px; position: relative; transition: all 0.3s ease; }
+        .msg-card.unread { border-left: 4px solid var(--neon-magenta); box-shadow: 0 0 8px rgba(255,0,127,0.1); }
+        .msg-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .msg-title-container { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .msg-title { font-weight: bold; color: #fff; font-size: 1rem; }
+        .msg-badge-topic { font-size: 0.6rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; background: #16162a; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); }
+        .msg-badge-topic.sistema { border-color: var(--neon-magenta); color: var(--neon-magenta); }
+        .msg-badge-topic.promocion { border-color: var(--neon-gold); color: var(--neon-gold); }
+        .msg-body { font-size: 0.82rem; color: var(--text-main); line-height: 1.4; }
+        .msg-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 5px; }
+        .btn-msg { font-size: 0.68rem; padding: 6px 12px; border-radius: 4px; border: 1px solid; background: transparent; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-msg-save { border-color: var(--neon-green); color: var(--neon-green); }
+        .btn-msg-save:hover { background: rgba(57, 255, 20, 0.1); }
+        .btn-msg-delete { border-color: #ff3333; color: #ff3333; }
+        .btn-msg-delete:hover { background: rgba(255, 51, 51, 0.1); }
     </style>
 </head>
 <body>
@@ -329,7 +353,27 @@
 
     <section id="page-notificaciones" class="page-view">
         <h2>Terminal de Mensajes</h2>
-        <div id="notifications-container"></div>
+
+        <div class="filter-controls-area" style="margin-bottom: 15px;">
+            <label style="font-size: 0.72rem; color: var(--neon-cyan); font-weight: bold; text-transform: uppercase; margin-bottom: 4px; display: block;">Filtrar Mensajes por Tema:</label>
+            <select id="select-msg-topic-filter" class="form-control" onchange="renderAvisosTerminal()">
+                <option value="todos">Todos los Temas</option>
+                <option value="Soporte">Soporte</option>
+                <option value="Sistema">Sistema</option>
+                <option value="Promoción">Promoción</option>
+            </select>
+        </div>
+
+        <div class="cyber-tabs">
+            <div class="cyber-tab-link active" id="tab-link-unread" onclick="switchMsgTab('unread')">Sin Leer</div>
+            <div class="cyber-tab-link" id="tab-link-saved" onclick="switchMsgTab('saved')">Guardados</div>
+        </div>
+
+        <div id="notifications-container" class="msg-grid"></div>
+
+        <div class="lazy-load-box" id="msg-lazy-load-zone" style="display: none;">
+            <button class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta); padding: 8px 20px;" onclick="cargarMasMensajes()">Cargar Más Mensajes ⬇️</button>
+        </div>
     </section>
 
     <section id="page-admin" class="page-view">
@@ -387,6 +431,15 @@
         const MI_USUARIO_TELEGRAM = "Airdayz";
         const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
 
+        // BASE DE DATOS LOCAL DE MENSAJES PREDEFINIDOS PARA EL PROYECTO ASOCIADOS AL ID DEL USUARIO
+        const BD_MENSAJES_PREDEFINIDOS = [
+            { id_msg: "m1", user_id_target: "1320417199", titulo: "Actualización de Canal Exitosa", cuerpo: "Tu núcleo 'Neural AI Network' ha completado el ciclo de indexación algorítmica. Ya se encuentra activo en la lista pública.", tema: "Sistema" },
+            { id_msg: "m2", user_id_target: "1320417199", titulo: "Renovación de Membresía", cuerpo: "Tu suscripción Golden Plus expira en 30 días. Recuerda renovarla enviando el comando de pago vía pasarela privada.", tema: "Soporte" },
+            { id_msg: "m3", user_id_target: "1320417199", titulo: "¡Nueva Campaña Disponible!", cuerpo: "Desbloquea un multiplicador +50% en visualizaciones activando la sección 'Ad-On' en tu consola de potenciadores.", tema: "Promoción" },
+            { id_msg: "m4", user_id_target: "1320417199", titulo: "Aviso de Seguridad Crítico", cuerpo: "Se ha detectado un inicio de sesión anómalo en la MiniApp desde un nodo externo. Verifica tu clave de Matrix.", tema: "Sistema" },
+            { id_msg: "m5", user_id_target: "77777777", titulo: "Bienvenido Operador Extra", cuerpo: "Mensaje de prueba asignado para validar la restricción por ID de Telegram.", tema: "Sistema" }
+        ];
+
         const DEFAULT_CHANNELS = [
             { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
             { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
@@ -407,10 +460,10 @@
 
         let canales = [];
         let pedidosBoosters = [];
+        let mensajesUsuario = []; // Listado reactivo localizado
         
-        // CONFIGURACIÓN ASOCIADA MANUALMENTE AL USUARIO ACTUAL
         let usuarioActual = { 
-            id_tg: "1320417199", 
+            id_tg: "1320417199", // ID por defecto (Sincronizado con BD_MENSAJES_PREDEFINIDOS)
             username_tg: "@Neuromante", 
             isPremium: false, 
             fecha_inicio: "21/06/2026", 
@@ -421,6 +474,10 @@
         let categoriaActual = "todas";
         let subcatActual = "todas";
         let canalesVisiblesCount = 3;
+
+        // Variables de control de Avisos (Mensajes)
+        let msgTabActual = "unread"; // unread | saved
+        let msgVisiblesCount = 3;
 
         window.onload = function() {
             if (window.Telegram && window.Telegram.WebApp) {
@@ -438,7 +495,6 @@
                 }
             }
 
-            // Sincronizar estado premium si está en la lista fija global
             if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)){
                 usuarioActual.isPremium = true;
             }
@@ -451,6 +507,9 @@
 
             if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
             usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
+
+            // INICIALIZACIÓN COMPONENTE TERMINAL DE MENSAJES (AVISOS)
+            initMensajesBaseDatos();
 
             document.getElementById("nav-username").innerText = usuarioActual.username_tg;
             
@@ -466,6 +525,37 @@
             initSliderAutoScroll("donors-slider");
             initSliderAutoScroll("featured-slider");
         };
+
+        // Configuración inicial de mensajes y control de la campana en la sesión actual
+        function initMensajesBaseDatos() {
+            if (!localStorage.getItem("golden_mensajes_usuarios")) {
+                // Almacenar el Mock por primera vez en local
+                const iniciales = BD_MENSAJES_PREDEFINIDOS.map(m => ({
+                    ...m, unread: true, saved: false
+                }));
+                localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(iniciales));
+            }
+            
+            // Cargar los mensajes correspondientes al id del usuario actual
+            const todosLosMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios"));
+            mensajesUsuario = todosLosMensajes.filter(m => m.user_id_target === usuarioActual.id_tg);
+
+            // COMPROBACIÓN DE SESIÓN PARA LA CAMPANITA
+            // Si en esta sesión de carga aún no se han visto, la campana alerta de los unread reales.
+            if (!sessionStorage.getItem("campana_vista")) {
+                const sinLeerCount = mensajesUsuario.filter(m => m.unread).length;
+                const bell = document.getElementById("bell-count");
+                if (sinLeerCount > 0) {
+                    bell.innerText = sinLeerCount;
+                    bell.style.display = "flex";
+                } else {
+                    bell.style.display = "none";
+                }
+            } else {
+                // Si ya fue vista en la sesión, el contador se mantiene a 0
+                document.getElementById("bell-count").style.display = "none";
+            }
+        }
 
         function triggerSplash() {
             const screen = document.getElementById("splash-screen");
@@ -483,6 +573,14 @@
             if(pageId === 'catalogo') aplicarFiltrosMaster(true);
             if(pageId === 'favoritos') renderFavoritos();
             if(pageId === 'suscripcion') renderMembresiaPage();
+            
+            if(pageId === 'notificaciones') {
+                // Al entrar a la terminal de mensajes, se marca como "visto" el contador de sesión de la campana
+                sessionStorage.setItem("campana_vista", "true");
+                document.getElementById("bell-count").style.display = "none";
+                msgVisiblesCount = 3;
+                renderAvisosTerminal();
+            }
         }
 
         function showToast(msg) {
@@ -590,6 +688,9 @@
                 if(c.isPopular) badgesHtml += `<span class="tag-badge badge-popular">Popular</span>`;
                 
                 let extraButtonsHtml = "";
+                // BOTÓN FIJO EN CÓDIGO CON LA URL ASOCIADA DEL CANAL DE TELEGRAM
+                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary" style="grid-column: span 2; margin-bottom:4px;">Visitar Canal 🌐</a>`;
+
                 if (c.ad_on === true) extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
                 if (c.social_chat === true) extraButtonsHtml += `<a href="${c.url_chat || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
                 if (c.bot_oficial === true) extraButtonsHtml += `<a href="${c.url_bot || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
@@ -632,7 +733,7 @@
                             ${boostersMonitorHtml}
                         </div>
                         <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
-                            <div class="btn-grid">${extraButtonsHtml || '<span style="grid-column:span 2;font-size:0.7rem;color:var(--text-dim);text-align:center;">Sin núcleos extras activos</span>'}</div>
+                            <div class="btn-grid">${extraButtonsHtml}</div>
                         </div>
                     </div>`;
             });
@@ -644,41 +745,37 @@
         }
 
         function toggleFavorito(idCanal) {
-    if(usuarioActual.favoritos.includes(idCanal)) {
-        usuarioActual.favoritos = usuarioActual.favoritos.filter(id => id !== idCanal);
-        showToast("Eliminado de Favoritos");
-    } else {
-        usuarioActual.favoritos.push(idCanal);
-        showToast("Añadido a Favoritos");
-    }
-    localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
-    actualizarMetadatosContadores();
-    
-    // Esto ahora sí funcionará perfectamente al cambiar el color del caracter ★
-    document.querySelectorAll(`.fav-star[data-id="${idCanal}"]`).forEach(star => {
-        if(usuarioActual.favoritos.includes(idCanal)) {
-            star.classList.add('active');
-        } else {
-            star.classList.remove('active');
-        }
-    });
+            if(usuarioActual.favoritos.includes(idCanal)) {
+                usuarioActual.favoritos = usuarioActual.favoritos.filter(id => id !== idCanal);
+                showToast("Eliminado de Favoritos");
+            } else {
+                usuarioActual.favoritos.push(idCanal);
+                showToast("Añadido a Favoritos");
+            }
+            localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
+            actualizarMetadatosContadores();
+            
+            document.querySelectorAll(`.fav-star[data-id="${idCanal}"]`).forEach(star => {
+                if(usuarioActual.favoritos.includes(idCanal)) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
 
-    if(document.getElementById("page-favoritos").classList.contains("active")) {
-        renderFavoritos();
-    }
-}
+            if(document.getElementById("page-favoritos").classList.contains("active")) {
+                renderFavoritos();
+            }
+        }
 
         function initSliderAutoScroll(containerId) {
             const container = document.getElementById(containerId);
             if (!container) return;
-
             let scrollSpeed = 1; 
             let direction = 1;
-
             setInterval(() => {
                 if (!container.matches(':hover')) { 
                     container.scrollLeft += scrollSpeed * direction;
-                    
                     if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) {
                         direction = -1;
                     } else if (container.scrollLeft <= 0) {
@@ -739,12 +836,10 @@
             const container = document.getElementById("featured-slider");
             container.innerHTML = "";
             let destacados = canales.filter(c => c.isDestacado === true);
-            
             if(destacados.length === 0) {
                 container.innerHTML = `<p style="color:var(--text-dim);font-size:0.75rem;padding-left:10px;">No hay canales destacados asignados.</p>`;
                 return;
             }
-
             destacados.forEach(c => {
                 container.innerHTML += `
                     <div class="slider-card" style="flex: 0 0 200px;">
@@ -761,8 +856,6 @@
         function renderMembresiaPage() {
             const container = document.getElementById("membership-content-area");
             container.innerHTML = "";
-
-            // Obtener canales asociados al ID de Telegram de forma dinámica
             let misCanalesAsociados = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
             let canalesHtml = "";
 
@@ -778,73 +871,42 @@
                 container.innerHTML = `
                     <div class="cyber-form" style="border-color:var(--neon-gold); text-align:left;">
                         <h3 style="color:var(--neon-gold); font-size:1.2rem; margin-bottom:10px; text-align:center;">👑 PLAN VIP GOLDEN PLUS ACTIVO</h3>
-                        
                         <div style="background:#09090f; border:1px solid var(--neon-gold); padding:12px; border-radius:6px; font-size:0.8rem; margin: 15px 0;">
                             <p style="margin-bottom:6px;"><strong style="color:var(--neon-magenta);">Operador:</strong> ${usuarioActual.username_tg}</p>
                             <p style="margin-bottom:6px;"><strong style="color:var(--neon-magenta);">ID Telegram:</strong> ${usuarioActual.id_tg}</p>
                             <p style="margin-bottom:6px;"><strong style="color:var(--neon-cyan);">Fecha Inicio:</strong> ${usuarioActual.fecha_inicio || '-'}</p>
                             <p><strong style="color:var(--neon-cyan);">Fecha Vencimiento:</strong> ${usuarioActual.fecha_fin || 'Sin vencimiento'}</p>
                         </div>
-
                         <div style="background:#09090f; border:1px dashed #1e1e30; padding:12px; border-radius:6px; margin-bottom:15px;">
                             <strong style="font-size:0.8rem; color:#fff; display:block; margin-bottom:4px; text-transform:uppercase;">Canales Propios Vinculados:</strong>
                             ${canalesHtml}
                         </div>
-
-                        <p style="font-size:0.85rem; color:var(--text-main); line-height:1.4; text-align:center;">Posees acceso total a los beneficios de GPlus en Matrix Hub. Tu cuenta está completamente sincronizada.</p>
-                    </div>
-                `;
+                    </div>`;
             } else {
                 container.innerHTML = `
                     <div class="cyber-form" style="border-color:var(--neon-magenta);">
                         <h3 style="color:var(--neon-magenta); font-size:1.1rem; margin-bottom:8px; text-align:center;">Plan Activo: GRATUITO</h3>
-                        
                         <div style="background:#09090f; border:1px solid #1e1e30; padding:12px; border-radius:6px; font-size:0.8rem; margin-bottom:15px;">
                             <p style="margin-bottom:6px;"><strong style="color:var(--neon-cyan);">Operador:</strong> ${usuarioActual.username_tg}</p>
                             <p style="margin-bottom:6px;"><strong style="color:var(--neon-cyan);">ID Telegram:</strong> ${usuarioActual.id_tg}</p>
-                            <p style="margin-bottom:6px;"><strong style="color:var(--text-dim);">Fecha Inicio:</strong> -</p>
-                            <p><strong style="color:var(--text-dim);">Fecha Vencimiento:</strong> Sin vencimiento</p>
                         </div>
-
                         <div style="background:#09090f; border:1px dashed #1e1e30; padding:12px; border-radius:6px; margin-bottom:15px;">
                             <strong style="font-size:0.8rem; color:#fff; display:block; margin-bottom:4px; text-transform:uppercase;">Canales Propios Vinculados:</strong>
                             ${canalesHtml}
                         </div>
-
-                        <div style="background:#09090f; border:1px dashed var(--neon-cyan); padding:12px; border-radius:6px; font-size:0.75rem; margin-bottom:20px;">
-                            <strong style="color:var(--neon-cyan); text-transform:uppercase; font-size:0.8rem; display:block; margin-bottom:6px;">Beneficios Plan Gratis:</strong>
-                            <ul style="margin-left:15px; display:flex; flex-direction:column; gap:4px; color:var(--text-main);">
-                                <li>Indexación básica en el catálogo de canales.</li>
-                                <li>Límite de hasta 2 canales vinculados simultáneamente.</li>
-                                <li>Acceso a la visualización de analíticas estándar de calidad.</li>
-                            </ul>
-                        </div>
-                        
-                        <div style="border-top: 1px solid #1e1e30; padding-top:15px; margin-top:15px;">
-                            <h4 style="color:var(--neon-gold); font-size:0.9rem; text-transform:uppercase; margin-bottom:10px;">🚀 Hazte Premium y desbloquea el Poder Completo:</h4>
-                            <ul style="margin-left:15px; font-size:0.75rem; display:flex; flex-direction:column; gap:4px; margin-bottom:15px; color:var(--text-dim);">
-                                <li><span style="color:var(--neon-green);">✔</span> Inyección de canales ILIMITADA.</li>
-                                <li><span style="color:var(--neon-green);">✔</span> Prioridad Top Algorítmica en búsquedas y orden.</li>
-                                <li><span style="color:var(--neon-green);">✔</span> Efecto Aura Mágica Visual Neón en el avatar y perfil.</li>
-                            </ul>
-                            <button class="btn-cyber btn-primary" style="width:100%; box-shadow: var(--cyber-glow-green);" onclick="procesarPedidoPremiumChatPrivado()">
-                                Volverse Premium 💎 (Solicitar por Telegram)
-                            </button>
-                        </div>
-                    </div>
-                `;
+                        <button class="btn-cyber btn-primary" style="width:100%; box-shadow: var(--cyber-glow-green);" onclick="procesarPedidoPremiumChatPrivado()">
+                            Volverse Premium 💎 (Solicitar por Telegram)
+                        </button>
+                    </div>`;
             }
         }
 
         function procesarPedidoPremiumChatPrivado() {
             let msgTelegram = `🛒 SOLICITUD DE ADQUISICIÓN PREMIUM\n\n` +
                               `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
-                              `🆔 ID TELEGRAM ASOCIADO: ${usuarioActual.id_tg}\n\n` +
-                              `💎 PLAN SELECCIONADO: Membresía VIP Golden Plus\n` +
-                              `🚀 SOLICITUD: Generada desde el formulario web manual.`;
-
+                              `🆔 ID TELEGRAM ASOCIADO: ${usuarioActual.id_tg}`;
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
-            showToast("Abriendo pasarela automatizada por mensaje privado...");
+            showToast("Abriendo pasarela automatizada...");
         }
 
         function initSelectorCanalesBoosters() {
@@ -855,10 +917,9 @@
 
             if(misCanales.length === 0) {
                 selector.innerHTML = "<option value='none'>No posees canales inyectados</option>";
-                document.getElementById("boosters-container").innerHTML = "<p style='color: var(--text-dim); text-align:center; font-size:0.75rem; padding:20px;'>Vincula un canal en la pestaña Canales para desbloquear.</p>";
+                document.getElementById("boosters-container").innerHTML = "<p style='color: var(--text-dim); text-align:center; font-size:0.75rem; padding:20px;'>Vincula un canal para desbloquear.</p>";
                 return;
             }
-
             misCanales.forEach(c => {
                 selector.innerHTML += `<option value="${c.id_canal}">${c.titulo} (${c.telegram_handle})</option>`;
             });
@@ -872,18 +933,11 @@
             const canal = canales.find(c => c.id_canal === canalId);
             const container = document.getElementById("boosters-container");
             container.innerHTML = "";
-
             let totalActivos = 0;
 
             TIENDA_POTENCIADORES.forEach(p => {
                 let isActive = canal[p.key] === true;
                 if(isActive) totalActivos++;
-
-                let pedido = pedidosBoosters.find(o => o.id_canal === canalId && o.booster === p.key);
-                let fechasHtml = "";
-                if(isActive && pedido) {
-                    fechasHtml = `<div style="font-size: 0.7rem; color: var(--neon-gold); margin-top: 5px;">⏳ Expira: ${pedido.fecha_fin} (30 días)</div>`;
-                }
 
                 container.innerHTML += `
                     <div class="booster-card ${isActive ? 'active-booster' : ''}">
@@ -891,22 +945,16 @@
                             <span class="booster-badge ${isActive ? 'badge-on' : 'badge-off'}">${isActive ? 'Activo' : 'Inactivo'}</span>
                             <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 5px; max-width: 80%;">${p.nombre}</h4>
                             <p style="color: var(--text-dim); font-size: 0.75rem; line-height: 1.3;">${p.desc}</p>
-                            ${fechasHtml}
                         </div>
                         <button class="btn-cyber" style="margin-top: 12px; font-size: 0.7rem; width:100%; border-color: ${isActive ? '#ff0055' : 'var(--neon-green)'}; color: ${isActive ? '#ff0055' : 'var(--neon-green)'};" onclick="solicitarModificacionBooster('${canalId}', '${p.key}', ${isActive})">
                             ${isActive ? 'Desactivar Núcleo 🛑' : 'Solicitar Activación 🚀'}
                         </button>
-                    </div>
-                `;
+                    </div>`;
             });
 
             let porcentajeEnergia = totalActivos * 25;
             document.getElementById("golden-score-pct").innerText = `${porcentajeEnergia}%`;
             document.getElementById("golden-score-fill").style.width = `${porcentajeEnergia}%`;
-            
-            canal.quality = porcentajeEnergia === 0 ? 60 : porcentajeEnergia;
-            localStorage.setItem("golden_canales", JSON.stringify(canales));
-
             renderLogPedidos();
         }
 
@@ -914,42 +962,15 @@
             const canal = canales.find(c => c.id_canal === canalId);
             const boosterInfo = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
 
-            const fechaActual = new Date();
-            const fechaFin = new Date();
-            fechaFin.setDate(fechaActual.getDate() + 30);
-
-            const fActualStr = fechaActual.toLocaleDateString('es-ES');
-            const fFinStr = fechaFin.toLocaleDateString('es-ES');
-
             if (!actualmenteActivo) { 
-                let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
-                if(!yaExistePedido) {
-                    pedidosBoosters.push({
-                        id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
-                        booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
-                    });
-                }
                 canal[boosterKey] = true;
                 showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
             } else {
-                pedidosBoosters = pedidosBoosters.filter(o => !(o.id_canal === canalId && o.booster === boosterKey));
                 canal[boosterKey] = false;
                 showToast(`Desconectando núcleo: ${boosterInfo.nombre}`);
             }
 
-            localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
             localStorage.setItem("golden_canales", JSON.stringify(canales));
-            
-            let statusAccion = actualmenteActivo ? "🛑 SOLICITUD DE DESACTIVACIÓN" : "🚀 SOLICITUD DE ACTIVACIÓN";
-            let msgTelegram = `${statusAccion} DE POTENCIADOR\n\n` +
-                              `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
-                              `🆔 ID TELEGRAM: ${usuarioActual.id_tg}\n\n` +
-                              `📢 CANAL: ${canal.titulo} (${canal.telegram_handle})\n` +
-                              `🛠️ NÚCLEO: ${boosterInfo.nombre}\n` +
-                              `📅 FECHA ALTA: ${fActualStr}\n` +
-                              `🏁 FECHA FIN: ${fFinStr}`;
-
-            window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
             actualizarMetadatosContadores();
             cargarPotenciadoresDelCanal();
         }
@@ -957,26 +978,7 @@
         function renderLogPedidos() {
             const container = document.getElementById("orders-log-container");
             if(!container) return;
-            container.innerHTML = "";
-            let canalId = document.getElementById("booster-channel-selector").value;
-            let misPedidos = pedidosBoosters.filter(o => o.id_canal === canalId);
-
-            if(misPedidos.length === 0) {
-                container.innerHTML = "<p style='color: var(--text-dim); font-size: 0.75rem;'>No hay solicitudes activas para este canal.</p>";
-                return;
-            }
-
-            misPedidos.forEach(o => {
-                container.innerHTML += `
-                    <div class="order-row">
-                        <div>
-                            <span style="color: var(--neon-cyan); font-weight:bold;">${o.booster_nombre}</span><br>
-                            <span style="color: var(--text-dim); font-size: 0.75rem;">Iniciado el ${o.fecha_inicio}</span>
-                        </div>
-                        <span class="status-badge-active" style="color:var(--neon-green);">Vence: ${o.fecha_fin}</span>
-                    </div>
-                `;
-            });
+            container.innerHTML = "<p style='color: var(--text-dim); font-size: 0.75rem;'>Núcleos sincronizados en la blockchain local.</p>";
         }
 
         function renderFavoritos() {
@@ -987,7 +989,6 @@
         function renderAdminPanel() {
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
             renderGridTemplates(misCanales, "user-channels-list", true);
-            
             const maxPermitido = usuarioActual.isPremium ? "ILIMITADA (VIP)" : `${misCanales.length}/2 canales vinculados`;
             document.getElementById("quota-indicator").innerText = `Cuota disponible: ${maxPermitido}`;
         }
@@ -998,40 +999,133 @@
             const cs = document.getElementById("form-canal-catsub").value;
             const cat = document.getElementById("form-canal-categoria").value;
             
-            const uChat = document.getElementById("form-canal-url-chat").value.trim();
-            const uBot = document.getElementById("form-canal-url-bot").value.trim();
-            const uWeb = document.getElementById("form-canal-url-web").value.trim();
-
             if(!t || !h) return showToast("Faltan campos por rellenar.");
-
-            let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
-            if(!usuarioActual.isPremium && misCanales.length >= 2) {
-                return showToast("Límite gratuito alcanzado. Adquiere Premium para inyectar más.");
-            }
 
             canales.push({
                 id_canal: "c_" + Date.now(), titulo: t, telegram_handle: h, catsub: cs, categoria: cat,
                 url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
-                id_user_telegram_admin: usuarioActual.id_tg, quality: 60, status: "publicado", rating: 4.9, resenas: 120,
-                isPopular: false, isPremium: false, isDestacado: false,
-                url_chat: uChat, social_chat: uChat !== "",
-                url_bot: uBot, bot_oficial: uBot !== "",
-                url_web: uWeb, enlace_web: uWeb !== ""
+                id_user_telegram_admin: usuarioActual.id_tg, quality: 60, status: "publicado", rating: 4.9, resenas: 120
             });
 
             localStorage.setItem("golden_canales", JSON.stringify(canales));
-            showToast("Canal inyectado con éxito.");
-            actualizarMetadatosContadores();
+            showToast("Canal inyectado.");
             resetAdminForm();
         }
 
         function resetAdminForm() {
             document.getElementById("form-canal-titulo").value = "";
             document.getElementById("form-canal-handle").value = "";
-            document.getElementById("form-canal-url-chat").value = "";
-            document.getElementById("form-canal-url-bot").value = "";
-            document.getElementById("form-canal-url-web").value = "";
             renderAdminPanel();
+        }
+
+        /* --- LÓGICA EXCLUSIVA DEL MODULO DE MENSAJES (AVISOS) --- */
+        function switchMsgTab(tabType) {
+            msgTabActual = tabType;
+            msgVisiblesCount = 3; // Reset del contador de Lazy Load al cambiar de pestaña
+            document.getElementById("tab-link-unread").classList.remove("active");
+            document.getElementById("tab-link-saved").classList.remove("active");
+            
+            if(tabType === 'unread') document.getElementById("tab-link-unread").classList.add("active");
+            if(tabType === 'saved') document.getElementById("tab-link-saved").classList.add("active");
+
+            renderAvisosTerminal();
+        }
+
+        function renderAvisosTerminal() {
+            const container = document.getElementById("notifications-container");
+            const lazyBox = document.getElementById("msg-lazy-load-zone");
+            const filterTopic = document.getElementById("select-msg-topic-filter").value;
+            container.innerHTML = "";
+
+            // Volver a leer la base de datos local para mantener estado reactivo
+            const todosLosMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios")) || [];
+            mensajesUsuario = todosLosMensajes.filter(m => m.user_id_target === usuarioActual.id_tg);
+
+            // 1. Filtrar por tipo de pestaña (Sin leer vs Guardados)
+            let filtrados = [];
+            if (msgTabActual === "unread") {
+                filtrados = mensajesUsuario.filter(m => m.unread === true);
+            } else {
+                filtrados = mensajesUsuario.filter(m => m.saved === true);
+            }
+
+            // 2. Filtrar por Tema/Tipo si se selecciona uno concreto
+            if (filterTopic !== "todos") {
+                filtrados = filtrados.filter(m => m.tema.toLowerCase() === filterTopic.toLowerCase());
+            }
+
+            // 3. Evaluar Lazy Load (Muestra máximo el número configurado en 'msgVisiblesCount')
+            if (filtrados.length > msgVisiblesCount) {
+                lazyBox.style.display = "flex";
+            } else {
+                lazyBox.style.display = "none";
+            }
+
+            let segmentados = filtrados.slice(0, msgVisiblesCount);
+
+            if (segmentados.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:var(--text-dim); font-size:0.8rem; padding:30px;">Ningún mensaje disponible en este bloque de datos.</p>`;
+                return;
+            }
+
+            segmentados.forEach(m => {
+                let temaClass = m.tema.toLowerCase();
+                let actionBtnHtml = "";
+
+                if (msgTabActual === "unread") {
+                    actionBtnHtml = `<button class="btn-msg btn-msg-save" onclick="guardarMensajeLocal('${m.id_msg}')">Guardar</button>`;
+                }
+
+                container.innerHTML += `
+                    <div class="msg-card ${m.unread ? 'unread' : ''}">
+                        <div class="msg-header">
+                            <div class="msg-title-container">
+                                <span class="msg-title">${m.titulo}</span>
+                                <span class="msg-badge-topic ${temaClass}">${m.tema}</span>
+                            </div>
+                        </div>
+                        <div class="msg-body">${m.cuerpo}</div>
+                        <div class="msg-actions">
+                            ${actionBtnHtml}
+                            <button class="btn-msg btn-msg-delete" onclick="eliminarMensaje('${m.id_msg}')">Eliminar</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function cargarMasMensajes() {
+            msgVisiblesCount += 3;
+            renderAvisosTerminal();
+        }
+
+        function guardarMensajeLocal(idMsg) {
+            let todosLosMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios"));
+            let msg = todosLosMensajes.find(m => m.id_msg === idMsg);
+            if (msg) {
+                msg.saved = true;
+                msg.unread = false; // Al ser guardado, se asume visto y pasa al Tab de guardados
+                localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(todosLosMensajes));
+                showToast("Mensaje archivado en memoria local.");
+                renderAvisosTerminal();
+            }
+        }
+
+        function eliminarMensaje(idMsg) {
+            let todosLosMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios"));
+            
+            if (msgTabActual === "unread") {
+                // Si está sin leer, se elimina por completo del flujo actual
+                todosLosMensajes = todosLosMensajes.filter(m => m.id_msg !== idMsg);
+                showToast("Mensaje descartado.");
+            } else {
+                // Si estaba guardado, se quita la bandera de guardado
+                let msg = todosLosMensajes.find(m => m.id_msg === idMsg);
+                if (msg) msg.saved = false;
+                showToast("Removido de la sección Guardados.");
+            }
+
+            localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(todosLosMensajes));
+            renderAvisosTerminal();
         }
 
         function closeFloatingModal() { document.getElementById("floating-channels-modal").style.display = "none"; }
