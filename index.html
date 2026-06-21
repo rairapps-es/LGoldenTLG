@@ -874,48 +874,49 @@
         }
 
         function solicitarModificacionBooster(canalId, boosterKey, actualmenteActivo) {
-            const canal = canales.find(c => c.id_canal === canalId);
-            const boosterInfo = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
+    const canal = canales.find(c => c.id_canal === canalId);
+    const boosterInfo = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
 
-            const fechaActual = new Date();
-            const fechaFin = new Date();
-            fechaFin.setDate(fechaActual.getDate() + 30);
+    const fechaActual = new Date();
+    const fechaFin = new Date();
+    fechaFin.setDate(fechaActual.getDate() + 30);
 
-            const fActualStr = fechaActual.toLocaleDateString('es-ES');
-            const fFinStr = fechaFin.toLocaleDateString('es-ES');
+    const fActualStr = fechaActual.toLocaleDateString('es-ES');
+    const fFinStr = fechaFin.toLocaleDateString('es-ES');
 
-            if(!currentlyActivo = actualmenteActivo) { 
-                let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
-                if(!yaExistePedido) {
-                    pedidosBoosters.push({
-                        id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
-                        booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
-                    });
-                }
-                canal[boosterKey] = true;
-                showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
-            } else {
-                pedidosBoosters = pedidosBoosters.filter(o => !(o.id_canal === canalId && o.booster === boosterKey));
-                canal[boosterKey] = false;
-                showToast(`Desconectando núcleo: ${boosterInfo.nombre}`);
-            }
-
-            localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
-            localStorage.setItem("golden_canales", JSON.stringify(canales));
-            
-            let statusAccion = actualmenteActivo ? "🛑 SOLICITUD DE DESACTIVACIÓN" : "🚀 SOLICITUD DE ACTIVACIÓN";
-            let msgTelegram = `${statusAccion} DE POTENCIADOR\n\n` +
-                              `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
-                              `🆔 ID TELEGRAM: ${usuarioActual.id_tg}\n\n` +
-                              `📢 CANAL: ${canal.titulo} (${canal.telegram_handle})\n` +
-                              `🛠️ NÚCLEO: ${boosterInfo.nombre}\n` +
-                              `📅 FECHA ALTA: ${fActualStr}\n` +
-                              `🏁 FECHA FIN: ${fFinStr}`;
-
-            window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
-            actualizarMetadatosContadores();
-            cargarPotenciadoresDelCanal();
+    // ¡CORREGIDO AQUÍ! Evaluamos directamente el parámetro booleano invertido
+    if (!actualmenteActivo) { 
+        let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
+        if(!yaExistePedido) {
+            pedidosBoosters.push({
+                id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
+                booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
+            });
         }
+        canal[boosterKey] = true;
+        showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
+    } else {
+        pedidosBoosters = pedidosBoosters.filter(o => !(o.id_canal === canalId && o.booster === boosterKey));
+        canal[boosterKey] = false;
+        showToast(`Desconectando núcleo: ${boosterInfo.nombre}`);
+    }
+
+    localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
+    localStorage.setItem("golden_canales", JSON.stringify(canales));
+    
+    let statusAccion = actualmenteActivo ? "🛑 SOLICITUD DE DESACTIVACIÓN" : "🚀 SOLICITUD DE ACTIVACIÓN";
+    let msgTelegram = `${statusAccion} DE POTENCIADOR\n\n` +
+                      `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
+                      `🆔 ID TELEGRAM: ${usuarioActual.id_tg}\n\n` +
+                      `📢 CANAL: ${canal.titulo} (${canal.telegram_handle})\n` +
+                      `🛠️ NÚCLEO: ${boosterInfo.nombre}\n` +
+                      `📅 FECHA ALTA: ${fActualStr}\n` +
+                      `🏁 FECHA FIN: ${fFinStr}`;
+
+    window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
+    actualizarMetadatosContadores();
+    cargarPotenciadoresDelCanal();
+}
 
         function renderLogPedidos() {
             const container = document.getElementById("orders-log-container");
