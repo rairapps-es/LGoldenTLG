@@ -620,7 +620,7 @@
                                     <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
                                     <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
                                 </div>
-                                <span class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}')">⭐</span>
+                                <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}')">⭐</span>
                             </div>
                             <div class="quality-container">
                                 <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
@@ -654,9 +654,19 @@
             localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
             actualizarMetadatosContadores();
             
-            if(document.getElementById("page-catalogo").classList.contains("active")) aplicarFiltrosMaster(false);
-            if(document.getElementById("page-favoritos").classList.contains("active")) renderFavoritos();
-            if(document.getElementById("page-admin").classList.contains("active")) renderAdminPanel();
+            // Actualizar visualmente todas las estrellas idénticas que estén renderizadas en la pantalla actual
+            document.querySelectorAll(`.fav-star[data-id="${idCanal}"]`).forEach(star => {
+                if(usuarioActual.favoritos.includes(idCanal)) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            // Si estamos en la vista de favoritos, refrescar la lista completa para remover la tarjeta
+            if(document.getElementById("page-favoritos").classList.contains("active")) {
+                renderFavoritos();
+            }
         }
 
         function initSliderAutoScroll(containerId) {
@@ -742,7 +752,7 @@
                         <div style="background:linear-gradient(145deg, #09090f, #1a0b1a); border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center; white-space: normal;">
                             <img src="${c.url_imagen}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-bottom:5px; border:1px solid var(--neon-cyan);">
                             <h5 style="font-size:0.8rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.titulo}</h5>
-                            <span style="font-size:0.7rem; color:var(--neon-cyan); display:block; margin-top:2px;">${c.telegram_handle}</span>
+                            <span style="font-size:0.70rem; color:var(--neon-cyan); display:block; margin-top:2px;">${c.telegram_handle}</span>
                         </div>
                     </div>
                 `;
@@ -753,25 +763,53 @@
             const container = document.getElementById("membership-content-area");
             container.innerHTML = "";
 
+            // Obtener canales asociados al ID de Telegram de forma dinámica
+            let misCanalesAsociados = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+            let canalesHtml = "";
+
+            if(misCanalesAsociados.length === 0) {
+                canalesHtml = `<p style="color: var(--text-dim); font-size: 0.75rem;">Ningún canal asociado a este ID de momento.</p>`;
+            } else {
+                misCanalesAsociados.forEach(c => {
+                    canalesHtml += `<div style="font-size:0.75rem; color:var(--neon-cyan); margin-top:4px;">• ${c.titulo} (${c.telegram_handle})</div>`;
+                });
+            }
+
             if(usuarioActual.isPremium) {
                 container.innerHTML = `
-                    <div class="cyber-form" style="border-color:var(--neon-gold); text-align:center;">
-                        <h3 style="color:var(--neon-gold); font-size:1.2rem; margin-bottom:10px;">👑 PLAN VIP GOLDEN PLUS ACTIVO</h3>
-                        <div style="background:#09090f; border:1px solid var(--neon-gold); padding:12px; border-radius:6px; font-size:0.8rem; margin: 15px 0; text-align:left;">
-                            <p style="margin-bottom:5px;"><strong style="color:var(--neon-cyan);">Fecha Inicio:</strong> ${usuarioActual.fecha_inicio || '-'}</p>
+                    <div class="cyber-form" style="border-color:var(--neon-gold); text-align:left;">
+                        <h3 style="color:var(--neon-gold); font-size:1.2rem; margin-bottom:10px; text-align:center;">👑 PLAN VIP GOLDEN PLUS ACTIVO</h3>
+                        
+                        <div style="background:#09090f; border:1px solid var(--neon-gold); padding:12px; border-radius:6px; font-size:0.8rem; margin: 15px 0;">
+                            <p style="margin-bottom:6px;"><strong style="color:var(--neon-magenta);">Operador:</strong> ${usuarioActual.username_tg}</p>
+                            <p style="margin-bottom:6px;"><strong style="color:var(--neon-magenta);">ID Telegram:</strong> ${usuarioActual.id_tg}</p>
+                            <p style="margin-bottom:6px;"><strong style="color:var(--neon-cyan);">Fecha Inicio:</strong> ${usuarioActual.fecha_inicio || '-'}</p>
                             <p><strong style="color:var(--neon-cyan);">Fecha Vencimiento:</strong> ${usuarioActual.fecha_fin || 'Sin vencimiento'}</p>
                         </div>
-                        <p style="font-size:0.85rem; color:var(--text-main); line-height:1.4;">Posees acceso total a los beneficios de GPlus en Matrix Hub. Tu cuenta está completamente sincronizada.</p>
+
+                        <div style="background:#09090f; border:1px dashed #1e1e30; padding:12px; border-radius:6px; margin-bottom:15px;">
+                            <strong style="font-size:0.8rem; color:#fff; display:block; margin-bottom:4px; text-transform:uppercase;">Canales Propios Vinculados:</strong>
+                            ${canalesHtml}
+                        </div>
+
+                        <p style="font-size:0.85rem; color:var(--text-main); line-height:1.4; text-align:center;">Posees acceso total a los beneficios de GPlus en Matrix Hub. Tu cuenta está completamente sincronizada.</p>
                     </div>
                 `;
             } else {
                 container.innerHTML = `
                     <div class="cyber-form" style="border-color:var(--neon-magenta);">
-                        <h3 style="color:var(--neon-magenta); font-size:1.1rem; margin-bottom:8px;">Plan Activo: GRATUITO</h3>
+                        <h3 style="color:var(--neon-magenta); font-size:1.1rem; margin-bottom:8px; text-align:center;">Plan Activo: GRATUITO</h3>
                         
                         <div style="background:#09090f; border:1px solid #1e1e30; padding:12px; border-radius:6px; font-size:0.8rem; margin-bottom:15px;">
-                            <p style="margin-bottom:5px;"><strong style="color:var(--text-dim);">Fecha Inicio:</strong> -</p>
+                            <p style="margin-bottom:6px;"><strong style="color:var(--neon-cyan);">Operador:</strong> ${usuarioActual.username_tg}</p>
+                            <p style="margin-bottom:6px;"><strong style="color:var(--neon-cyan);">ID Telegram:</strong> ${usuarioActual.id_tg}</p>
+                            <p style="margin-bottom:6px;"><strong style="color:var(--text-dim);">Fecha Inicio:</strong> -</p>
                             <p><strong style="color:var(--text-dim);">Fecha Vencimiento:</strong> Sin vencimiento</p>
+                        </div>
+
+                        <div style="background:#09090f; border:1px dashed #1e1e30; padding:12px; border-radius:6px; margin-bottom:15px;">
+                            <strong style="font-size:0.8rem; color:#fff; display:block; margin-bottom:4px; text-transform:uppercase;">Canales Propios Vinculados:</strong>
+                            ${canalesHtml}
                         </div>
 
                         <div style="background:#09090f; border:1px dashed var(--neon-cyan); padding:12px; border-radius:6px; font-size:0.75rem; margin-bottom:20px;">
@@ -874,49 +912,48 @@
         }
 
         function solicitarModificacionBooster(canalId, boosterKey, actualmenteActivo) {
-    const canal = canales.find(c => c.id_canal === canalId);
-    const boosterInfo = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
+            const canal = canales.find(c => c.id_canal === canalId);
+            const boosterInfo = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
 
-    const fechaActual = new Date();
-    const fechaFin = new Date();
-    fechaFin.setDate(fechaActual.getDate() + 30);
+            const fechaActual = new Date();
+            const fechaFin = new Date();
+            fechaFin.setDate(fechaActual.getDate() + 30);
 
-    const fActualStr = fechaActual.toLocaleDateString('es-ES');
-    const fFinStr = fechaFin.toLocaleDateString('es-ES');
+            const fActualStr = fechaActual.toLocaleDateString('es-ES');
+            const fFinStr = fechaFin.toLocaleDateString('es-ES');
 
-    // ¡CORREGIDO AQUÍ! Evaluamos directamente el parámetro booleano invertido
-    if (!actualmenteActivo) { 
-        let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
-        if(!yaExistePedido) {
-            pedidosBoosters.push({
-                id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
-                booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
-            });
+            if (!actualmenteActivo) { 
+                let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
+                if(!yaExistePedido) {
+                    pedidosBoosters.push({
+                        id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
+                        booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
+                    });
+                }
+                canal[boosterKey] = true;
+                showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
+            } else {
+                pedidosBoosters = pedidosBoosters.filter(o => !(o.id_canal === canalId && o.booster === boosterKey));
+                canal[boosterKey] = false;
+                showToast(`Desconectando núcleo: ${boosterInfo.nombre}`);
+            }
+
+            localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
+            localStorage.setItem("golden_canales", JSON.stringify(canales));
+            
+            let statusAccion = actualmenteActivo ? "🛑 SOLICITUD DE DESACTIVACIÓN" : "🚀 SOLICITUD DE ACTIVACIÓN";
+            let msgTelegram = `${statusAccion} DE POTENCIADOR\n\n` +
+                              `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
+                              `🆔 ID TELEGRAM: ${usuarioActual.id_tg}\n\n` +
+                              `📢 CANAL: ${canal.titulo} (${canal.telegram_handle})\n` +
+                              `🛠️ NÚCLEO: ${boosterInfo.nombre}\n` +
+                              `📅 FECHA ALTA: ${fActualStr}\n` +
+                              `🏁 FECHA FIN: ${fFinStr}`;
+
+            window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
+            actualizarMetadatosContadores();
+            cargarPotenciadoresDelCanal();
         }
-        canal[boosterKey] = true;
-        showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
-    } else {
-        pedidosBoosters = pedidosBoosters.filter(o => !(o.id_canal === canalId && o.booster === boosterKey));
-        canal[boosterKey] = false;
-        showToast(`Desconectando núcleo: ${boosterInfo.nombre}`);
-    }
-
-    localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
-    localStorage.setItem("golden_canales", JSON.stringify(canales));
-    
-    let statusAccion = actualmenteActivo ? "🛑 SOLICITUD DE DESACTIVACIÓN" : "🚀 SOLICITUD DE ACTIVACIÓN";
-    let msgTelegram = `${statusAccion} DE POTENCIADOR\n\n` +
-                      `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
-                      `🆔 ID TELEGRAM: ${usuarioActual.id_tg}\n\n` +
-                      `📢 CANAL: ${canal.titulo} (${canal.telegram_handle})\n` +
-                      `🛠️ NÚCLEO: ${boosterInfo.nombre}\n` +
-                      `📅 FECHA ALTA: ${fActualStr}\n` +
-                      `🏁 FECHA FIN: ${fFinStr}`;
-
-    window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
-    actualizarMetadatosContadores();
-    cargarPotenciadoresDelCanal();
-}
 
         function renderLogPedidos() {
             const container = document.getElementById("orders-log-container");
