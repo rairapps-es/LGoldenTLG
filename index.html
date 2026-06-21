@@ -44,14 +44,17 @@
 
         /* --- SLIDERS DESLIZANTES NATIVOS --- */
         .slider-section { margin: 20px 0; overflow: hidden; }
-        .slider-container {
-            display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth;
-            padding: 10px 5px; white-space: nowrap; scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        .slider-container::-webkit-scrollbar { display: none; }
-        .slider-card { flex: 0 0 285px; display: inline-block; vertical-align: top; }
-        
+    .slider-container {
+        display: flex; gap: 15px; overflow-x: auto; scroll-behavior: smooth;
+        padding: 10px 5px; white-space: nowrap; scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory; /* ESTABILIZADOR */
+    }
+    .slider-card { 
+        flex: 0 0 285px; display: inline-block; vertical-align: top;
+        scroll-snap-align: start; /* PREVIENE TEMBLOR */
+    }
+        .slider-container::-webkit-scrollbar { display: none; }  
         .user-premium-card {
             background: var(--bg-card); border: 1px solid #161625; border-radius: 10px;
             padding: 12px; display: flex; flex-direction: column; gap: 8px; white-space: normal;
@@ -683,13 +686,14 @@
         }
 
         function invitarAPotenciar(handle) {
-            const link = `https://t.me/ListaGolden?start=boost_${handle.replace('@', '')}`;
-            navigator.clipboard.writeText(link).then(() => {
-                showToast("Enlace de invitación Golden copiado.");
-            }).catch(() => {
-                showToast("Error al copiar enlace.");
-            });
-        }
+        // En lugar de copiar al portapapeles, saltamos a la página de Potenciadores
+        showToast("Redirigiendo al panel de potenciadores...");
+        switchPage('potenciadores');
+        
+        // Opcional: Si quieres seleccionar el canal automáticamente en el dropdown
+        const selector = document.getElementById("booster-channel-selector");
+        // Aquí podrías lógica adicional para encontrar el value del canal por su handle
+    }
 
         function guardarCanal() {
             const t = document.getElementById("form-canal-titulo").value;
