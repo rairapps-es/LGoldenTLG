@@ -620,8 +620,8 @@
                                     <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
                                     <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
                                 </div>
-                                <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}')">⭐</span>
-                            </div>
+                                <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}')">★</span>
+                                </div>
                             <div class="quality-container">
                                 <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
                                     <span>Calidad Golden</span>
@@ -644,30 +644,29 @@
         }
 
         function toggleFavorito(idCanal) {
-            if(usuarioActual.favoritos.includes(idCanal)) {
-                usuarioActual.favoritos = usuarioActual.favoritos.filter(id => id !== idCanal);
-                showToast("Eliminado de Favoritos");
-            } else {
-                usuarioActual.favoritos.push(idCanal);
-                showToast("Añadido a Favoritos");
-            }
-            localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
-            actualizarMetadatosContadores();
-            
-            // Actualizar visualmente todas las estrellas idénticas que estén renderizadas en la pantalla actual
-            document.querySelectorAll(`.fav-star[data-id="${idCanal}"]`).forEach(star => {
-                if(usuarioActual.favoritos.includes(idCanal)) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-
-            // Si estamos en la vista de favoritos, refrescar la lista completa para remover la tarjeta
-            if(document.getElementById("page-favoritos").classList.contains("active")) {
-                renderFavoritos();
-            }
+    if(usuarioActual.favoritos.includes(idCanal)) {
+        usuarioActual.favoritos = usuarioActual.favoritos.filter(id => id !== idCanal);
+        showToast("Eliminado de Favoritos");
+    } else {
+        usuarioActual.favoritos.push(idCanal);
+        showToast("Añadido a Favoritos");
+    }
+    localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
+    actualizarMetadatosContadores();
+    
+    // Esto ahora sí funcionará perfectamente al cambiar el color del caracter ★
+    document.querySelectorAll(`.fav-star[data-id="${idCanal}"]`).forEach(star => {
+        if(usuarioActual.favoritos.includes(idCanal)) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
         }
+    });
+
+    if(document.getElementById("page-favoritos").classList.contains("active")) {
+        renderFavoritos();
+    }
+}
 
         function initSliderAutoScroll(containerId) {
             const container = document.getElementById(containerId);
