@@ -818,14 +818,17 @@
                 content.innerHTML = `<p style="color:var(--text-dim);font-size:0.8rem;text-align:center;">Este usuario no posee canales públicos indexados.</p>`;
             } else {
                 filtrados.forEach(c => {
+                    const cleanHandle = c.telegram_handle.replace('@', '');
                     content.innerHTML += `
-                        <div style="background:#131322; padding:10px; border-radius:6px; border:1px solid #222; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <span style="font-weight:bold; font-size:0.85rem;">${c.titulo}</span><br>
-                                <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                        <a href="https://t.me/${cleanHandle}" target="_blank" style="text-decoration: none; color: inherit; display: block;">
+                            <div style="background:#131322; padding:10px; border-radius:6px; border:1px solid #222; display:flex; justify-content:space-between; align-items:center; transition: background 0.2s;" onmouseover="this.style.background='#1a1a30'" onmouseout="this.style.background='#131322'">
+                                <div>
+                                    <span style="font-weight:bold; font-size:0.85rem; color:#fff;">${c.titulo}</span><br>
+                                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle} 🌐</span>
+                                </div>
+                                <span style="font-size:0.75rem; color:var(--neon-gold);">★ ${c.rating}</span>
                             </div>
-                            <span style="font-size:0.75rem; color:var(--neon-gold);">★ ${c.rating}</span>
-                        </div>
+                        </a>
                     `;
                 });
             }
@@ -863,7 +866,13 @@
                 canalesHtml = `<p style="color: var(--text-dim); font-size: 0.75rem;">Ningún canal asociado a este ID de momento.</p>`;
             } else {
                 misCanalesAsociados.forEach(c => {
-                    canalesHtml += `<div style="font-size:0.75rem; color:var(--neon-cyan); margin-top:4px;">• ${c.titulo} (${c.telegram_handle})</div>`;
+                    const cleanHandle = c.telegram_handle.replace('@', '');
+                    canalesHtml += `
+                        <div style="margin-top:6px;">
+                            <a href="https://t.me/${cleanHandle}" target="_blank" style="font-size:0.75rem; color:var(--neon-cyan); text-decoration:none; display:inline-block; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                • ${c.titulo} (${c.telegram_handle}) 🌐
+                            </a>
+                        </div>`;
                 });
             }
 
@@ -1130,6 +1139,7 @@
 
         function closeFloatingModal() { document.getElementById("floating-channels-modal").style.display = "none"; }
         function closeRecommendation() { document.getElementById("cyber-recommend-popup").classList.remove("show"); }
+
     </script>
 </body>
 </html>
