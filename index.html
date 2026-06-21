@@ -67,40 +67,30 @@
 
         .user-nav-status { display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; }
         .avatar-wrapper { position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
-        .avatar-frame { width: 40px; height: 40px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #222, #444); overflow: hidden; }
+        .avatar-frame { width: 40px; height: 40px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #222, #444); overflow: hidden; position: relative; z-index: 2; }
         .avatar-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #000; }
         
+        /* EFECTO AURA MÁGICA CON BORDE AVATAR */
+        .avatar-wrapper.premium-glow::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 50%; background: linear-gradient(45deg, var(--neon-magenta), var(--neon-gold), var(--neon-cyan));
+            animation: magic-aura 2s linear infinite; z-index: 1; filter: blur(3px);
+        }
         .avatar-wrapper.premium-glow .avatar-frame {
             background: linear-gradient(45deg, var(--neon-magenta), var(--neon-gold));
-            animation: magic-aura 2s linear infinite;
             box-shadow: 0 0 12px var(--neon-magenta);
         }
-        @keyframes magic-aura { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+        @keyframes magic-aura { 0% { transform: rotate(0deg); filter: hue-rotate(0deg); } 100% { transform: rotate(360deg); filter: hue-rotate(360deg); } }
 
         .plan-badge-tag {
-            position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%);
-            font-size: 0.58rem; font-weight: 900; padding: 1px 5px; border-radius: 4px;
+            position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+            font-size: 0.55rem; font-weight: 900; padding: 1px 6px; border-radius: 4px;
             text-transform: uppercase; white-space: nowrap; z-index: 10; letter-spacing: 0.5px;
         }
         .badge-free { background: #334155; color: #cbd5e1; border: 1px solid #475569; }
         .badge-prem { background: linear-gradient(90deg, #ff007f, #ffd700); color: #000; box-shadow: 0 0 8px var(--neon-gold); border: none; }
 
-        /* --- SLIDER USUARIOS DESTACADOS --- */
-        .slider-section { margin-bottom: 25px; padding: 0 5px; }
-        .slider-container { display: flex; overflow-x: auto; gap: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 10px 5px; cursor: grab; }
-        .slider-container::-webkit-scrollbar { display: none; }
-        .slider-container:active { cursor: grabbing; }
-        .slider-card { flex: 0 0 85%; scroll-snap-align: start; min-width: 270px; max-width: 340px; }
-
-        .user-premium-card {
-            background: linear-gradient(135deg, #0e0e18 0%, #1a0b2e 100%);
-            border: 1px solid rgba(255, 0, 127, 0.3); border-radius: 12px; padding: 14px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between;
-        }
-        .user-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .user-stars-donor { font-size: 0.75rem; color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); }
-
-        /* FLOTANTE ELEGANTE CANALES ASOCIADOS */
+        /* --- FLOATING MODAL OVERLAY --- */
         .floating-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(4, 4, 8, 0.85); backdrop-filter: blur(8px);
@@ -112,6 +102,7 @@
             width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto;
             position: relative; animation: modalFloatUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .modal-close { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; }
         @keyframes modalFloatUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* --- REJILLA DE CANALES Y TARJETAS --- */
@@ -136,8 +127,6 @@
         .card-title-area { display: flex; flex-direction: column; justify-content: center; padding-right: 25px; }
         .fav-star { position: absolute; top: 0; right: 0; font-size: 1.4rem; cursor: pointer; color: var(--text-dim); transition: color 0.2s; z-index: 10; }
         .fav-star.active { color: var(--neon-gold); text-shadow: var(--cyber-glow-gold); }
-        .admin-delete-cross { position: absolute; top: 0; right: 0; font-size: 1.1rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; z-index: 10; }
-        .admin-delete-cross:hover { opacity: 1; text-shadow: 0 0 8px #ff0000; }
         
         .quality-container { margin: 10px 0; font-size: 0.75rem; color: var(--text-main); position: relative; }
         .quality-bar-bg { width: 100%; height: 5px; background: #1b1b2f; border-radius: 3px; margin-top: 4px; overflow: hidden; }
@@ -149,8 +138,9 @@
         .btn-primary:hover { background: rgba(57, 255, 20, 0.1); }
         .btn-disabled { border-color: var(--text-dim) !important; color: var(--text-dim) !important; cursor: not-allowed !important; opacity: 0.4; }
 
+        /* EFECTO DESLIZANTE DE BOTONES EXTRA */
         .sliding-buttons-wrapper { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .sliding-buttons-wrapper.expanded { max-height: 200px; }
+        .sliding-buttons-wrapper.expanded { max-height: 200px; margin-top: 8px; border-top: 1px dashed #1e1e30; padding-top: 8px; }
 
         /* --- NAVBAR INFERIOR --- */
         .bottom-nav {
@@ -164,12 +154,19 @@
         .nav-item:hover, .nav-item.active { color: var(--neon-cyan); text-shadow: var(--cyber-glow-cyan); }
         .nav-item.active i { transform: translateY(-4px); color: var(--neon-cyan); }
 
+        /* --- CONTROLES DE FILTROS Y CATEGORÍAS --- */
+        .filter-controls-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: #0b0b12; padding: 12px; border-radius: 8px; border: 1px solid #1a1a2e; }
+        .filter-row-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; scrollbar-width: none; }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
+        .filter-btn.active { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
+
         /* --- FORMULARIOS --- */
         .cyber-form { background: var(--bg-card); border: 1px solid var(--neon-cyan); padding: 20px; border-radius: 8px; }
         .form-group { margin-bottom: 12px; }
         .form-control { width: 100%; background: #09090f; border: 1px solid #1e1e30; color: #fff; padding: 10px; border-radius: 4px; }
         
-        /* --- SELECTOR DE CANAL REESTRUCTURADO --- */
         .selector-box { background: var(--bg-card); border: 1px solid var(--neon-magenta); padding: 15px; border-radius: 8px; box-shadow: var(--cyber-glow-magenta); margin-bottom: 25px; }
 
         /* --- REJILLA POTENCIADORES --- */
@@ -180,21 +177,24 @@
         .booster-badge.badge-on { background: var(--neon-green); color: #000; box-shadow: var(--cyber-glow-green); }
         .booster-badge.badge-off { background: #1e1e30; color: var(--text-dim); }
 
-        .filter-controls-area { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .filter-row-selectors { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0; scrollbar-width: none; }
-        .filter-bar::-webkit-scrollbar { display: none; }
-        .filter-btn { background: #12121f; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
-        .filter-btn.active { background: var(--neon-cyan); color: #000; box-shadow: var(--cyber-glow-cyan); }
-
-        .lazy-load-box { grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 15px; }
-        .noti-item { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; margin-bottom: 12px; position: relative; }
-        .noti-item.system-alert { border-left: 3px solid var(--neon-cyan); }
-        .noti-time { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 6px; font-style: italic; }
-        .noti-content { font-size: 0.85rem; color: var(--text-main); margin-bottom: 10px; line-height: 1.4; }
+        .lazy-load-box { display: flex; justify-content: center; margin-top: 20px; padding-bottom: 10px; }
         
         .order-panel { margin-top: 25px; background: #09090f; border: 1px solid #1e1e30; border-radius: 8px; padding: 15px; }
         .order-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #141424; font-size: 0.8rem; }
+        
+        /* SLIDERS */
+        .slider-section { margin-bottom: 25px; padding: 0 5px; }
+        .slider-container { display: flex; overflow-x: auto; gap: 15px; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 10px 5px; }
+        .slider-container::-webkit-scrollbar { display: none; }
+        .slider-card { flex: 0 0 85%; scroll-snap-align: start; min-width: 270px; max-width: 340px; }
+
+        .user-premium-card {
+            background: linear-gradient(135deg, #0e0e18 0%, #1a0b2e 100%);
+            border: 1px solid rgba(255, 0, 127, 0.4); border-radius: 12px; padding: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .user-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .user-stars-donor { font-size: 0.75rem; color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); }
     </style>
 </head>
 <body>
@@ -226,12 +226,18 @@
                 <span>🔔</span>
                 <div id="bell-count" class="noti-badge" style="display:none;">0</div>
             </div>
-            <div class="logo">GOLDEN // HUB</div>
+            <!-- ENLACE DIRECTO A TU CANAL EXPLICADO EN REQUERIMIENTOS -->
+            <a href="https://t.me/ListaGolden" target="_blank" class="logo" style="text-decoration:none; color:inherit;">GOLDEN // HUB</a>
         </div>
         <div class="user-nav-status" onclick="switchPage('admin')">
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <span id="nav-username" style="font-weight: bold; font-size: 0.85rem; color: var(--neon-cyan);">@Cargando</span>
-                <span id="nav-user-counter" style="font-size: 0.65rem; color: var(--text-dim);">Canales: 0</span>
+                <!-- CONTADORES SOLICITADOS -->
+                <div style="font-size: 0.6rem; color: var(--text-dim); display:flex; gap:6px;">
+                    <span id="nav-user-counter">Asoc: 0</span>
+                    <span id="nav-favs-counter">Favs: 0</span>
+                    <span id="nav-boosts-counter">Boosts: 0</span>
+                </div>
             </div>
             <div class="avatar-wrapper" id="avatar-wrapper-zone">
                 <div class="avatar-frame">
@@ -243,12 +249,48 @@
     </header>
 
     <main id="page-catalogo" class="page-view active">
-        <div class="slider-section">
-            <h3 style="color: var(--neon-gold); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">⚡ Destacados y Donadores</h3>
-            <div id="featured-slider" class="slider-container"></div>
+        <!-- CONTROLES COMPLETOS DE CATEGORÍAS, FILTROS Y ORDENAMIENTO -->
+        <div class="filter-controls-area">
+            <div class="filter-row-selectors">
+                <select id="select-filter-categoria" class="form-control" onchange="aplicarFiltrosMaster(true)">
+                    <option value="todas">Todas las Categorías</option>
+                    <option value="IA & Tecnología">IA & Tecnología</option>
+                    <option value="Finanzas & Web3">Finanzas & Web3</option>
+                    <option value="Ciberseguridad">Ciberseguridad</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                </select>
+                <select id="select-filter-orden" class="form-control" onchange="aplicarFiltrosMaster(true)">
+                    <option value="defecto">Orden Estándar</option>
+                    <option value="rating">Mejor Valoración (Estrellas)</option>
+                </select>
+            </div>
+            <div class="filter-bar">
+                <button class="filter-btn active" id="btn-sub-todas" onclick="filtrarSubcat('todas')">Todos Subs</button>
+                <button class="filter-btn" id="btn-sub-+100" onclick="filtrarSubcat('+100')">+100</button>
+                <button class="filter-btn" id="btn-sub-+500" onclick="filtrarSubcat('+500')">+500</button>
+                <button class="filter-btn" id="btn-sub-+1000" onclick="filtrarSubcat('+1000')">+1000</button>
+            </div>
         </div>
+
+        <!-- SLIDER DONADORES DE ESTRELLAS -->
+        <div class="slider-section">
+            <h3 style="color: var(--neon-gold); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">⚡ Top Donadores de Estrellas</h3>
+            <div id="donors-slider" class="slider-container"></div>
+        </div>
+
         <h2>Canales Indexados</h2>
         <div id="catalog-container" class="catalog-grid"></div>
+
+        <!-- BOTÓN LAZY LOAD DE 3 EN 3 -->
+        <div class="lazy-load-box">
+            <button id="btn-lazy-load" class="btn-cyber" style="border-color:var(--neon-cyan); color:var(--neon-cyan); padding:8px 20px;" onclick="cargarMasCanales()">Cargar Más Canales ⬇️</button>
+        </div>
+
+        <!-- SLIDER DESTACADOS AL FINAL DEL CATALOGO -->
+        <div class="slider-section" style="margin-top:40px; border-top:1px solid #141424; padding-top:20px;">
+            <h3 style="color: var(--neon-magenta); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">🚀 Canales Destacados de la Red</h3>
+            <div id="featured-slider" class="slider-container"></div>
+        </div>
     </main>
 
     <section id="page-potenciadores" class="page-view">
@@ -343,13 +385,12 @@
         const MI_USUARIO_TELEGRAM = "Airdayz";
         const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
 
-        // Catálogo Maestro del sistema
         const DEFAULT_CHANNELS = [
             { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
-            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "77777777", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" }
+            { id_canal: "c2", titulo: "Crypto Alpha Signals", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "77777777", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
+            { id_canal: "c3", titulo: "Cyber Shields Matrix", telegram_handle: "@CyberShields", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.9, resenas: 31, isPopular: false, isPremium: false, isDestacado: true, quality: 75, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false }
         ];
 
-        // Definición estática de potenciadores
         const TIENDA_POTENCIADORES = [
             { key: "ad_on", nombre: "Contratar Destacado (Ad-On)", desc: "Aparece fijado arriba en las búsquedas y añade el botón de Anunciarse." },
             { key: "social_chat", nombre: "Botón Extra Chat Comunidad", desc: "Vincula un botón directo al chat grupal de tu comunidad." },
@@ -358,25 +399,33 @@
         ];
 
         const DATA_DONADORES = [
-            { username: "@AlphaGhost", pais: "España", bandera: "🇪🇸", estrellas: 150, isPremium: false, id_tg: "601" },
+            { username: "@AlphaGhost", pais: "España", bandera: "🇪🇸", estrellas: 150, isPremium: false, id_tg: "77777777" },
             { username: "@Neuromante", pais: "Colombia", bandera: "🇨🇴", estrellas: 4500, isPremium: true, id_tg: "1320417199" }
         ];
 
         let canales = [];
-        let notificaciones = [];
         let pedidosBoosters = [];
         let usuarioActual = { id_tg: "1320417199", username_tg: "@Neuromante", isPremium: true, favoritos: [] };
         
-        let filtroActual = "todos";
         let categoriaActual = "todas";
         let subcatActual = "todas";
-        let canalesVisiblesCount = 3;
+        let canalesVisiblesCount = 3; // Lazy load inicializado en 3 canales
 
         window.onload = function() {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe.user) {
-                const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
-                usuarioActual.id_tg = tgUser.id.toString();
-                usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
+            // INTEGRACIÓN E SINCRO NATIVA CON EL OBJETO REAL DE TELEGRAM WEBAPP
+            if (window.Telegram && window.Telegram.WebApp) {
+                const webApp = window.Telegram.WebApp;
+                webApp.ready();
+                webApp.expand();
+                
+                if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+                    const tgUser = webApp.initDataUnsafe.user;
+                    usuarioActual.id_tg = tgUser.id.toString();
+                    usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
+                    if(tgUser.photo_url) {
+                        document.getElementById("nav-avatar").src = tgUser.photo_url;
+                    }
+                }
             }
 
             usuarioActual.isPremium = LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg);
@@ -384,20 +433,21 @@
             if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
             canales = JSON.parse(localStorage.getItem("golden_canales"));
 
-            if (!localStorage.getItem("golden_notificaciones")) localStorage.setItem("golden_notificaciones", JSON.stringify([]));
-            notificaciones = JSON.parse(localStorage.getItem("golden_notificaciones"));
-
             if (!localStorage.getItem("golden_pedidos_boosters")) localStorage.setItem("golden_pedidos_boosters", JSON.stringify([]));
             pedidosBoosters = JSON.parse(localStorage.getItem("golden_pedidos_boosters"));
 
+            if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
+            usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
+
             document.getElementById("nav-username").innerText = usuarioActual.username_tg;
             
-            actualizarContadorCanalesUsuario();
-            actualizarEstilosMembresiaHeader();
+            actualizarMetadatosContadores();
+            actualizarEstilosSincroPremium();
             triggerSplash();
-            renderCatalogo();
+            aplicarFiltrosMaster(true);
+            renderDonadoresSlider();
+            renderDestacadosSlider();
             initSelectorCanalesBoosters();
-            renderNotificaciones();
             renderMembresiaPage();
         };
 
@@ -414,7 +464,9 @@
 
             if(pageId === 'potenciadores') initSelectorCanalesBoosters();
             if(pageId === 'admin') renderAdminPanel();
-            if(pageId === 'catalogo') renderCatalogo();
+            if(pageId === 'catalogo') aplicarFiltrosMaster(true);
+            if(pageId === 'favoritos') renderFavoritos();
+            if(pageId === 'suscripcion') renderMembresiaPage();
         }
 
         function showToast(msg) {
@@ -426,29 +478,283 @@
             setTimeout(() => { toast.classList.remove("show"); toast.remove(); }, 3000);
         }
 
-        function actualizarContadorCanalesUsuario() {
-            let total = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg).length;
-            document.getElementById("nav-user-counter").innerText = `Canales: ${total}`;
+        // ACTUALIZACIÓN DE CONTADORES SOLICITADOS (ASOC, FAVS, BOOSTS)
+        function actualizarMetadatosContadores() {
+            let totalAsoc = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg).length;
+            document.getElementById("nav-user-counter").innerText = `Asoc: ${totalAsoc}`;
+            document.getElementById("nav-favs-counter").innerText = `Favs: ${usuarioActual.favoritos.length}`;
+            
+            let totalBoostsActivos = 0;
+            canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg).forEach(c => {
+                TIENDA_POTENCIADORES.forEach(p => { if(c[p.key] === true) totalBoostsActivos++; });
+            });
+            document.getElementById("nav-boosts-counter").innerText = `Boosts: ${totalBoostsActivos}`;
         }
 
-        function actualizarEstilosMembresiaHeader() {
+        // AGREGAR EFECTOS MÁGICOS AURA Y CORRECCIÓN DE ETIQUETA PREMIUM
+        function actualizarEstilosSincroPremium() {
             const badge = document.getElementById("user-plan-badge");
+            const wrapper = document.getElementById("avatar-wrapper-zone");
             if(usuarioActual.isPremium) {
                 badge.innerText = "Premium"; badge.className = "plan-badge-tag badge-prem";
+                wrapper.classList.add("premium-glow");
             } else {
                 badge.innerText = "Gratis"; badge.className = "plan-badge-tag badge-free";
+                wrapper.classList.remove("premium-glow");
             }
         }
 
-        /* --- LÓGICA DE CONTROL DE POTENCIADORES --- */
+        /* --- FILTROS DE CATEGORÍAS, RESEÑAS Y SUBMÓDULOS --- */
+        function filtrarSubcat(subcat) {
+            subcatActual = subcat;
+            document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-sub-${subcat}`).classList.add('active');
+            aplicarFiltrosMaster(true);
+        }
+
+        function aplicarFiltrosMaster(resetLazyCount = false) {
+            if(resetLazyCount) canalesVisiblesCount = 3;
+
+            categoriaActual = document.getElementById("select-filter-categoria").value;
+            const orden = document.getElementById("select-filter-orden").value;
+
+            let filtrados = canales.filter(c => c.status === "publicado" || !c.status);
+
+            if(categoriaActual !== "todas") {
+                filtrados = filtrados.filter(c => c.categoria === categoriaActual);
+            }
+
+            if(subcatActual !== "todas") {
+                filtrados = filtrados.filter(c => c.catsub === subcatActual);
+            }
+
+            if(orden === "rating") {
+                filtrados.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            }
+
+            renderGridCatalogo(filtrados);
+        }
+
+        // MECÁNICA LAZY LOAD DE 3 EN 3
+        function cargarMasCanales() {
+            canalesVisiblesCount += 3;
+            aplicarFiltrosMaster(false);
+        }
+
+        /* --- RENDERIZADO MAESTRO DEL CATALOGO --- */
+        function renderGridCatalogo(listaCanales) {
+            const container = document.getElementById("catalog-container");
+            container.innerHTML = "";
+
+            const btnLazy = document.getElementById("btn-lazy-load");
+            if(listaCanales.length <= canalesVisiblesCount) {
+                btnLazy.style.display = "none";
+            } else {
+                btnLazy.style.display = "block";
+            }
+
+            const fragmentoAMostrar = listaCanales.slice(0, canalesVisiblesCount);
+
+            if(fragmentoAMostrar.length === 0) {
+                container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--text-dim); padding:20px;">No se encontraron canales con los filtros seleccionados.</p>`;
+                return;
+            }
+
+            fragmentoAMostrar.forEach(c => {
+                let isFav = usuarioActual.favoritos.includes(c.id_canal);
+                let badgesHtml = "";
+                if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
+                if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">Destacado</span>`;
+                
+                let extraButtonsHtml = "";
+                if (c.ad_on === true) extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
+                if (c.social_chat === true) extraButtonsHtml += `<a href="${c.url_chat || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
+                if (c.bot_oficial === true) extraButtonsHtml += `<a href="${c.url_bot || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
+                if (c.enlace_web === true) extraButtonsHtml += `<a href="${c.url_web || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
+
+                container.innerHTML += `
+                    <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
+                        <div>
+                            <div class="badge-row">${badgesHtml}</div>
+                            <!-- EFECTO DESLIZANTE PULSANDO EN CABECERA -->
+                            <div class="card-header" onclick="toggleSlidingButtons('${c.id_canal}')">
+                                <img class="card-img" src="${c.url_imagen}">
+                                <div class="card-title-area">
+                                    <h4 style="color:#fff;">${c.titulo}</h4>
+                                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                                    <!-- ESTRELLAS 4.9 EXPUESTA DE FORMA FIJA -->
+                                    <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
+                                </div>
+                                <span class="fav-star ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}')">⭐</span>
+                            </div>
+                            <div class="quality-container">
+                                <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
+                                    <span>Calidad Golden</span>
+                                    <span style="color:var(--neon-green); font-weight:bold;">${c.quality}%</span>
+                                </div>
+                                <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
+                            </div>
+                        </div>
+                        <!-- WRAPPER ANIDADO CON EFECTO DESLIZANTE -->
+                        <div class="sliding-buttons-wrapper" id="sliding-wrap-${c.id_canal}">
+                            <div class="btn-grid">${extraButtonsHtml || '<span style="grid-column:span 2;font-size:0.7rem;color:var(--text-dim);text-align:center;">Sin núcleos extras activos</span>'}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // LÓGICA DEL EFECTO DESLIZANTE CON MAS-HEIGHT TRANSITION
+        function toggleSlidingButtons(idCanal) {
+            const target = document.getElementById(`sliding-wrap-${idCanal}`);
+            if(target.classList.contains("expanded")) {
+                target.classList.remove("expanded");
+            } else {
+                target.classList.add("expanded");
+            }
+        }
+
+        function toggleFavorito(idCanal) {
+            if(usuarioActual.favoritos.includes(idCanal)) {
+                usuarioActual.favoritos = usuarioActual.favoritos.filter(id => id !== idCanal);
+                showToast("Eliminado de Favoritos");
+            } else {
+                usuarioActual.favoritos.push(idCanal);
+                showToast("Añadido a Favoritos");
+            }
+            localStorage.setItem("golden_favoritos", JSON.stringify(usuarioActual.favoritos));
+            actualizarMetadatosContadores();
+            aplicarFiltrosMaster(false);
+        }
+
+        /* --- CONTROL DE LOS SLIDERS AUTOMÁTICOS --- */
+        function renderDonadoresSlider() {
+            const container = document.getElementById("donors-slider");
+            container.innerHTML = "";
+            DATA_DONADORES.forEach(d => {
+                container.innerHTML += `
+                    <div class="slider-card">
+                        <div class="user-premium-card">
+                            <div class="user-card-top">
+                                <span style="font-weight:bold; color:var(--neon-cyan); font-size:0.85rem;">${d.username} ${d.bandera}</span>
+                                <span class="user-stars-donor">🪙 ${d.estrellas} Estrellas</span>
+                            </div>
+                            <button class="btn-cyber" style="border-color:var(--neon-gold); color:var(--neon-gold); font-size:0.65rem; padding:4px;" onclick="descubrirCanalesDonador('${d.id_tg}', '${d.username}')">
+                                Descubrir Canales Asociados 🔎
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function descubrirCanalesDonador(idTg, username) {
+            const filtrados = canales.filter(c => c.id_user_telegram_admin === idTg);
+            const modal = document.getElementById("floating-channels-modal");
+            const title = document.getElementById("floating-modal-title");
+            const content = document.getElementById("floating-modal-content");
+            
+            title.innerText = `Canales de ${username}`;
+            content.innerHTML = "";
+
+            if(filtrados.length === 0) {
+                content.innerHTML = `<p style="color:var(--text-dim);font-size:0.8rem;text-align:center;">Este usuario no posee canales públicos indexados.</p>`;
+            } else {
+                filtrados.forEach(c => {
+                    content.innerHTML += `
+                        <div style="background:#131322; padding:10px; border-radius:6px; border:1px solid #222; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <span style="font-weight:bold; font-size:0.85rem;">${c.titulo}</span><br>
+                                <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                            </div>
+                            <span style="font-size:0.75rem; color:var(--neon-gold);">★ ${c.rating}</span>
+                        </div>
+                    `;
+                });
+            }
+            modal.style.display = "flex";
+        }
+
+        function renderDestacadosSlider() {
+            const container = document.getElementById("featured-slider");
+            container.innerHTML = "";
+            let destacados = canales.filter(c => c.isDestacado === true);
+            
+            if(destacados.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-dim);font-size:0.75rem;padding-left:10px;">No hay canales destacados asignados.</p>`;
+                return;
+            }
+
+            destacados.forEach(c => {
+                container.innerHTML += `
+                    <div class="slider-card" style="flex: 0 0 65%; min-width:200px;">
+                        <div style="background:linear-gradient(45deg, #09090f, #1a0b1a); border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center;">
+                            <img src="${c.url_imagen}" style="width:40px; height:40px; border-radius:50%; object-fit:cover; margin-bottom:5px;">
+                            <h5 style="font-size:0.8rem; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.titulo}</h5>
+                            <span style="font-size:0.7rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        /* --- PÁGINA DE MEMBRESÍA PREMIUM Y PEDIDOS INTEGRADOS --- */
+        function renderMembresiaPage() {
+            const container = document.getElementById("membership-content-area");
+            container.innerHTML = "";
+
+            if(usuarioActual.isPremium) {
+                container.innerHTML = `
+                    <div class="cyber-form" style="border-color:var(--neon-gold); text-align:center;">
+                        <h3 style="color:var(--neon-gold); font-size:1.2rem; margin-bottom:10px;">👑 PLAN VIP ACTIVO</h3>
+                        <p style="font-size:0.85rem; color:var(--text-main); line-height:1.4;">Posees acceso total a los beneficios de GPlus en Matrix Hub. Tu cuenta está sincronizada y validada en el sistema.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="cyber-form" style="border-color:var(--neon-magenta);">
+                        <h3 style="color:var(--neon-magenta); font-size:1.1rem; margin-bottom:8px;">Plan Activo: GRATUITO</h3>
+                        <p style="font-size:0.75rem; color:var(--text-dim); margin-bottom:15px;">Estás usando la cuota base. Desbloquea el algoritmo completo y los efectos aura hoy mismo.</p>
+                        
+                        <div style="background:#09090f; border:1px dashed var(--neon-magenta); padding:10px; border-radius:6px; font-size:0.75rem; margin-bottom:15px;">
+                            <strong style="color:var(--neon-gold);">Beneficios Premium:</strong>
+                            <ul style="margin-left:15px; margin-top:5px; display:flex; flex-direction:column; gap:4px;">
+                                <li>Inyección de canales ILIMITADA.</li>
+                                <li>Prioridad Top Algorítmica y Destacados automáticos.</li>
+                                <li>Efecto Aura Mágica Visual en catálogo y perfil.</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- BOTÓN CON SISTEMA EXTRACTOR DE FORMULARIO INTEGRADO -->
+                        <button class="btn-cyber btn-primary" style="width:100%;" onclick="procesarPedidoPremiumChatPrivado()">
+                            Contratar Plan Premium 💎
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function procesarPedidoPremiumChatPrivado() {
+            let msgTelegram = `🛒 SOLICITUD DE ADQUISICIÓN PREMIUM\n\n` +
+                              `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
+                              `🆔 ID TELEGRAM ASOCIADO: ${usuarioActual.id_tg}\n\n` +
+                              `💎 PLAN SELECCIONADO: Membresía VIP Golden Plus\n` +
+                              `🚀 ESTADO DEL FORMULARIO: Inicializado vía Código Base\n` +
+                              `⏳ VIGENCIA sugerida: 30 Días Renovables`;
+
+            window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
+            showToast("Abriendo pedido en chat privado...");
+        }
+
+        /* --- RESTO DE FUNCIONES RESTAURADAS PARA INTERACTIVIDAD COMPLETA --- */
         function initSelectorCanalesBoosters() {
             const selector = document.getElementById("booster-channel-selector");
+            if(!selector) return;
             selector.innerHTML = "";
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
 
             if(misCanales.length === 0) {
                 selector.innerHTML = "<option value='none'>No posees canales inyectados</option>";
-                document.getElementById("boosters-container").innerHTML = "<p style='color: var(--text-dim); text-align:center;'>Vincula un canal en la pestaña Canales para desbloquear.</p>";
+                document.getElementById("boosters-container").innerHTML = "<p style='color: var(--text-dim); text-align:center; font-size:0.75rem; padding:20px;'>Vincula un canal en la pestaña Canales para desbloquear.</p>";
                 return;
             }
 
@@ -472,7 +778,6 @@
                 let isActive = canal[p.key] === true;
                 if(isActive) totalActivos++;
 
-                // Encontrar fechas del registro de pedidos local si está activo
                 let pedido = pedidosBoosters.find(o => o.id_canal === canalId && o.booster === p.key);
                 let fechasHtml = "";
                 if(isActive && pedido) {
@@ -494,13 +799,11 @@
                 `;
             });
 
-            // Actualizar Barra Golden Dinámica (4 potenciadores = 100%)
             let porcentajeEnergia = totalActivos * 25;
             document.getElementById("golden-score-pct").innerText = `${porcentajeEnergia}%`;
             document.getElementById("golden-score-fill").style.width = `${porcentajeEnergia}%`;
             
-            // Sincronizar dinámicamente con la base de datos local del canal
-            canal.quality = porcentajeEnergia === 0 ? 60 : porcentajeEnergia; // 60% base si no tiene nada
+            canal.quality = porcentajeEnergia === 0 ? 60 : porcentajeEnergia;
             localStorage.setItem("golden_canales", JSON.stringify(canales));
 
             renderLogPedidos();
@@ -517,21 +820,14 @@
             const fActualStr = fechaActual.toLocaleDateString('es-ES');
             const fFinStr = fechaFin.toLocaleDateString('es-ES');
 
-            if(!actualmenteActivo) {
-                // ACTIVAR: Añadir a la lista de pedidos local
+            if(!actuallmenteActivo) {
                 pedidosBoosters.push({
-                    id_pedido: "order_" + Date.now(),
-                    id_canal: canalId,
-                    canal_titulo: canal.titulo,
-                    booster: boosterKey,
-                    booster_nombre: boosterInfo.nombre,
-                    fecha_inicio: fActualStr,
-                    fecha_fin: fFinStr
+                    id_pedido: "order_" + Date.now(), id_canal: canalId, canal_titulo: canal.titulo,
+                    booster: boosterKey, booster_nombre: boosterInfo.nombre, fecha_inicio: fActualStr, fecha_fin: fFinStr
                 });
                 canal[boosterKey] = true;
                 showToast(`Inyectando núcleo: ${boosterInfo.nombre}`);
             } else {
-                // DESACTIVAR: Remover de la lista
                 pedidosBoosters = pedidosBoosters.filter(o => !(o.id_canal === canalId && o.booster === boosterKey));
                 canal[boosterKey] = false;
                 showToast(`Desconectando núcleo: ${boosterInfo.nombre}`);
@@ -540,7 +836,6 @@
             localStorage.setItem("golden_pedidos_boosters", JSON.stringify(pedidosBoosters));
             localStorage.setItem("golden_canales", JSON.stringify(canales));
             
-            // RECOPILAR DATOS DEL FORMULARIO Y DE USER TELEGRAM PARA ENVIAR SOLICITUD MANUAL
             let statusAccion = actualmenteActivo ? "🛑 SOLICITUD DE DESACTIVACIÓN" : "🚀 SOLICITUD DE ACTIVACIÓN";
             let msgTelegram = `${statusAccion} DE POTENCIADOR\n\n` +
                               `👤 OPERADOR: ${usuarioActual.username_tg}\n` +
@@ -548,16 +843,16 @@
                               `📢 CANAL: ${canal.titulo} (${canal.telegram_handle})\n` +
                               `🛠️ NÚCLEO: ${boosterInfo.nombre}\n` +
                               `📅 FECHA ALTA: ${fActualStr}\n` +
-                              `⏳ DURACIÓN: 30 Días garantizados\n` +
                               `🏁 FECHA FIN: ${fFinStr}`;
 
             window.open(`https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msgTelegram)}`, '_blank');
-            
+            actualizarMetadatosContadores();
             cargarPotenciadoresDelCanal();
         }
 
         function renderLogPedidos() {
             const container = document.getElementById("orders-log-container");
+            if(!container) return;
             container.innerHTML = "";
             let canalId = document.getElementById("booster-channel-selector").value;
             let misPedidos = pedidosBoosters.filter(o => o.id_canal === canalId);
@@ -574,48 +869,31 @@
                             <span style="color: var(--neon-cyan); font-weight:bold;">${o.booster_nombre}</span><br>
                             <span style="color: var(--text-dim); font-size: 0.7rem;">Iniciado el ${o.fecha_inicio}</span>
                         </div>
-                        <span class="status-badge-active">Vence: ${o.fecha_fin}</span>
+                        <span class="status-badge-active" style="color:var(--neon-green);">Vence: ${o.fecha_fin}</span>
                     </div>
                 `;
             });
         }
 
-        /* --- TRABAJO ESTÁNDAR DEL CATÁLOGO --- */
-        function renderCatalogo() {
-            const container = document.getElementById("catalog-container");
+        function renderFavoritos() {
+            const container = document.getElementById("favs-container");
             container.innerHTML = "";
-            
-            let filtrados = canales.filter(c => c.status === "publicado" || !c.status);
-            filtrados.forEach(c => {
-                let badgesHtml = "";
-                if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
-                
-                let extraButtonsHtml = "";
-                if (c.ad_on === true) extraButtonsHtml += `<a href="#" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
-                if (c.social_chat === true) extraButtonsHtml += `<a href="${c.url_chat || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat Comunidad</a>`;
-                if (c.bot_oficial === true) extraButtonsHtml += `<a href="${c.url_bot || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot Oficial</a>`;
-                if (c.enlace_web === true) extraButtonsHtml += `<a href="${c.url_web || '#'}" target="_blank" class="btn-cyber" style="border-color: var(--text-main); color: var(--text-main);">Visitar Web</a>`;
+            let filtrados = canales.filter(c => usuarioActual.favoritos.includes(c.id_canal));
 
+            if(filtrados.length === 0) {
+                container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--text-dim); padding:20px;">No has agregado canales a favoritos todavía.</p>`;
+                return;
+            }
+            filtrados.forEach(c => {
                 container.innerHTML += `
-                    <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
-                        <div>
-                            <div class="badge-row">${badgesHtml}</div>
-                            <div class="card-header">
-                                <img class="card-img" src="${c.url_imagen}">
-                                <div class="card-title-area">
-                                    <h4 style="color:#fff;">${c.titulo}</h4>
-                                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
-                                </div>
-                            </div>
-                            <div class="quality-container">
-                                <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
-                                    <span>Calidad Golden</span>
-                                    <span style="color:var(--neon-green); font-weight:bold;">${c.quality}%</span>
-                                </div>
-                                <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
+                    <div class="card">
+                        <div class="card-header">
+                            <img class="card-img" src="${c.url_imagen}">
+                            <div class="card-title-area">
+                                <h4 style="color:#fff;">${c.titulo}</h4>
+                                <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
                             </div>
                         </div>
-                        <div class="btn-grid">${extraButtonsHtml}</div>
                     </div>`;
             });
         }
@@ -625,10 +903,12 @@
             container.innerHTML = "";
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
             misCanales.forEach(c => {
-                container.innerHTML += `<div style="background:#12121f; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #1e1e30;">
-                    <strong>${c.titulo}</strong> (${c.telegram_handle})
+                container.innerHTML += `<div style="background:#12121f; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #1e1e30; display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong>${c.titulo}</strong> (${c.telegram_handle})</div>
+                    <span style="font-size:0.7rem; color:var(--neon-magenta); background:rgba(255,0,127,0.1); padding:2px 6px; border-radius:4px; text-transform:uppercase;">${c.catsub}</span>
                 </div>`;
             });
+            document.getElementById("quota-indicator").innerText = usuarioActual.isPremium ? "Cuota disponible: ILIMITADA (VIP)" : `Cuota disponible: ${misCanales.length}/2 canales vinculados`;
         }
 
         function guardarCanal() {
@@ -638,26 +918,30 @@
             const cat = document.getElementById("form-canal-categoria").value;
             if(!t || !h) return showToast("Faltan campos por rellenar.");
 
+            let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+            if(!usuarioActual.isPremium && misCanales.length >= 2) {
+                return showToast("Límite gratuito alcanzado. Adquiere Premium para inyectar más.");
+            }
+
             canales.push({
                 id_canal: "c_" + Date.now(), titulo: t, telegram_handle: h, catsub: cs, categoria: cat,
                 url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
-                id_user_telegram_admin: usuarioActual.id_tg, quality: 60, status: "publicado"
+                id_user_telegram_admin: usuarioActual.id_tg, quality: 60, status: "publicado", rating: 4.9, resenas: 1
             });
             localStorage.setItem("golden_canales", JSON.stringify(canales));
             showToast("Canal inyectado con éxito.");
+            actualizarMetadatosContadores();
             resetAdminForm();
         }
 
         function resetAdminForm() {
             document.getElementById("form-canal-titulo").value = "";
             document.getElementById("form-canal-handle").value = "";
-            actualizarContadorCanalesUsuario();
             renderAdminPanel();
         }
 
-        function renderNotificaciones() {}
-        function renderMembresiaPage() {}
         function closeFloatingModal() { document.getElementById("floating-channels-modal").style.display = "none"; }
+        function closeRecommendation() { document.getElementById("cyber-recommend-popup").classList.remove("show"); }
     </script>
 </body>
 </html>
