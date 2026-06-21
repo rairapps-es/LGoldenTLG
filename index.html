@@ -412,9 +412,9 @@
         let usuarioActual = { 
             id_tg: "1320417199", 
             username_tg: "@Neuromante", 
-            isPremium: false, // Cámbialo aquí manualmente: true (Premium) o false (Gratis)
-            fecha_inicio: "21/06/2026", // Fecha asociada manualmente
-            fecha_fin: "21/07/2026",    // Fecha asociada manualmente
+            isPremium: false, 
+            fecha_inicio: "21/06/2026", 
+            fecha_fin: "21/07/2026",    
             favoritos: [] 
         };
         
@@ -541,7 +541,6 @@
                 filtrados = filtrados.filter(c => c.catsub === subcatActual);
             }
 
-            // SISTEMA INTELIGENTE DE FILTRADO Y ORDENAMIENTO COMPLETO
             if (orden === "golden") {
                 filtrados.sort((a, b) => (b.quality || 0) - (a.quality || 0));
             } else if (orden === "rating") {
@@ -750,7 +749,6 @@
             });
         }
 
-        /* --- VISTA DE MEMBRESÍAS OPTIMIZADA --- */
         function renderMembresiaPage() {
             const container = document.getElementById("membership-content-area");
             container.innerHTML = "";
@@ -767,7 +765,6 @@
                     </div>
                 `;
             } else {
-                // RENDERIZADO CUANDO EL PLAN GRATUITO ESTÁ ACTIVO CON SUS FECHAS ASOCIADAS
                 container.innerHTML = `
                     <div class="cyber-form" style="border-color:var(--neon-magenta);">
                         <h3 style="color:var(--neon-magenta); font-size:1.1rem; margin-bottom:8px;">Plan Activo: GRATUITO</h3>
@@ -813,7 +810,6 @@
             showToast("Abriendo pasarela automatizada por mensaje privado...");
         }
 
-        /* --- POTENCIADORES --- */
         function initSelectorCanalesBoosters() {
             const selector = document.getElementById("booster-channel-selector");
             if(!selector) return;
@@ -888,7 +884,7 @@
             const fActualStr = fechaActual.toLocaleDateString('es-ES');
             const fFinStr = fechaFin.toLocaleDateString('es-ES');
 
-            if(!actualmenteActivo) { 
+            if(!currentlyActivo = actualmenteActivo) { 
                 let yaExistePedido = pedidosBoosters.some(o => o.id_canal === canalId && o.booster === boosterKey);
                 if(!yaExistePedido) {
                     pedidosBoosters.push({
@@ -938,7 +934,7 @@
                     <div class="order-row">
                         <div>
                             <span style="color: var(--neon-cyan); font-weight:bold;">${o.booster_nombre}</span><br>
-                            <span style="color: var(--text-dim); font-size: 0.7 some;">Iniciado el ${o.fecha_inicio}</span>
+                            <span style="color: var(--text-dim); font-size: 0.75rem;">Iniciado el ${o.fecha_inicio}</span>
                         </div>
                         <span class="status-badge-active" style="color:var(--neon-green);">Vence: ${o.fecha_fin}</span>
                     </div>
