@@ -489,9 +489,8 @@
                 <div id="user-channels-list" class="catalog-grid" style="margin-top: 15px;"></div>
             </div>
         </div>
-        <button class="btn-cyber" style="width:100%; margin-top:15px; border-color:#ff3333; color:#ff3333;"
-    onclick="resetearDatosApp()"> 🗑️ Resetear Datos Locales</button>
-    </section>
+        <button class="btn-cyber" style="..." onclick="restaurarSistema()"> 🗑️ Resetear Datos Locales</button>
+   </section>
 
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-catalogo" onclick="switchPage('catalogo')"><i>📢</i><span>Catálogo</span></div>
@@ -511,11 +510,6 @@ const ESTADOS_USUARIOS = {
     "1320417199": { fechaInicio: "2026-06-01", fechaFin: "2026-07-01", duracion: "Mensual", plan: "GPlus Pro", estadoPago: "Pagado" },
     "77777777": { fechaInicio: "2026-05-15", fechaFin: "2026-06-15", duracion: "Mensual", plan: "GPlus Base", estadoPago: "Esperando el pago" },
     "99999999": { fechaInicio: "2026-01-01", fechaFin: "2027-01-01", duracion: "Anual", plan: "GPlus Ultra", estadoPago: "Comprobando el pago" }
-};
-
-// Lógica para asignar al usuario actual
-let variablesMembresia = ESTADOS_USUARIOS[usuarioActual.id_tg] || {
-    fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción"
 };
 
         const BD_MENSAJES_PREDEFINIDOS = [
@@ -547,15 +541,15 @@ let variablesMembresia = ESTADOS_USUARIOS[usuarioActual.id_tg] || {
         ];
 
         let canales = [];
-        let pedidosBoosters = [];
-        let mensajesUsuario = [];
-        
-        let usuarioActual = { 
-            id_tg: "1320417199", 
-            username_tg: "@Neuromante", 
-            isPremium: false, 
-            favoritos: [] 
-        };
+let pedidosBoosters = [];
+let mensajesUsuario = [];
+let variablesMembresia; // Declarada globalmente
+let usuarioActual = { 
+    id_tg: "1320417199", 
+    username_tg: "@Neuromante", 
+    isPremium: false, 
+    favoritos: [] 
+};
         
         let categoriaActual = "todas";
         let subcatActual = "todas";
@@ -564,45 +558,51 @@ let variablesMembresia = ESTADOS_USUARIOS[usuarioActual.id_tg] || {
         let msgVisiblesCount = 3;
 
         window.onload = function() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const webApp = window.Telegram.WebApp;
-                webApp.ready();
-                webApp.expand();
-                if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
-                    const tgUser = webApp.initDataUnsafe.user;
-                    usuarioActual.id_tg = tgUser.id.toString();
-                    usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
-                    
-                    // Sincronización Real de Imagen de Perfil de Telegram
-                    if (tgUser.photo_url) {
-                        document.getElementById("nav-avatar").src = tgUser.photo_url;
-                    }
-                }
-            }
-
-            if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
-
-            if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
-            canales = JSON.parse(localStorage.getItem("golden_canales"));
-
-            if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
-            usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
-
-            initMensajesBaseDatos();
-            document.getElementById("nav-username").innerText = usuarioActual.username_tg;
+    // 1. Inicialización de Telegram
+    if (window.Telegram && window.Telegram.WebApp) {
+        const webApp = window.Telegram.WebApp;
+        webApp.ready();
+        webApp.expand();
+        if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+            const tgUser = webApp.initDataUnsafe.user;
+            usuarioActual.id_tg = tgUser.id.toString();
+            usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
             
-            actualizarMetadatosContadores();
-            actualizarEstilosSincroPremium();
-            triggerSplash();
-            aplicarFiltrosMaster(true);
-            renderDonadoresSlider();
-            renderDestacadosSlider();
-            initSelectorCanalesBoosters();
-            renderMembresiaPage();
+            if (tgUser.photo_url) {
+                document.getElementById("nav-avatar").src = tgUser.photo_url;
+            }
+        }
+    }
 
-            initSliderAutoScroll("donors-slider");
-            initSliderAutoScroll("featured-slider");
-        };
+    // 2. Asignación segura de membresía (aquí ya existe el ID de usuario)
+    variablesMembresia = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
+        fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
+    };
+
+    // 3. Carga de datos
+    if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
+    if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+    canales = JSON.parse(localStorage.getItem("golden_canales"));
+
+    if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
+    usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
+
+    // 4. Renderizado
+    initMensajesBaseDatos();
+    document.getElementById("nav-username").innerText = usuarioActual.username_tg;
+    
+    actualizarMetadatosContadores();
+    actualizarEstilosSincroPremium();
+    triggerSplash();
+    aplicarFiltrosMaster(true);
+    renderDonadoresSlider();
+    renderDestacadosSlider();
+    initSelectorCanalesBoosters();
+    renderMembresiaPage();
+
+    initSliderAutoScroll("donors-slider");
+    initSliderAutoScroll("featured-slider");
+};
 
         function initMensajesBaseDatos() {
             if (!localStorage.getItem("golden_mensajes_usuarios")) {
