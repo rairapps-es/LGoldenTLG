@@ -43,36 +43,55 @@
         .cyber-toast.show { transform: translateX(0); }
 
         /* --- SLIDERS DESLIZANTES NATIVOS --- */
-        .slider-section { 
-    margin: 20px 0; 
-    overflow: hidden; 
-    position: relative; /* Ayuda a contener el scroll */
+        .slider-wrapper{
+    margin:20px 0;
+    overflow:hidden;
+    position:relative;
 }
 
-.slider-container {
-    display: flex; 
-    gap: 15px; 
-    overflow-x: auto; 
-    scroll-behavior: smooth;
-    padding: 10px 5px; 
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch; /* Vital para iOS */
-    
-    /* MODIFICACIONES PARA EL TEMBLOR */
-    scroll-snap-type: x mandatory; 
-    overscroll-behavior-x: contain; /* IMPIDE que el scroll se propague al body */
-    touch-action: pan-x;           /* Indica al navegador que el gesto es horizontal */
+.slider-container{
+    display:flex;
+    gap:15px;
+
+    overflow-x:auto;
+    overflow-y:hidden;
+
+    padding:10px 5px;
+
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+
+    -webkit-overflow-scrolling:touch;
+
+    /* Scroll horizontal */
+    touch-action:pan-x;
+
+    /* Evita rebotes extraños */
+    overscroll-behavior-x:contain;
+
+    /* Snap más suave */
+    scroll-snap-type:x proximity;
+
+    /* Evita repaints innecesarios */
+    transform:translateZ(0);
+    will-change:scroll-position;
 }
 
-.slider-container::-webkit-scrollbar { display: none; }
-
-.slider-card { 
-    flex: 0 0 285px; 
-    /* Quitamos display: inline-block, ya que flex se encarga de esto */
-    scroll-snap-align: start; 
-    scroll-snap-stop: always; /* Opcional: asegura que se detenga en cada tarjeta */
+.slider-container::-webkit-scrollbar{
+    display:none;
 }
 
+.slider-card{
+    flex:0 0 285px;
+
+    scroll-snap-align:start;
+
+    /* Quitar esto suele eliminar el temblor */
+    /* scroll-snap-stop: always; */
+
+    transform:translateZ(0);
+}
+        
         .user-card-top { display: flex; justify-content: space-between; align-items: center; }
         .user-stars-donor { color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); font-size: 0.8rem; }
 
