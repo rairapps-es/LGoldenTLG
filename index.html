@@ -994,8 +994,13 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
 function registrarPedido(tituloCanal, nombreBooster, accion) {
     let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
     
+    // Nueva fecha formateada: DD/MM HH:MM
+    const ahora = new Date();
+    const fechaFormateada = ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+    const horaFormateada = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute:'2-digit' });
+    
     logs.unshift({
-        fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        fecha: `${fechaFormateada} ${horaFormateada}`,
         canal: tituloCanal,
         booster: nombreBooster,
         accion: accion
@@ -1005,6 +1010,7 @@ function registrarPedido(tituloCanal, nombreBooster, accion) {
     renderPedidosLog();
 }
 
+// Asegúrate de que el renderizado muestre la variable 'l.fecha' que ahora trae todo el string
 function renderPedidosLog() {
     const container = document.getElementById("orders-log-container");
     const logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
@@ -1012,8 +1018,8 @@ function renderPedidosLog() {
     container.innerHTML = logs.map(l => `
         <div class="order-row">
             <div style="display:flex; flex-direction:column;">
-                <span style="font-size:0.7rem; color:var(--text-dim);">${l.fecha}</span>
-                <span style="color:var(--neon-cyan); font-weight:bold;">${l.canal}</span>
+                <span style="font-size:0.7rem; color:var(--neon-cyan);">${l.fecha}</span>
+                <span style="color:var(--text-main); font-weight:bold;">${l.canal}</span>
             </div>
             <div style="text-align:right;">
                 <div style="color:var(--neon-gold); font-size:0.8rem;">${l.booster}</div>
