@@ -534,8 +534,8 @@ const ESTADOS_USUARIOS = {
 
         const TIENDA_POTENCIADORES = [
     { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba.", precio: 50 },
-    { key: "social_chat", nombre: "Chat Comunidad", desc: "Botón directo al chat.", precio: 30 },
-    { key: "bot_oficial", nombre: "Bot Oficial", desc: "Botón de arranque bot.", precio: 40 },
+    { key: "social_chat", nombre: "Chat Comunidad", desc: "Vincula un botón directo.", precio: 30 },
+    { key: "bot_oficial", nombre: "Bot Oficial", desc: "Añade botón de arranque.", precio: 40 },
     { key: "enlace_web", nombre: "URL Web", desc: "Hipervínculo externo.", precio: 20 }
 ];
 
@@ -992,42 +992,57 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
 function registrarPedido(tituloCanal, nombreBooster) {
     let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
     
-    const inicio = new Date();
-    const fin = new Date();
-    fin.setDate(inicio.getDate() + 30);
+    const boosterData = TIENDA_POTENCIADORES.find(p => p.nombre === nombreBooster);
+    const precio = boosterData ? boosterData.precio : 0;
     
-    const fmt = (d) => d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+    // Crear fecha de expiración: hoy + 30 días
+    const fechaFinObj = new Date();
+    fechaFinObj.setDate(fechaFinObj.getDate() + 30);
     
     logs.unshift({
-        fechaInicio: fmt(inicio),
-        fechaFin: fmt(fin),
-        duracion: "30 días",
         canal: tituloCanal,
-        booster: nombreBooster
+        booster: nombreBooster,
+        precio: precio,
+        fechaFinMs: fechaFinObj.getTime() // Guardamos en milisegundos para comparar fácilmente
     });
 
-    localStorage.setItem("golden_pedidos_log", JSON.stringify(logs.slice(0, 10)));
+    localStorage.setItem("golden_pedidos_log", JSON.stringify(logs));
     renderPedidosLog();
 }
 
 // Asegúrate de que el renderizado muestre la variable 'l.fecha' que ahora trae todo el string
 function renderPedidosLog() {
     const container = document.getElementById("orders-log-container");
-    const logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
-    const precio = 50; // Ejemplo de precio fijo o buscar en el objeto
+    let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
     
-    container.innerHTML = logs.map(l => `
-        <div class="order-row">
-            <div>
-                <div style="color:#fff; font-weight:bold;">${l.canal}</div>
-                <div style="font-size:0.7rem; color:var(--neon-cyan);">${l.booster}</div>
+    const ahoraMs = new Date().getTime();
+    
+    // FILTRO AUTOMÁTICO: Solo mantenemos los que NO han expirado
+    const logsValidos = logs.filter(l => l.fechaFinMs > ahoraMs);
+    
+    // Si hubo cambios por expiración, actualizamos el almacenamiento
+    if (logsValidos.length !== logs.length) {
+        localStorage.setItem("golden_pedidos_log", JSON.stringify(logsValidos));
+        logs = logsValidos;
+    }
+    
+    container.innerHTML = logs.map(l => {
+        // Convertimos los milisegundos de nuevo a formato legible
+        const fechaLegible = new Date(l.fechaFinMs).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+        
+        return `
+            <div class="order-row">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="color:var(--text-main); font-weight:bold;">${l.canal}</span>
+                    <span style="font-size:0.7rem; color:var(--text-dim);">${l.booster}</span>
+                </div>
+                <div style="text-align:right;">
+                    <div style="color:var(--neon-gold); font-weight:bold;">⭐ ${l.precio} Stars</div>
+                    <div style="font-size:0.7rem; color:var(--neon-cyan);">Expira: ${fechaLegible}</div>
+                </div>
             </div>
-            <div style="text-align:right;">
-                <div style="color:var(--neon-gold); font-weight:bold;">⭐ ${l.duracion}</div>
-                <div style="font-size:0.7rem; color:var(--text-dim);">Fin: ${l.fechaFin}</div>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('') || '<p style="color:var(--text-dim); font-size:0.8rem;">No hay pedidos activos.</p>';
 }
 
         function renderFavoritos() { renderGridTemplates(canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), "favs-container", false); }
