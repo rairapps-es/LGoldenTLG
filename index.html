@@ -147,7 +147,7 @@
         .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
         
         /* TARJETA MEJORADA */
-        .card { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .card { background: var(--bg-card); border: 1px solid #1e1e30; border-radius: 12px; padding: 16px; position: relative; overflow: visible; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
         .card.premium-highlight { border: 2px solid var(--neon-magenta); box-shadow: var(--cyber-glow-magenta); background: linear-gradient(145deg, #0d0d15, #170b1c); }
         
         .badge-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
@@ -179,19 +179,41 @@
         .sliding-buttons-wrapper.expanded { max-height: 200px; margin-top: 8px; border-top: 1px dashed #1e1e30; padding-top: 8px; }
 
         /* --- TOOLTIP ENERGÍA --- */
-        .energy-title-container { display: flex; align-items: center; gap: 6px; position: relative; }
         .tooltip-trigger { background: transparent; border: none; color: var(--neon-cyan); cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: color 0.2s; display: inline-flex; align-items: center; }
         .tooltip-trigger:hover { color: var(--neon-magenta); }
         
-        .cyber-tooltip-box {
-            display: none; position: absolute; top: 25px; left: 0; z-index: 3000;
-            width: 290px; background: rgba(10, 10, 18, 0.98); border: 1px solid var(--neon-gold);
-            box-shadow: var(--cyber-glow-gold); padding: 12px; border-radius: 8px;
-            font-size: 0.72rem; color: var(--text-main); white-space: normal; line-height: 1.4;
-            backdrop-filter: blur(10px);
-        }
+        .energy-title-container { 
+    display: flex; 
+    align-items: center; 
+    gap: 6px; 
+    position: relative; /* Es vital que esto sea relative para que el absoluto del tooltip se ancle aquí */
+}
+
+.cyber-tooltip-box {
+    display: none; 
+    position: absolute; 
+    top: 100%; /* Se posiciona justo debajo del contenedor */
+    left: 0; 
+    z-index: 9999; /* Asegura que esté por encima de todo */
+    width: 280px; 
+    background: rgba(10, 10, 18, 0.95); 
+    border: 1px solid var(--neon-gold);
+    box-shadow: var(--cyber-glow-gold); 
+    padding: 12px; 
+    border-radius: 8px;
+    font-size: 0.72rem; 
+    color: var(--text-main); 
+    line-height: 1.4;
+    margin-top: 8px; /* Espacio entre el trigger y el tooltip */
+    pointer-events: none; /* Evita que el tooltip interfiera con el mouse al intentar leerlo */
+}
+
+/* Activación al pasar el mouse */
+.energy-title-container:hover .cyber-tooltip-box { 
+    display: block; 
+}
+
         .tooltip-trigger:focus + .cyber-tooltip-box,
-        .energy-title-container:hover .cyber-tooltip-box { display: block; }
         .tooltip-section-title { font-weight: bold; color: var(--neon-cyan); margin-bottom: 3px; text-transform: uppercase; font-size: 0.68rem; }
 
         /* --- NAVBAR INFERIOR --- */
