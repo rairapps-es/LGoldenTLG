@@ -829,6 +829,39 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
             actualizarMetadatosContadores();
         }
 
+        function solicitarEdicion(canalId) {
+    const canal = canales.find(c => c.id_canal === canalId);
+    if (!canal) return;
+
+    const msg = `✏️ SOLICITUD DE EDICIÓN\n` +
+                `Canal: ${canal.titulo} (ID: ${canalId})\n` +
+                `Nuevo Título: [Escribe aquí]\n` +
+                `Nuevo Handle: [Escribe aquí]\n` +
+                `Cambios solicitados: [Detalla qué quieres cambiar]`;
+
+    enviarSolicitudTelegram(msg);
+}
+
+function solicitarEliminacion(canalId) {
+    const canal = canales.find(c => c.id_canal === canalId);
+    if (!canal) return;
+
+    const msg = `🗑️ SOLICITUD DE ELIMINACIÓN\n` +
+                `Canal: ${canal.titulo}\n` +
+                `ID: ${canalId}\n` +
+                `Confirmación: Solicito eliminar permanentemente este canal del catálogo.`;
+
+    if (confirm(`¿Estás seguro de solicitar la eliminación de ${canal.titulo}?`)) {
+        enviarSolicitudTelegram(msg);
+    }
+}
+
+function enviarSolicitudTelegram(mensaje) {
+    const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(mensaje)}`;
+    window.open(urlTelegram, '_blank');
+    showToast("Solicitud generada. Abre Telegram para enviarla.");
+}
+
         function resetAdminForm() {
             document.getElementById("form-canal-titulo").value = "";
             document.getElementById("form-canal-handle").value = "";
@@ -1140,8 +1173,26 @@ function renderPedidosLog() {
     ); 
 }
         
-     function renderAdminPanel() { renderGridTemplates(canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), "user-channels-list", true); }
-        
+     function renderAdminPanel() {
+    const container = document.getElementById("user-channels-list");
+    const misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
+    
+    container.innerHTML = "";
+    misCanales.forEach(c => {
+        container.innerHTML += `
+            <div class="card">
+                <div>
+                    <h4 style="color:#fff;">${c.titulo}</h4>
+                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                </div>
+                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top:10px;">
+                    <button class="btn-cyber" style="border-color:var(--neon-gold); color:var(--neon-gold);" onclick="solicitarEdicion('${c.id_canal}')">Editar ✏️</button>
+                    <button class="btn-cyber" style="border-color:var(--neon-magenta); color:var(--neon-magenta);" onclick="solicitarEliminacion('${c.id_canal}')">Borrar 🗑️</button>
+                </div>
+            </div>`;
+    });
+}
+     
         // REVISIÓN Y RE-CÁLCULO DINÁMICO DE CONTADORES GLOBALES
         function actualizarMetadatosContadores() { 
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
