@@ -61,7 +61,6 @@
     -ms-overflow-style: none;
     
     /* Cambia 'mandatory' por 'proximity' si el usuario se queja de que cuesta moverlo */
-    scroll-snap-type: x mandatory; 
     
     /* Esto es vital para evitar el temblor en navegadores móviles */
     scroll-behavior: smooth;
@@ -74,7 +73,6 @@
 
 .slider-card {
     flex: 0 0 285px;
-    scroll-snap-align: start;
     
     /* Agrega esto para estabilizar el renderizado */
     flex-shrink: 0; 
@@ -897,26 +895,51 @@ let usuarioActual = {
         }
 
         function descubrirCanalesDonador(idTg, username) { 
-            const filtrados = canales.filter(c => c.id_user_telegram_admin === idTg); 
-            const modal = document.getElementById("floating-channels-modal"); 
-            const content = document.getElementById("floating-modal-content"); 
-            document.getElementById("floating-modal-title").innerText = `Canales de ${username}`; 
-            content.innerHTML = ""; 
-            if(filtrados.length === 0) {
-                content.innerHTML = `<p style="color:var(--text-dim);">Este usuario no posee canales indexados públicos.</p>`;
-            } else {
-                filtrados.forEach(c => { content.innerHTML += `<div style="background:#131322; padding:10px; border-radius:6px; border-left: 2px solid var(--neon-cyan);">${c.titulo} (${c.telegram_handle})</div>`; }); 
-            }
-            modal.style.display = "flex"; 
-        }
+    const filtrados = canales.filter(c => c.id_user_telegram_admin === idTg); 
+    const modal = document.getElementById("floating-channels-modal"); 
+    const content = document.getElementById("floating-modal-content"); 
+    
+    document.getElementById("floating-modal-title").innerText = `Canales de ${username}`; 
+    content.innerHTML = ""; 
+    
+    if(filtrados.length === 0) {
+        content.innerHTML = `<p style="color:var(--text-dim); text-align:center;">Este usuario no posee canales indexados públicos.</p>`;
+    } else {
+        filtrados.forEach(c => { 
+            // Construimos la URL del canal de Telegram
+            const urlCanal = `https://t.me/${c.telegram_handle.replace('@','')}`;
+            
+            content.innerHTML += `
+                <a href="${urlCanal}" target="_blank" style="text-decoration:none;">
+                    <div style="background:#131322; padding:12px; border-radius:6px; border-left: 3px solid var(--neon-cyan); transition: all 0.2s; cursor:pointer;" 
+                         onmouseover="this.style.background='#1e1e30'; this.style.borderColor='var(--neon-magenta)';" 
+                         onmouseout="this.style.background='#131322'; this.style.borderColor='var(--neon-cyan)';">
+                        <div style="color:#fff; font-weight:bold; font-size:0.9rem;">${c.titulo}</div>
+                        <div style="color:var(--neon-cyan); font-size:0.75rem;">${c.telegram_handle}</div>
+                    </div>
+                </a>`; 
+        }); 
+    }
+    modal.style.display = "flex"; 
+}
 
         function renderDestacadosSlider() { 
-            const container = document.getElementById("featured-slider"); 
-            container.innerHTML = ""; 
-            canales.filter(c => c.isDestacado).forEach(c => { 
-                container.innerHTML += `<div class="slider-card" style="flex: 0 0 200px;"><div style="background:#09090f; border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center; white-space:normal;"><h5 style="color:#fff; font-size:0.8rem;">${c.titulo}</h5></div></div>`; 
-            }); 
-        }
+    const container = document.getElementById("featured-slider"); 
+    container.innerHTML = ""; 
+    
+    canales.filter(c => c.isDestacado).forEach(c => { 
+        // Asumiendo que c.url_canal existe; si no, ajusta el campo correspondiente
+        const url = c.url_canal || `https://t.me/${c.telegram_handle.replace('@','')}`;
+        
+        container.innerHTML += `
+            <div class="slider-card" style="flex: 0 0 200px; cursor: pointer;" onclick="window.open('${url}', '_blank')">
+                <div style="background:#09090f; border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center; white-space:normal; transition: transform 0.2s;">
+                    <h5 style="color:#fff; font-size:0.8rem; margin:0;">${c.titulo}</h5>
+                    <span style="font-size:0.6rem; color:var(--neon-magenta);">${c.telegram_handle}</span>
+                </div>
+            </div>`; 
+    }); 
+}
 
         // --- SISTEMA Y PANTALLA DE MEMBRESÍA ACTUALIZADA ---
         function renderMembresiaPage() { 
