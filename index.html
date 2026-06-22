@@ -688,21 +688,24 @@ function verificarMigracionDatos() {
         }
 
         // --- MSTR RENDER CARD ENGINE ---
-        function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = false) {
+        // Añadimos el cuarto parámetro con valor por defecto true
+function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = false, applyLazyLoad = true) {
     const container = document.getElementById(targetContainerId);
     if (!container) return;
     container.innerHTML = "";
 
-    if (!isOwnerConsole) {
+    // Solo aplicamos el slice si NO es admin Y la bandera de lazy load es true
+    if (!isOwnerConsole && applyLazyLoad) {
         const btnLazy = document.getElementById("btn-lazy-load");
         if (btnLazy) btnLazy.style.display = listaCanales.length <= canalesVisiblesCount ? "none" : "block";
         listaCanales = listaCanales.slice(0, canalesVisiblesCount);
+    } else {
+        // Si no usamos lazy load, aseguramos que el botón de cargar más esté oculto
+        const btnLazy = document.getElementById("btn-lazy-load");
+        if (btnLazy) btnLazy.style.display = "none";
     }
 
-    if(listaCanales.length === 0) {
-        container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--text-dim); padding:20px;">No se encontraron registros.</p>`;
-        return;
-    }
+    // ... (el resto de tu código igual)
 
     listaCanales.forEach(c => {
         let isFav = usuarioActual.favoritos.includes(c.id_canal);
@@ -1128,8 +1131,16 @@ function renderPedidosLog() {
     }).join('') || '<p style="color:var(--text-dim); font-size:0.8rem;">No hay pedidos activos.</p>';
 }
 
-        function renderFavoritos() { renderGridTemplates(canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), "favs-container", false); }
-        function renderAdminPanel() { renderGridTemplates(canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), "user-channels-list", true); }
+        function renderFavoritos() { 
+    renderGridTemplates(
+        canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), 
+        "favs-container", 
+        false, 
+        false // <-- Aquí desactiva el corte de 3 en 3
+    ); 
+}
+        
+     function renderAdminPanel() { renderGridTemplates(canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), "user-channels-list", true); }
         
         // REVISIÓN Y RE-CÁLCULO DINÁMICO DE CONTADORES GLOBALES
         function actualizarMetadatosContadores() { 
