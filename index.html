@@ -49,34 +49,41 @@
     position:relative;
 }
 
-/* --- SLIDERS DESLIZANTES OPTIMIZADOS --- */
 .slider-container {
     display: flex;
     gap: 15px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 10px 15px; /* Aumenta el padding lateral */
+    padding: 10px 15px;
     
+    /* Elimina scrollbar */
     scrollbar-width: none;
     -ms-overflow-style: none;
+    &::-webkit-scrollbar { display: none; }
+
+    /* ESTABILIZACIÓN */
+    -webkit-overflow-scrolling: touch; 
     
-    /* Cambia 'mandatory' por 'proximity' si el usuario se queja de que cuesta moverlo */
-    
-    /* Esto es vital para evitar el temblor en navegadores móviles */
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    /* Vital: esto le dice al navegador que el scroll es puramente horizontal */
     touch-action: pan-x;
     
-    /* Evita que el navegador intente pintar el scroll de forma errática */
-    will-change: transform; 
+    /* Elimina el rebote elástico (bounce) nativo de iOS */
+    overscroll-behavior-x: contain;
+    
+    /* Mejora el renderizado */
+    will-change: transform;
+    
+    /* OPCIONAL: Si usabas scroll-snap, desactívalo para probar si el rebote desaparece */
+    scroll-snap-type: none; 
 }
 
 .slider-card {
     flex: 0 0 285px;
-    
-    /* Agrega esto para estabilizar el renderizado */
-    flex-shrink: 0; 
+    flex-shrink: 0;
+    /* Evita que el contenido interno de la card fuerce el scroll */
+    min-width: 0; 
 }
+
         /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
         #cyber-recommend-popup {
             position: fixed; bottom: 85px; left: 20px; z-index: 1500;
