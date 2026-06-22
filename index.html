@@ -563,24 +563,27 @@ let usuarioActual = {
         }
     }
 
-// En tu window.onload, reemplaza la asignación de variablesMembresia por esto:
-const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
-    fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
-};
+    // 2. Membresía
+    const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
+        fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
+    };
 
-// Creamos el objeto incluyendo la lógica de "activado"
-variablesMembresia = {
-    ...estadoData,
-    activado: estadoData.estadoPago === "Pagado" // Esto será TRUE solo si está Pagado
-};
+    variablesMembresia = {
+        ...estadoData,
+        activado: estadoData.estadoPago === "Pagado"
+    };
 
-    // 3. Carga de datos
-    if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
+    // 3. Carga de datos (AÑADIDO: Inicialización de golden_pedidos_log)
+    if (LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
+    
     if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
     canales = JSON.parse(localStorage.getItem("golden_canales"));
 
     if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
     usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
+
+    // INICIALIZACIÓN DE LOG DE PEDIDOS
+    if (!localStorage.getItem("golden_pedidos_log")) localStorage.setItem("golden_pedidos_log", JSON.stringify([]));
 
     // 4. Renderizado
     initMensajesBaseDatos();
@@ -594,8 +597,11 @@ variablesMembresia = {
     renderDestacadosSlider();
     initSelectorCanalesBoosters();
     renderMembresiaPage();
-    renderPedidosLog()
+    
+    // Renderizado de log con purga automática
+    renderPedidosLog();
 
+    // Inicialización de sliders con la nueva lógica segura
     initSliderAutoScroll("donors-slider");
     initSliderAutoScroll("featured-slider");
 };
@@ -848,8 +854,40 @@ variablesMembresia = {
 
         function cargarMasCanales() { canalesVisiblesCount += 3; aplicarFiltrosMaster(false); }
         function filtrarSubcat(subcat) { subcatActual = subcat; document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-sub-${subcat}`).classList.add('active'); aplicarFiltrosMaster(true); }
-        function initSliderAutoScroll(containerId) { const container = document.getElementById(containerId); if (!container) return; setInterval(() => { if (!container.matches(':hover')) { container.scrollLeft += 1; if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) container.scrollLeft = 0; } }, 30); }
-        
+        function initSliderAutoScroll(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Función de movimiento suave
+    const scrollFunction = () => {
+        if (!container.matches(':hover')) {
+            container.scrollLeft += 1;
+            // Si llega al final, vuelve al inicio
+            if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) {
+                container.scrollLeft = 0;
+            }
+        }
+    };
+
+    // Iniciamos el intervalo
+    let scrollInterval = setInterval(scrollFunction, 30);
+
+    // Lógica de seguridad: Detener al tocar/hover para evitar temblores o conflictos
+    // MÓVIL
+    container.addEventListener('touchstart', () => clearInterval(scrollInterval), { passive: true });
+    container.addEventListener('touchend', () => {
+        clearInterval(scrollInterval); // Limpiamos por si acaso
+        scrollInterval = setInterval(scrollFunction, 30);
+    }, { passive: true });
+
+    // ESCRITORIO
+    container.addEventListener('mouseenter', () => clearInterval(scrollInterval));
+    container.addEventListener('mouseleave', () => {
+        clearInterval(scrollInterval);
+        scrollInterval = setInterval(scrollFunction, 30);
+    });
+}
+
         function renderDonadoresSlider() { 
             const container = document.getElementById("donors-slider"); 
             container.innerHTML = ""; 
