@@ -50,50 +50,35 @@
 }
 
 /* --- SLIDERS DESLIZANTES OPTIMIZADOS --- */
-.slider-wrapper {
-    margin: 20px 0;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-}
-
 .slider-container {
     display: flex;
     gap: 15px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 10px 5px;
+    padding: 10px 15px; /* Aumenta el padding lateral */
     
-    /* Ocultar scrollbar */
     scrollbar-width: none;
     -ms-overflow-style: none;
     
-    /* Mejorar suavidad en iOS/Android */
-    -webkit-overflow-scrolling: touch;
+    /* Cambia 'mandatory' por 'proximity' si el usuario se queja de que cuesta moverlo */
+    scroll-snap-type: x mandatory; 
     
-    /* Configuración de Snap más estable */
-    scroll-snap-type: x mandatory;
+    /* Esto es vital para evitar el temblor en navegadores móviles */
     scroll-behavior: smooth;
-    
-    /* IMPORTANTE: Evita conflictos táctiles */
+    -webkit-overflow-scrolling: touch;
     touch-action: pan-x;
-}
-
-.slider-container::-webkit-scrollbar {
-    display: none;
+    
+    /* Evita que el navegador intente pintar el scroll de forma errática */
+    will-change: transform; 
 }
 
 .slider-card {
     flex: 0 0 285px;
-    /* Aseguramos que el punto de snap sea el inicio de la tarjeta */
     scroll-snap-align: start;
-    /* Eliminamos scroll-snap-stop para un movimiento más fluido */
+    
+    /* Agrega esto para estabilizar el renderizado */
+    flex-shrink: 0; 
 }
-    /* Evita repaints innecesarios */
-        
-        .user-card-top { display: flex; justify-content: space-between; align-items: center; }
-        .user-stars-donor { color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); font-size: 0.8rem; }
-
         /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
         #cyber-recommend-popup {
             position: fixed; bottom: 85px; left: 20px; z-index: 1500;
