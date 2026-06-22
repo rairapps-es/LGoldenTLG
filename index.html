@@ -816,13 +816,27 @@ let usuarioActual = {
         }
 
         function aplicarFiltrosMaster(resetLazyCount = false) { 
-            if(resetLazyCount) canalesVisiblesCount = 3; 
-            categoriaActual = document.getElementById("select-filter-categoria").value; 
-            let filtrados = canales.filter(c => c.status === "publicado" || !c.status); 
-            if(categoriaActual !== "todas") filtrados = filtrados.filter(c => c.categoria === categoriaActual); 
-            if(subcatActual !== "todas") filtrados = filtrados.filter(c => c.catsub === subcatActual); 
-            renderGridTemplates(filtrados, "catalog-container", false); 
-        }
+    if (resetLazyCount) canalesVisiblesCount = 3; 
+    
+    categoriaActual = document.getElementById("select-filter-categoria").value; 
+    const orden = document.getElementById("select-filter-orden").value;
+    
+    // 1. Filtrado
+    let lista = canales.filter(c => c.status === "publicado" || !c.status); 
+    if (categoriaActual !== "todas") lista = lista.filter(c => c.categoria === categoriaActual); 
+    if (subcatActual !== "todas") lista = lista.filter(c => c.catsub === subcatActual); 
+    
+    // 2. Ordenamiento (Aquí reside la magia)
+    lista.sort((a, b) => {
+        if (orden === "golden") return b.quality - a.quality; // Mayor puntuación primero
+        if (orden === "rating") return b.rating - a.rating;  // Mayor estrellas primero
+        if (orden === "populares") return b.isPopular - a.isPopular; // booleanos: true antes que false
+        if (orden === "destacados") return b.isDestacado - a.isDestacado;
+        return 0;
+    });
+
+    renderGridTemplates(lista, "catalog-container", false); 
+}
 
         function cargarMasCanales() { canalesVisiblesCount += 3; aplicarFiltrosMaster(false); }
         function filtrarSubcat(subcat) { subcatActual = subcat; document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-sub-${subcat}`).classList.add('active'); aplicarFiltrosMaster(true); }
