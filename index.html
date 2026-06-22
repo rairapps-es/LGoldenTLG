@@ -510,7 +510,8 @@
 
     <script>
         const MI_USUARIO_TELEGRAM = "Airdayz";
-        const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
+const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
+const DB_VERSION = "1.1.0"; // <--- AÑADE ESTA LÍNEA AQUÍ
 
 // Ejemplo de 3 usuarios con diferentes estados de pago
 const ESTADOS_USUARIOS = {
@@ -571,9 +572,18 @@ function verificarMigracionDatos() {
     const versionGuardada = localStorage.getItem("golden_db_version");
     
     if (versionGuardada !== DB_VERSION) {
-        // ... (todo tu código de migración)
+        // Recuperar o inicializar vacío
+        let canales = JSON.parse(localStorage.getItem("golden_canales") || "[]");
+
+        // Realizar la migración
+        let canalesActualizados = canales.map(c => ({
+            ...c,
+            nuevaPropiedad: c.nuevaPropiedad || "valor_por_defecto"
+        }));
+
+        localStorage.setItem("golden_canales", JSON.stringify(canalesActualizados));
         localStorage.setItem("golden_db_version", DB_VERSION);
-        console.log("Sistema actualizado exitosamente.");
+        console.log("Sistema actualizado a la versión:", DB_VERSION);
     }
 }
 
