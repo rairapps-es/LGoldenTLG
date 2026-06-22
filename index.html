@@ -75,6 +75,15 @@
     /* Evita repaints innecesarios */
     transform:translateZ(0);
     will-change:scroll-position;
+
+    /* Cambia proximity por mandatory para un comportamiento más firme */
+    scroll-snap-type: x mandatory; 
+    
+    /* Importante para evitar el conflicto con gestos del sistema */
+    touch-action: pan-x pan-y; 
+    
+    /* Esto ayuda a que el scroll sea más "nativo" y menos "forzado" */
+    scroll-behavior: smooth;
 }
 
 .slider-container::-webkit-scrollbar{
@@ -88,8 +97,6 @@
 
     /* Quitar esto suele eliminar el temblor */
     /* scroll-snap-stop: always; */
-
-    transform:translateZ(0);
 }
         
         .user-card-top { display: flex; justify-content: space-between; align-items: center; }
