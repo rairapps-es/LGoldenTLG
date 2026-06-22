@@ -960,6 +960,8 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
         function solicitarModificacionBooster(canalId, boosterKey, actualmenteActivo) { 
             const canal = canales.find(c => c.id_canal === canalId); 
             canal[boosterKey] = !actualmenteActivo; 
+
+            registrarPedido(canal.titulo, actualmenteActivo ? "Desactivar" : "Inyectar");
             
             let activos = 0;
             TIENDA_POTENCIADORES.forEach(p => { if(canal[p.key]) activos++; });
@@ -970,6 +972,35 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
             actualizarMetadatosContadores();
             showToast(`Núcleo modificado de forma exitosa.`);
         }
+
+        function registrarPedido(tituloCanal, accionBooster) {
+    // Obtenemos los pedidos existentes (o un array vacío si no hay nada)
+    let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
+    
+    // Añadimos el nuevo registro
+    logs.unshift({
+        fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        canal: tituloCanal,
+        accion: accionBooster
+    });
+
+    // Guardamos y limitamos a los últimos 10 pedidos para no llenar la memoria
+    localStorage.setItem("golden_pedidos_log", JSON.stringify(logs.slice(0, 10)));
+    renderPedidosLog(); // Actualiza la vista
+}
+
+function renderPedidosLog() {
+    const container = document.getElementById("orders-log-container");
+    const logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
+    
+    container.innerHTML = logs.map(l => `
+        <div class="order-row">
+            <span>${l.fecha}</span>
+            <span style="color:var(--neon-cyan)">${l.canal}</span>
+            <span style="color:var(--neon-gold)">${l.accion}</span>
+        </div>
+    `).join('');
+}
 
         function renderFavoritos() { renderGridTemplates(canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), "favs-container", false); }
         function renderAdminPanel() { renderGridTemplates(canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), "user-channels-list", true); }
