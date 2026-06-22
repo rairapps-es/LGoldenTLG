@@ -589,10 +589,16 @@ let usuarioActual = {
         }
     }
 
-    // 2. Asignación segura de membresía (aquí ya existe el ID de usuario)
-    variablesMembresia = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
-        fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
-    };
+// En tu window.onload, reemplaza la asignación de variablesMembresia por esto:
+const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
+    fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
+};
+
+// Creamos el objeto incluyendo la lógica de "activado"
+variablesMembresia = {
+    ...estadoData,
+    activado: estadoData.estadoPago === "Pagado" // Esto será TRUE solo si está Pagado
+};
 
     // 3. Carga de datos
     if(LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
@@ -892,9 +898,10 @@ let usuarioActual = {
             const container = document.getElementById("membership-content-area"); 
             if(!container) return;
 
-            let estadoActivacion = variablesMembresia.activado ? 
-                `<span style="color:var(--neon-green); font-weight:bold;">ACTIVADO</span>` : 
-                `<span style="color:var(--neon-magenta); font-weight:bold;">DESACTIVADO</span>`;
+            // En renderMembresiaPage(), cambia esto:
+let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ? 
+    `<span style="color:var(--neon-green); font-weight:bold;">ACTIVADO</span>` : 
+    `<span style="color:var(--neon-magenta); font-weight:bold;">DESACTIVADO</span>`;
 
             let colorPago = "var(--text-dim)";
             if(variablesMembresia.estadoPago === "Pagado") colorPago = "var(--neon-green)";
