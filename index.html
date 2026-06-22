@@ -731,7 +731,7 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
 
         let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
 
-        let adminInfoSection = "";
+                let adminInfoSection = "";
         if (isOwnerConsole) {
             adminInfoSection = `
                 <div class="admin-booster-info">
@@ -740,9 +740,15 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
                     <div>Chat: <span class="${c.social_chat ? 'booster-on-status' : 'booster-off-status'}">${c.social_chat ? 'ON' : 'OFF'}</span></div>
                     <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
                 </div>
-                <button class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px; margin-bottom:10px;" onclick="invitarAPotenciar('${c.telegram_handle}')">
+                
+                <button class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px;" onclick="invitarAPotenciar('${c.telegram_handle}')">
                     Potenciar Canal 🚀
                 </button>
+
+                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px; margin-bottom:10px;">
+                    <button class="btn-cyber" style="border-color:var(--neon-cyan); color:var(--neon-cyan); font-size:0.65rem;" onclick="solicitarEdicion('${c.id_canal}')">Editar ✏️</button>
+                    <button class="btn-cyber" style="border-color:var(--neon-magenta); color:var(--neon-magenta); font-size:0.65rem;" onclick="solicitarEliminacion('${c.id_canal}')">Borrar 🗑️</button>
+                </div>
             `;
         }
 
@@ -1173,24 +1179,12 @@ function renderPedidosLog() {
     ); 
 }
         
-     function renderAdminPanel() {
-    const container = document.getElementById("user-channels-list");
-    const misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
-    
-    container.innerHTML = "";
-    misCanales.forEach(c => {
-        container.innerHTML += `
-            <div class="card">
-                <div>
-                    <h4 style="color:#fff;">${c.titulo}</h4>
-                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
-                </div>
-                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top:10px;">
-                    <button class="btn-cyber" style="border-color:var(--neon-gold); color:var(--neon-gold);" onclick="solicitarEdicion('${c.id_canal}')">Editar ✏️</button>
-                    <button class="btn-cyber" style="border-color:var(--neon-magenta); color:var(--neon-magenta);" onclick="solicitarEliminacion('${c.id_canal}')">Borrar 🗑️</button>
-                </div>
-            </div>`;
-    });
+     function renderAdminPanel() { 
+    renderGridTemplates(
+        canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), 
+        "user-channels-list", 
+        true // Esto activa el bloque adminInfoSection que acabamos de actualizar
+    ); 
 }
      
         // REVISIÓN Y RE-CÁLCULO DINÁMICO DE CONTADORES GLOBALES
