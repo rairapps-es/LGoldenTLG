@@ -965,30 +965,28 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
     // Cambiar estado
     canal[boosterKey] = !actualmenteActivo; 
     
-    // Definir acción para el mensaje
     const accionTexto = actualmenteActivo ? "Desactivar" : "Solicitud de Activación";
     
     // 1. Registrar en el log
     registrarPedido(canal.titulo, booster.nombre, accionTexto);
     
-    // 2. Crear enlace para el chat privado (tg://msg_url)
-    const mensajeTelegram = `🚨 *NUEVO PEDIDO EN LISTA GOLDEN* 🚨%0A%0A` +
-                            `👤 *Usuario:* ${usuarioActual.username_tg}%0A` +
-                            `📺 *Canal:* ${canal.titulo}%0A` +
-                            `🛠 *Potenciador:* ${booster.nombre}%0A` +
-                            `⚡ *Acción:* ${accionTexto}%0A%0A` +
-                            `Por favor, procesar esta solicitud.`;
+    // 2. Crear URL codificada para mensaje directo
+    // Usamos el formato t.me/share/url o un link de usuario si tienes el username del bot/admin
+    const msg = `🚨 PEDIDO: ${canal.titulo} | ${booster.nombre} | ${accionTexto}`;
+    const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msg)}`;
     
-    const urlTelegram = `tg://msg_url?url=${mensajeTelegram}&text=${mensajeTelegram}`;
-    
-    // Abrir el chat privado
-    window.location.href = urlTelegram;
+    // 3. Método OFICIAL para abrir links en Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.openTelegramLink(urlTelegram);
+    } else {
+        window.location.href = urlTelegram;
+    }
 
-    // Guardar y refrescar
+    // 4. Guardar y actualizar interfaz
     localStorage.setItem("golden_canales", JSON.stringify(canales)); 
     cargarPotenciadoresDelCanal(); 
     actualizarMetadatosContadores();
-    showToast(`Redirigiendo a Telegram para enviar pedido...`);
+    showToast(`Solicitud enviada a @${MI_USUARIO_TELEGRAM}`);
 }
 
 function registrarPedido(tituloCanal, nombreBooster, accion) {
