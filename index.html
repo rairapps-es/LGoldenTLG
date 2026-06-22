@@ -731,8 +731,14 @@ variablesMembresia = {
                         <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}', '${targetContainerId}')">★</span>
                     </div>
                     <div class="quality-container">
-                        <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
-                    </div>
+                        // Dentro de renderGridTemplates, reemplaza el bloque de la barra:
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+    <div class="quality-bar-bg" style="width: 80%; height: 5px;">
+        <div class="quality-bar-fill" style="width:${c.quality}%"></div>
+    </div>
+    <span style="font-size: 0.7rem; font-weight: bold; color: var(--neon-green);">${c.quality}%</span>
+</div>
+</div>
                     ${adminInfoSection}
                 </div>
                 <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
