@@ -566,7 +566,21 @@ let usuarioActual = {
         let msgTabActual = "unread";
         let msgVisiblesCount = 3;
 
+                // --- 2. Funciones de utilidad (Aquí pones la migración) ---
+function verificarMigracionDatos() {
+    const versionGuardada = localStorage.getItem("golden_db_version");
+    
+    if (versionGuardada !== DB_VERSION) {
+        // ... (todo tu código de migración)
+        localStorage.setItem("golden_db_version", DB_VERSION);
+        console.log("Sistema actualizado exitosamente.");
+    }
+}
+
         window.onload = function() {
+    // 0. MIGRACIÓN DE DATOS (El guardián)
+    verificarMigracionDatos();
+
     // 1. Inicialización de Telegram
     if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
@@ -583,27 +597,18 @@ let usuarioActual = {
         }
     }
 
-    // 2. Membresía
+    // ... (Mantén tu lógica de Membresía igual) ...
     const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
         fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
     };
 
-    variablesMembresia = {
-        ...estadoData,
-        activado: estadoData.estadoPago === "Pagado"
-    };
+    variablesMembresia = { ...estadoData, activado: estadoData.estadoPago === "Pagado" };
 
-    // 3. Carga de datos (AÑADIDO: Inicialización de golden_pedidos_log)
+    // 3. Carga de datos (Ya no necesitas el check de 'if (!localStorage)' porque verificarMigracionDatos ya asegura que existan)
     if (LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
     
-    if (!localStorage.getItem("golden_canales")) localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
     canales = JSON.parse(localStorage.getItem("golden_canales"));
-
-    if (!localStorage.getItem("golden_favoritos")) localStorage.setItem("golden_favoritos", JSON.stringify([]));
     usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
-
-    // INICIALIZACIÓN DE LOG DE PEDIDOS
-    if (!localStorage.getItem("golden_pedidos_log")) localStorage.setItem("golden_pedidos_log", JSON.stringify([]));
 
     // 4. Renderizado
     initMensajesBaseDatos();
