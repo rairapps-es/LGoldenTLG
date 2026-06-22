@@ -49,61 +49,47 @@
     position:relative;
 }
 
-.slider-container{
-    display:flex;
-    gap:15px;
+/* --- SLIDERS DESLIZANTES OPTIMIZADOS --- */
+.slider-wrapper {
+    margin: 20px 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
 
-    overflow-x:auto;
-    overflow-y:hidden;
-
-    padding:10px 5px;
-
-    scrollbar-width:none;
-    -ms-overflow-style:none;
-
-    -webkit-overflow-scrolling:touch;
-
-    /* Scroll horizontal */
-    touch-action:pan-x;
-
-    /* Evita rebotes extraños */
-    overscroll-behavior-x:contain;
-
-    /* Snap más suave */
-    scroll-snap-type:x proximity;
-
-    /* Evita repaints innecesarios */
-    transform:translateZ(0);
-    will-change:scroll-position;
-
-    /* Cambia proximity por mandatory para un comportamiento más firme */
-    scroll-snap-type: x mandatory; 
+.slider-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 5px;
     
-    /* Importante para evitar el conflicto con gestos del sistema */
-    touch-action: pan-x pan-y; 
+    /* Ocultar scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     
-    /* Esto ayuda a que el scroll sea más "nativo" y menos "forzado" */
+    /* Mejorar suavidad en iOS/Android */
+    -webkit-overflow-scrolling: touch;
+    
+    /* Configuración de Snap más estable */
+    scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
+    
+    /* IMPORTANTE: Evita conflictos táctiles */
+    touch-action: pan-x;
 }
 
-.slider-container::-webkit-scrollbar{
-    display:none;
+.slider-container::-webkit-scrollbar {
+    display: none;
 }
 
-        @media (max-width: 768px) {
-    .slider-container {
-        scroll-snap-type: none; /* Desactiva el snap en móviles si el temblor persiste */
-    }
+.slider-card {
+    flex: 0 0 285px;
+    /* Aseguramos que el punto de snap sea el inicio de la tarjeta */
+    scroll-snap-align: start;
+    /* Eliminamos scroll-snap-stop para un movimiento más fluido */
 }
-
-.slider-card{
-    flex:0 0 285px;
-
-    scroll-snap-align:start;
-
-    /* Quitar esto suele eliminar el temblor */
-    /* scroll-snap-stop: always; */
-}
+    /* Evita repaints innecesarios */
         
         .user-card-top { display: flex; justify-content: space-between; align-items: center; }
         .user-stars-donor { color: var(--neon-gold); font-weight: bold; text-shadow: var(--cyber-glow-gold); font-size: 0.8rem; }
