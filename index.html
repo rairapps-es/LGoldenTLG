@@ -376,7 +376,10 @@
 
     <section id="page-potenciadores" class="page-view">
         <h2>Panel de Potenciadores</h2>
-        
+        <div style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-gold); padding: 10px; border-radius: 6px; font-size: 0.75rem; margin-bottom: 10px; color: var(--neon-gold);">
+    ⚠️ <b>Aviso:</b> Los cambios son visibles en privado inmediatamente para que verifiques el diseño. La activación pública en la red ocurrirá una vez se procese el pago en Estrellas.
+</div>
+
         <div class="selector-box">
             <label style="font-size: 0.75rem; color: var(--neon-cyan); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecciona tu Canal para Modificar Núcleos:</label>
             <select id="booster-channel-selector" class="form-control" style="border-color: var(--neon-cyan);" onchange="cargarPotenciadoresDelCanal()">
@@ -530,11 +533,11 @@ const ESTADOS_USUARIOS = {
 ];
 
         const TIENDA_POTENCIADORES = [
-            { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba en las búsquedas." },
-            { key: "social_chat", nombre: "Chat Comunidad", desc: "Vincula un botón directo al chat grupal." },
-            { key: "bot_oficial", nombre: "Bot Oficial", desc: "Añade un botón directo para arrancar tu bot." },
-            { key: "enlace_web", nombre: "URL Web", desc: "Muestra un hipervínculo directo hacia tu sitio externo." }
-        ];
+    { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba.", precio: 50 },
+    { key: "social_chat", nombre: "Chat Comunidad", desc: "Botón directo al chat.", precio: 30 },
+    { key: "bot_oficial", nombre: "Bot Oficial", desc: "Botón de arranque bot.", precio: 40 },
+    { key: "enlace_web", nombre: "URL Web", desc: "Hipervínculo externo.", precio: 20 }
+];
 
         const DATA_DONADORES = [
             { username: "@AlphaGhost", pais: "Colombia", bandera: "🇨🇴", estrellas: 750, isPremium: false, id_tg: "77777777" },
@@ -967,46 +970,40 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
     const canal = canales.find(c => c.id_canal === canalId);
     const booster = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
     
-    // Cambiar estado
     canal[boosterKey] = !actualmenteActivo; 
     
-    const accionTexto = actualmenteActivo ? "Desactivar" : "Solicitud de Activación";
+    // Solo registramos si es una activación (booster pasa a true)
+    if (!actualmenteActivo) {
+        registrarPedido(canal.titulo, booster.nombre);
+    }
     
-    // 1. Registrar en el log
-    registrarPedido(canal.titulo, booster.nombre, accionTexto);
-    
-    // 2. Crear URL codificada para mensaje directo
-    // Usamos el formato t.me/share/url o un link de usuario si tienes el username del bot/admin
-    const msg = `🚨 PEDIDO: ${canal.titulo} | ${booster.nombre} | ${accionTexto}`;
+    const msg = `🚨 PEDIDO: ${canal.titulo} | ${booster.nombre}`;
     const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msg)}`;
     
-    // 3. Método OFICIAL para abrir links en Telegram WebApp
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.openTelegramLink(urlTelegram);
-    } else {
-        window.location.href = urlTelegram;
     }
-
-    // 4. Guardar y actualizar interfaz
+    
     localStorage.setItem("golden_canales", JSON.stringify(canales)); 
     cargarPotenciadoresDelCanal(); 
-    actualizarMetadatosContadores();
-    showToast(`Solicitud enviada a @${MI_USUARIO_TELEGRAM}`);
+    showToast(`Solicitud de ${booster.nombre} enviada.`);
 }
 
-function registrarPedido(tituloCanal, nombreBooster, accion) {
+function registrarPedido(tituloCanal, nombreBooster) {
     let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
     
-    // Nueva fecha formateada: DD/MM HH:MM
-    const ahora = new Date();
-    const fechaFormateada = ahora.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-    const horaFormateada = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute:'2-digit' });
+    const inicio = new Date();
+    const fin = new Date();
+    fin.setDate(inicio.getDate() + 30);
+    
+    const fmt = (d) => d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
     
     logs.unshift({
-        fecha: `${fechaFormateada} ${horaFormateada}`,
+        fechaInicio: fmt(inicio),
+        fechaFin: fmt(fin),
+        duracion: "30 días",
         canal: tituloCanal,
-        booster: nombreBooster,
-        accion: accion
+        booster: nombreBooster
     });
 
     localStorage.setItem("golden_pedidos_log", JSON.stringify(logs.slice(0, 10)));
@@ -1017,16 +1014,17 @@ function registrarPedido(tituloCanal, nombreBooster, accion) {
 function renderPedidosLog() {
     const container = document.getElementById("orders-log-container");
     const logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
+    const precio = 50; // Ejemplo de precio fijo o buscar en el objeto
     
     container.innerHTML = logs.map(l => `
         <div class="order-row">
-            <div style="display:flex; flex-direction:column;">
-                <span style="font-size:0.7rem; color:var(--neon-cyan);">${l.fecha}</span>
-                <span style="color:var(--text-main); font-weight:bold;">${l.canal}</span>
+            <div>
+                <div style="color:#fff; font-weight:bold;">${l.canal}</div>
+                <div style="font-size:0.7rem; color:var(--neon-cyan);">${l.booster}</div>
             </div>
             <div style="text-align:right;">
-                <div style="color:var(--neon-gold); font-size:0.8rem;">${l.booster}</div>
-                <div style="font-size:0.7rem; color:${l.accion.includes('Desactivar') ? 'var(--neon-magenta)' : 'var(--neon-green)'};">${l.accion}</div>
+                <div style="color:var(--neon-gold); font-weight:bold;">⭐ ${l.duracion}</div>
+                <div style="font-size:0.7rem; color:var(--text-dim);">Fin: ${l.fechaFin}</div>
             </div>
         </div>
     `).join('');
