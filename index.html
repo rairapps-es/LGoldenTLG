@@ -659,80 +659,87 @@ variablesMembresia = {
 
         // --- MSTR RENDER CARD ENGINE ---
         function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = false) {
-            const container = document.getElementById(targetContainerId);
-            if (!container) return;
-            container.innerHTML = "";
+    const container = document.getElementById(targetContainerId);
+    if (!container) return;
+    container.innerHTML = "";
 
-            if (!isOwnerConsole) {
-                const btnLazy = document.getElementById("btn-lazy-load");
-                if (btnLazy) btnLazy.style.display = listaCanales.length <= canalesVisiblesCount ? "none" : "block";
-                listaCanales = listaCanales.slice(0, canalesVisiblesCount);
-            }
+    if (!isOwnerConsole) {
+        const btnLazy = document.getElementById("btn-lazy-load");
+        if (btnLazy) btnLazy.style.display = listaCanales.length <= canalesVisiblesCount ? "none" : "block";
+        listaCanales = listaCanales.slice(0, canalesVisiblesCount);
+    }
 
-            if(listaCanales.length === 0) {
-                container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--text-dim); padding:20px;">No se encontraron registros.</p>`;
-                return;
-            }
+    if(listaCanales.length === 0) {
+        container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--text-dim); padding:20px;">No se encontraron registros.</p>`;
+        return;
+    }
 
-            listaCanales.forEach(c => {
-                let isFav = usuarioActual.favoritos.includes(c.id_canal);
-                let badgesHtml = "";
-                if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
-                if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">Destacado</span>`;
-                
-                let extraButtonsHtml = "";
-                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary" style="grid-column: span 2; margin-bottom:4px;">Visitar Canal 🌐</a>`;
+    listaCanales.forEach(c => {
+        let isFav = usuarioActual.favoritos.includes(c.id_canal);
+        let badgesHtml = "";
+        if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
+        if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">Destacado</span>`;
+        
+        // --- NUEVA SECCIÓN DE METADATOS ---
+        let metaDataHtml = `
+            <div class="badge-row" style="margin-top:4px; gap:4px;">
+                <span class="tag-badge" style="background:#131322; border:1px solid var(--neon-cyan); color:var(--neon-cyan); font-size:0.6rem;">${c.categoria}</span>
+                <span class="tag-badge" style="background:#131322; border:1px solid var(--neon-gold); color:var(--neon-gold); font-size:0.6rem;">${c.catsub}</span>
+            </div>
+        `;
 
-                if (c.ad_on) extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
-                if (c.social_chat && c.url_chat) extraButtonsHtml += `<a href="${c.url_chat}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat</a>`;
-                if (c.bot_oficial && c.url_bot) extraButtonsHtml += `<a href="${c.url_bot}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot</a>`;
-                if (c.enlace_web && c.url_web) extraButtonsHtml += `<a href="${c.url_web}" target="_blank" class="btn-cyber" style="border-color: var(--neon-green); color: var(--neon-green);">Web</a>`;
+        let extraButtonsHtml = "";
+        extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary" style="grid-column: span 2; margin-bottom:4px;">Visitar Canal 🌐</a>`;
 
-                let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
+        if (c.ad_on) extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
+        if (c.social_chat && c.url_chat) extraButtonsHtml += `<a href="${c.url_chat}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat</a>`;
+        if (c.bot_oficial && c.url_bot) extraButtonsHtml += `<a href="${c.url_bot}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot</a>`;
+        if (c.enlace_web && c.url_web) extraButtonsHtml += `<a href="${c.url_web}" target="_blank" class="btn-cyber" style="border-color: var(--neon-green); color: var(--neon-green);">Web</a>`;
 
-                // Inyección de información detallada de potenciadores si es la consola de administración
-                let adminInfoSection = "";
-                if (isOwnerConsole) {
-                    adminInfoSection = `
-                        <div class="admin-booster-info">
-                            <div>Destacado: <span class="${c.ad_on ? 'booster-on-status' : 'booster-off-status'}">${c.ad_on ? 'ON' : 'OFF'}</span></div>
-                            <div>Web URL: <span class="${c.enlace_web ? 'booster-on-status' : 'booster-off-status'}">${c.enlace_web ? 'ON' : 'OFF'}</span></div>
-                            <div>Chat: <span class="${c.social_chat ? 'booster-on-status' : 'booster-off-status'}">${c.social_chat ? 'ON' : 'OFF'}</span></div>
-                            <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
-                        </div>
-                        <button class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px; margin-bottom:10px;" onclick="invitarAPotenciar('${c.telegram_handle}')">
-                            Potenciar Canal 🚀
-                        </button>
-                    `;
-                }
+        let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
 
-                container.innerHTML += `
-                    <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
-                        <div>
-                            <div class="badge-row">${badgesHtml}</div>
-                            <div class="card-header" onclick="toggleSlidingButtons('${c.id_canal}', '${targetContainerId}')">
-                                <img class="card-img" src="${c.url_imagen}">
-                                <div class="card-title-area">
-                                    <h4 style="color:#fff;">${c.titulo}</h4>
-                                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
-                                    
-                                    <a href="${linkResenaManual}" target="_blank" class="rating-link" onclick="event.stopPropagation();">
-                                        <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
-                                    </a>
-                                </div>
-                                <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}', '${targetContainerId}')">★</span>
-                            </div>
-                            <div class="quality-container">
-                                <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
-                            </div>
-                            ${adminInfoSection}
-                        </div>
-                        <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
-                            <div class="btn-grid">${extraButtonsHtml}</div>
-                        </div>
-                    </div>`;
-            });
+        let adminInfoSection = "";
+        if (isOwnerConsole) {
+            adminInfoSection = `
+                <div class="admin-booster-info">
+                    <div>Destacado: <span class="${c.ad_on ? 'booster-on-status' : 'booster-off-status'}">${c.ad_on ? 'ON' : 'OFF'}</span></div>
+                    <div>Web URL: <span class="${c.enlace_web ? 'booster-on-status' : 'booster-off-status'}">${c.enlace_web ? 'ON' : 'OFF'}</span></div>
+                    <div>Chat: <span class="${c.social_chat ? 'booster-on-status' : 'booster-off-status'}">${c.social_chat ? 'ON' : 'OFF'}</span></div>
+                    <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
+                </div>
+                <button class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px; margin-bottom:10px;" onclick="invitarAPotenciar('${c.telegram_handle}')">
+                    Potenciar Canal 🚀
+                </button>
+            `;
         }
+
+        container.innerHTML += `
+            <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
+                <div>
+                    <div class="badge-row">${badgesHtml}</div>
+                    <div class="card-header" onclick="toggleSlidingButtons('${c.id_canal}', '${targetContainerId}')">
+                        <img class="card-img" src="${c.url_imagen}">
+                        <div class="card-title-area">
+                            <h4 style="color:#fff;">${c.titulo}</h4>
+                            <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                            ${metaDataHtml} 
+                            <a href="${linkResenaManual}" target="_blank" class="rating-link" onclick="event.stopPropagation();">
+                                <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
+                            </a>
+                        </div>
+                        <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}', '${targetContainerId}')">★</span>
+                    </div>
+                    <div class="quality-container">
+                        <div class="quality-bar-bg"><div class="quality-bar-fill" style="width:${c.quality}%"></div></div>
+                    </div>
+                    ${adminInfoSection}
+                </div>
+                <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
+                    <div class="btn-grid">${extraButtonsHtml}</div>
+                </div>
+            </div>`;
+    });
+}
 
         function invitarAPotenciar(handle) {
         // En lugar de copiar al portapapeles, saltamos a la página de Potenciadores
