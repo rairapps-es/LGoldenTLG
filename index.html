@@ -56,32 +56,33 @@
     overflow-y: hidden;
     padding: 10px 15px;
     
-    /* Elimina scrollbar */
+    /* Eliminar scrollbar */
     scrollbar-width: none;
     -ms-overflow-style: none;
     &::-webkit-scrollbar { display: none; }
 
-    /* ESTABILIZACIÓN */
+    /* ESTABILIZACIÓN PROFESIONAL */
     -webkit-overflow-scrolling: touch; 
-    
-    /* Vital: esto le dice al navegador que el scroll es puramente horizontal */
     touch-action: pan-x;
     
-    /* Elimina el rebote elástico (bounce) nativo de iOS */
-    overscroll-behavior-x: contain;
+    /* ESTO ES LO QUE SOLUCIONA EL REBOTE: */
+    /* 'contain' impide que el scroll se propague al padre */
+    /* 'none' elimina la física elástica de rebote en algunos navegadores */
+    overscroll-behavior-x: none; 
     
-    /* Mejora el renderizado */
+    /* Asegura que el scroll se detenga exactamente al llegar al borde */
+    scroll-snap-type: x mandatory; 
+    
     will-change: transform;
-    
-    /* OPCIONAL: Si usabas scroll-snap, desactívalo para probar si el rebote desaparece */
-    scroll-snap-type: none; 
 }
 
 .slider-card {
     flex: 0 0 285px;
     flex-shrink: 0;
-    /* Evita que el contenido interno de la card fuerce el scroll */
-    min-width: 0; 
+    min-width: 0;
+    
+    /* Ayuda a que el scroll-snap no sea tan agresivo */
+    scroll-snap-align: start;
 }
 
         /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
