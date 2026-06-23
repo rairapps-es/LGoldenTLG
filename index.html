@@ -44,51 +44,33 @@
 
         /* --- SLIDERS DESLIZANTES NATIVOS --- */
         .slider-wrapper{
-    margin:20px 0;
-    overflow:hidden;
-    position:relative;
-}
+            margin:20px 0;
+            overflow:hidden;
+            position:relative;
+        }
 
-.slider-container {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 10px 15px;
-    
-    /* Eliminar scrollbar */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    &::-webkit-scrollbar { display: none; }
+        .slider-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px 15px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overscroll-behavior-x: none; 
+            scroll-snap-type: x mandatory; 
+            will-change: transform;
+        }
+        .slider-container::-webkit-scrollbar { display: none; }
 
-    /* ESTABILIZACIÓN PROFESIONAL */
-    -webkit-overflow-scrolling: touch; 
-    touch-action: pan-x;
-    
-    /* ESTO ES LO QUE SOLUCIONA EL REBOTE: */
-    /* 'contain' impide que el scroll se propague al padre */
-    /* 'none' elimina la física elástica de rebote en algunos navegadores */
-    overscroll-behavior-x: none; 
-    
-    /* Asegura que el scroll se detenga exactamente al llegar al borde */
-    scroll-snap-type: x mandatory; 
-    
-    will-change: transform;
-}
-
-.slider-card {
-    flex: 0 0 285px;
-    flex-shrink: 0;
-    min-width: 0;
-    
-    /* ESTO ES CRUCIAL: */
-    /* Fuerza al navegador a no intentar renderizar animaciones mientras el scroll está activo */
-    backface-visibility: hidden;
-    transform: translateZ(0); 
-    
-    /* Si tienes transiciones de hover, asegúrate de que no afecten el tamaño (width/margin) */
-    transition: transform 0.2s ease;
-}
+        .slider-card {
+            flex: 0 0 285px;
+            flex-shrink: 0;
+            min-width: 0;
+            backface-visibility: hidden;
+            transform: translateZ(0); 
+            transition: transform 0.2s ease;
+        }
 
         /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
         #cyber-recommend-popup {
@@ -196,35 +178,34 @@
         .tooltip-trigger:hover { color: var(--neon-magenta); }
         
         .energy-title-container { 
-    display: flex; 
-    align-items: center; 
-    gap: 6px; 
-    position: relative; /* Es vital que esto sea relative para que el absoluto del tooltip se ancle aquí */
-}
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            position: relative;
+        }
 
-.cyber-tooltip-box {
-    display: none; 
-    position: absolute; 
-    top: 100%; /* Se posiciona justo debajo del contenedor */
-    left: 0; 
-    z-index: 9999; /* Asegura que esté por encima de todo */
-    width: 280px; 
-    background: rgba(10, 10, 18, 0.95); 
-    border: 1px solid var(--neon-gold);
-    box-shadow: var(--cyber-glow-gold); 
-    padding: 12px; 
-    border-radius: 8px;
-    font-size: 0.72rem; 
-    color: var(--text-main); 
-    line-height: 1.4;
-    margin-top: 8px; /* Espacio entre el trigger y el tooltip */
-    pointer-events: none; /* Evita que el tooltip interfiera con el mouse al intentar leerlo */
-}
+        .cyber-tooltip-box {
+            display: none; 
+            position: absolute; 
+            top: 100%; 
+            left: 0; 
+            z-index: 9999; 
+            width: 280px; 
+            background: rgba(10, 10, 18, 0.95); 
+            border: 1px solid var(--neon-gold);
+            box-shadow: var(--cyber-glow-gold); 
+            padding: 12px; 
+            border-radius: 8px;
+            font-size: 0.72rem; 
+            color: var(--text-main); 
+            line-height: 1.4;
+            margin-top: 8px; 
+            pointer-events: none; 
+        }
 
-/* Activación al pasar el mouse */
-.energy-title-container:hover .cyber-tooltip-box { 
-    display: block; 
-}
+        .energy-title-container:hover .cyber-tooltip-box { 
+            display: block; 
+        }
 
         .tooltip-trigger:focus + .cyber-tooltip-box,
         .tooltip-section-title { font-weight: bold; color: var(--neon-cyan); margin-bottom: 3px; text-transform: uppercase; font-size: 0.68rem; }
@@ -260,6 +241,7 @@
         .boosters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
         .booster-card { background: #0e0e18; border: 1px solid #1e1e30; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s; white-space: normal; gap: 12px; }
         .booster-card.active-booster { border-color: var(--neon-green); box-shadow: var(--cyber-glow-green); background: linear-gradient(145deg, #0e0e18, #071a10); }
+        .booster-card.pending-booster { border-color: var(--neon-gold); }
         .booster-badge { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
         .booster-badge.badge-on { background: var(--neon-green); color: #000; box-shadow: var(--cyber-glow-green); }
         .booster-badge.badge-off { background: #1e1e30; color: var(--text-dim); }
@@ -395,13 +377,13 @@
     <section id="page-potenciadores" class="page-view">
         <h2>Panel de Potenciadores</h2>
         <div style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-gold); padding: 10px; border-radius: 6px; font-size: 0.75rem; margin-bottom: 10px; color: var(--neon-gold);">
-    ⚠️ <b>Aviso:</b> Los cambios son visibles en privado inmediatamente para que verifiques el diseño. La activación pública en la red ocurrirá una vez se procese el pago en Estrellas.
-</div>
+            ⚠️ <b>Aviso:</b> Los cambios son visibles en privado inmediatamente para que verifiques el diseño. La activación pública en la red ocurrirá una vez se procese el pago en Estrellas.
+        </div>
 
         <div class="selector-box">
             <label style="font-size: 0.75rem; color: var(--neon-cyan); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 8px;">Selecciona tu Canal para Modificar Núcleos:</label>
             <select id="booster-channel-selector" class="form-control" style="border-color: var(--neon-cyan);" onchange="cargarPotenciadoresDelCanal()">
-                </select>
+            </select>
         </div>
 
         <div class="cyber-form" style="border-color: var(--neon-gold); margin-bottom: 25px; padding: 15px;">
@@ -509,7 +491,7 @@
                 <div id="user-channels-list" class="catalog-grid" style="margin-top: 15px;"></div>
             </div>
         </div>
-        <button class="btn-cyber" style="..." onclick="restaurarSistema()"> 🗑️ Resetear Datos Locales</button>
+        <button class="btn-cyber" style="border-color: var(--text-dim); color: var(--text-dim); margin-top:20px;" onclick="restaurarSistema()"> 🗑️ Resetear Datos Locales</button>
    </section>
 
     <nav class="bottom-nav">
@@ -523,42 +505,39 @@
 
     <script>
         const MI_USUARIO_TELEGRAM = "Airdayz";
-const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
-const DB_VERSION = "1.1.0"; // <--- AÑADE ESTA LÍNEA AQUÍ
+        const LISTA_PREMIUM_IDS = ["1320417199", "77777777", "99999999"];
+        const DB_VERSION = "1.1.0";
 
-// Ejemplo de 3 usuarios con diferentes estados de pago
-const ESTADOS_USUARIOS = {
-    "1320417199": { fechaInicio: "2026-06-01", fechaFin: "2026-07-01", duracion: "Mensual", plan: "GPlus Pro", estadoPago: "Pagado" },
-    "77777777": { fechaInicio: "2026-05-15", fechaFin: "2026-06-15", duracion: "Mensual", plan: "GPlus Base", estadoPago: "Esperando el pago" },
-    "99999999": { fechaInicio: "2026-01-01", fechaFin: "2027-01-01", duracion: "Anual", plan: "GPlus Ultra", estadoPago: "Comprobando el pago" }
-};
+        const ESTADOS_USUARIOS = {
+            "1320417199": { fechaInicio: "2026-06-01", fechaFin: "2026-07-01", duracion: "Mensual", plan: "GPlus Pro", estadoPago: "Pagado" },
+            "77777777": { fechaInicio: "2026-05-15", fechaFin: "2026-06-15", duracion: "Mensual", plan: "GPlus Base", estadoPago: "Esperando el pago" },
+            "99999999": { fechaInicio: "2026-01-01", fechaFin: "2027-01-01", duracion: "Anual", plan: "GPlus Ultra", estadoPago: "Comprobando el pago" }
+        };
 
         const BD_MENSAJES_PREDEFINIDOS = [
             { id_msg: "m1", user_id_target: "1320417199", titulo: "Actualización de Canal Exitosa", cuerpo: "Tu núcleo 'Neural AI Network' ha completado el ciclo de indexación algorítmica.", tema: "Sistema" },
             { id_msg: "m2", user_id_target: "1320417199", titulo: "Renovación de Membresía", cuerpo: "Tu suscripción Golden Plus expira en 30 días.", tema: "Soporte" },
             { id_msg: "m3", user_id_target: "1320417199", titulo: "Campaña Especial", cuerpo: "Obtén descuentos inyectando boosters esta semana.", tema: "Promoción" },
             { id_msg: "m4", user_id_target: "1320417199", titulo: "Probando", cuerpo: "Prueba 1.", tema: "Regalo" }
-           
         ];
 
         const DEFAULT_CHANNELS = [
-    { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
-    { id_canal: "c2", titulo: "Crypto Alpha", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
-    { id_canal: "c3", titulo: "Cyber Shields", telegram_handle: "@CyberShields", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.9, resenas: 31, isPopular: false, isPremium: false, isDestacado: true, quality: 75, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false },
-    { id_canal: "c4", titulo: "Dev Ops Elite", telegram_handle: "@DevOpsHub", url_imagen: "https://images.unsplash.com/photo-1573164713714-d72e4c023839?w=400&q=80", id_user_telegram_admin: "77777777", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.8, resenas: 210, isPopular: true, isPremium: true, isDestacado: true, quality: 95, status: "publicado", ad_on: true, social_chat: true, bot_oficial: false, enlace_web: true },
-    { id_canal: "c5", titulo: "Fintech Growth", telegram_handle: "@FintechGrowth", url_imagen: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&q=80", id_user_telegram_admin: "99999999", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.2, resenas: 45, isPopular: false, isPremium: false, isDestacado: false, quality: 40, status: "publicado", ad_on: false, social_chat: false, bot_oficial: false, enlace_web: false },
-    { id_canal: "c6", titulo: "Zero Day Hunters", telegram_handle: "@ZeroDay", url_imagen: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.7, resenas: 62, isPopular: true, isPremium: true, isDestacado: true, quality: 85, status: "publicado", ad_on: true, social_chat: true, bot_oficial: true, enlace_web: false },
-    { id_canal: "c7", titulo: "Retro Gaming Lounge", telegram_handle: "@RetroLounge", url_imagen: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+100", categoria: "Entretenimiento", rating: 4.9, resenas: 120, isPopular: true, isPremium: false, isDestacado: false, quality: 30, status: "publicado", ad_on: false, social_chat: true, bot_oficial: false, enlace_web: false },
-    { id_canal: "c_1782225817816", titulo: "Jhh", telegram_handle: "@Jj", url_imagen: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Entretenimiento", rating: 4.5, resenas: 10, isPopular: true, isPremium: false, isDestacado: false, quality: 30, status: "publicado", ad_on: false, social_chat: true, bot_oficial: false, enlace_web: false }
-        
+            { id_canal: "c1", titulo: "Neural AI Network", telegram_handle: "@NeuralAI", url_imagen: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.9, resenas: 142, isPopular: true, isPremium: true, isDestacado: true, quality: 100, status: "publicado", ad_on: true, social_chat: true, url_chat: "https://t.me/NeuralAI_Chat", bot_oficial: false, url_bot: "", enlace_web: true, url_web: "https://neuralainetwork.com" },
+            { id_canal: "c2", titulo: "Crypto Alpha", telegram_handle: "@AlphaSignals", url_imagen: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.5, resenas: 89, isPopular: true, isPremium: true, isDestacado: false, quality: 50, status: "publicado", ad_on: false, social_chat: true, url_chat: "https://t.me/AlphaSignalsGroup", bot_oficial: true, url_bot: "https://t.me/AlphaSignals_bot", enlace_web: false, url_web: "" },
+            { id_canal: "c3", titulo: "Cyber Shields", telegram_handle: "@CyberShields", url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.9, resenas: 31, isPopular: false, isPremium: false, isDestacado: true, quality: 75, status: "publicado", ad_on: true, social_chat: false, bot_oficial: false, enlace_web: false },
+            { id_canal: "c4", titulo: "Dev Ops Elite", telegram_handle: "@DevOpsHub", url_imagen: "https://images.unsplash.com/photo-1573164713714-d72e4c023839?w=400&q=80", id_user_telegram_admin: "77777777", catsub: "+1000", categoria: "IA & Tecnología", rating: 4.8, resenas: 210, isPopular: true, isPremium: true, isDestacado: true, quality: 95, status: "publicado", ad_on: true, social_chat: true, bot_oficial: false, enlace_web: true },
+            { id_canal: "c5", titulo: "Fintech Growth", telegram_handle: "@FintechGrowth", url_imagen: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=400&q=80", id_user_telegram_admin: "99999999", catsub: "+500", categoria: "Finanzas & Web3", rating: 4.2, resenas: 45, isPopular: false, isPremium: false, isDestacado: false, quality: 40, status: "publicado", ad_on: false, social_chat: false, bot_oficial: false, enlace_web: false },
+            { id_canal: "c6", titulo: "Zero Day Hunters", telegram_handle: "@ZeroDay", url_imagen: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Ciberseguridad", rating: 4.7, resenas: 62, isPopular: true, isPremium: true, isDestacado: true, quality: 85, status: "publicado", ad_on: true, social_chat: true, bot_oficial: true, enlace_web: false },
+            { id_canal: "c7", titulo: "Retro Gaming Lounge", telegram_handle: "@RetroLounge", url_imagen: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80", id_user_telegram_admin: "6272829292", catsub: "+100", categoria: "Entretenimiento", rating: 4.9, resenas: 120, isPopular: true, isPremium: false, isDestacado: false, quality: 30, status: "publicado", ad_on: false, social_chat: true, bot_oficial: false, enlace_web: false },
+            { id_canal: "c_1782225817816", titulo: "Jhh", telegram_handle: "@Jj", url_imagen: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80", id_user_telegram_admin: "1320417199", catsub: "+100", categoria: "Entretenimiento", rating: 4.5, resenas: 10, isPopular: true, isPremium: false, isDestacado: false, quality: 30, status: "publicado", ad_on: false, social_chat: true, bot_oficial: false, enlace_web: false }
         ];
 
         const TIENDA_POTENCIADORES = [
-    { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba.", precio: 50 },
-    { key: "social_chat", nombre: "Chat Comunidad", desc: "Vincula un botón directo.", precio: 30 },
-    { key: "bot_oficial", nombre: "Bot Oficial", desc: "Añade botón de arranque.", precio: 40 },
-    { key: "enlace_web", nombre: "URL Web", desc: "Hipervínculo externo.", precio: 20 }
-];
+            { key: "ad_on", nombre: "Destacado (Ad-On)", desc: "Aparece fijado arriba.", precio: 50 },
+            { key: "social_chat", nombre: "Chat Comunidad", desc: "Vincula un botón directo.", precio: 30 },
+            { key: "bot_oficial", nombre: "Bot Oficial", desc: "Añade botón de arranque.", precio: 40 },
+            { key: "enlace_web", nombre: "URL Web", desc: "Hipervínculo externo.", precio: 20 }
+        ];
 
         const DATA_DONADORES = [
             { username: "@AlphaGhost", pais: "Colombia", bandera: "🇨🇴", estrellas: 750, isPremium: false, id_tg: "77777777" },
@@ -566,15 +545,15 @@ const ESTADOS_USUARIOS = {
         ];
 
         let canales = [];
-let pedidosBoosters = [];
-let mensajesUsuario = [];
-let variablesMembresia; // Declarada globalmente
-let usuarioActual = { 
-    id_tg: "1320417199", 
-    username_tg: "@Neuromante", 
-    isPremium: false, 
-    favoritos: [] 
-};
+        let pedidosBoosters = [];
+        let mensajesUsuario = [];
+        let variablesMembresia;
+        let usuarioActual = { 
+            id_tg: "1320417199", 
+            username_tg: "@Neuromante", 
+            isPremium: false, 
+            favoritos: [] 
+        };
         
         let categoriaActual = "todas";
         let subcatActual = "todas";
@@ -582,118 +561,117 @@ let usuarioActual = {
         let msgTabActual = "unread";
         let msgVisiblesCount = 3;
 
-                // --- 2. Funciones de utilidad (Aquí pones la migración) ---
-function verificarMigracionDatos() {
-    const versionGuardada = localStorage.getItem("golden_db_version");
-    
-    if (versionGuardada !== DB_VERSION) {
-        console.log(`🤖 Detectada nueva versión de Matrix Hub: ${DB_VERSION}. Iniciando fusión de núcleos...`);
-
-        // 1. Recuperar los canales que ya existen en el almacenamiento local
-        let canalesLocales = [];
-        try {
-            canalesLocales = JSON.parse(localStorage.getItem("golden_canales")) || [];
-        } catch(e) {
-            canalesLocales = [];
-        }
-
-        // 2. Si el almacenamiento local estaba vacío, cargamos los por defecto directamente
-        if (canalesLocales.length === 0) {
-            localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
-        } else {
-            // 3. FUSIÓN INTELIGENTE: Crear un mapa con los canales locales indexados por su ID
-            const mapaCanales = new Map();
+        function verificarMigracionDatos() {
+            const versionGuardada = localStorage.getItem("golden_db_version");
             
-            // Metemos primero los locales (así priorizamos los datos y estados del usuario si hay choque)
-            canalesLocales.forEach(c => mapaCanales.set(c.id_canal, c));
-            
-            // Recorremos los canales por defecto del código base
-            DEFAULT_CHANNELS.forEach(c => {
-                if (!mapaCanales.has(c.id_canal)) {
-                    // Si el ID del código no existe en el local, ¡lo inyectamos!
-                    mapaCanales.set(c.id_canal, c);
-                    console.log(`📡 Inyectando nuevo canal de fábrica: ${c.titulo} (${c.id_canal})`);
+            if (versionGuardada !== DB_VERSION) {
+                console.log(`🤖 Detectada nueva versión de Matrix Hub: ${DB_VERSION}. Iniciando fusión de núcleos...`);
+
+                let canalesLocales = [];
+                try {
+                    canalesLocales = JSON.parse(localStorage.getItem("golden_canales")) || [];
+                } catch(e) {
+                    canalesLocales = [];
                 }
-            });
 
-            // 4. Convertimos el mapa de vuelta a un Array normal
-            const listaFusionada = Array.from(mapaCanales.values());
+                if (canalesLocales.length === 0) {
+                    localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+                } else {
+                    const mapaCanales = new Map();
+                    canalesLocales.forEach(c => mapaCanales.set(c.id_canal, c));
+                    
+                    DEFAULT_CHANNELS.forEach(c => {
+                        if (!mapaCanales.has(c.id_canal)) {
+                            mapaCanales.set(c.id_canal, c);
+                            console.log(`📡 Inyectando nuevo canal de fábrica: ${c.titulo} (${c.id_canal})`);
+                        }
+                    });
 
-            // 5. Guardamos la lista combinada en el LocalStorage
-            localStorage.setItem("golden_canales", JSON.stringify(listaFusionada));
-        }
+                    const listaFusionada = Array.from(mapaCanales.values());
+                    
+                    // Sincronizar cola de pendientes individual para los 4 potenciadores existentes
+                    listaFusionada.forEach(cLocal => {
+                        if (!cLocal.pedidos_pendientes) cLocal.pedidos_pendientes = [];
+                        
+                        const cCodigo = DEFAULT_CHANNELS.find(df => df.id_canal === cLocal.id_canal);
+                        if (cCodigo) {
+                            TIENDA_POTENCIADORES.forEach(p => {
+                                if (cCodigo[p.key] === true && cLocal[p.key] !== true) {
+                                    cLocal[p.key] = true;
+                                    cLocal.pedidos_pendientes = cLocal.pedidos_pendientes.filter(k => k !== p.key);
+                                    console.log(`✅ Kernel Actualizado: ${p.nombre} activado para ${cLocal.titulo}`);
+                                }
+                            });
+                        }
+                    });
 
-        // Actualizamos la versión en el almacenamiento para que no se repita el proceso en la próxima carga
-        localStorage.setItem("golden_db_version", DB_VERSION);
-        console.log("⚡ Fusión completada con éxito. Base de datos sincronizada.");
-    }
-}
+                    localStorage.setItem("golden_canales", JSON.stringify(listaFusionada));
+                }
 
-        window.onload = function() {
-    // 0. MIGRACIÓN DE DATOS (El guardián)
-    verificarMigracionDatos();
-
-    // 1. Inicialización de Telegram con Recuperación Segura
-    if (window.Telegram && window.Telegram.WebApp) {
-        const webApp = window.Telegram.WebApp;
-        webApp.ready();
-        webApp.expand();
-        if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
-            const tgUser = webApp.initDataUnsafe.user;
-            usuarioActual.id_tg = tgUser.id.toString();
-            usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
-            
-            if (tgUser.photo_url) {
-                document.getElementById("nav-avatar").src = tgUser.photo_url;
+                localStorage.setItem("golden_db_version", DB_VERSION);
+                console.log("⚡ Fusión completada con éxito. Base de datos sincronizada.");
             }
         }
-    }
-    
-    // LOG DE CONTROL: Verifica en la consola del navegador qué ID se está procesando
-    console.log("Matrix Hub Terminal - ID Usuario Activo:", usuarioActual.id_tg);
 
-    // 2. Lógica de Membresía
-    const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
-        fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
-    };
+        window.onload = function() {
+            verificarMigracionDatos();
 
-    variablesMembresia = { ...estadoData, activado: estadoData.estadoPago === "Pagado" };
+            if (window.Telegram && window.Telegram.WebApp) {
+                const webApp = window.Telegram.WebApp;
+                webApp.ready();
+                webApp.expand();
+                if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+                    const tgUser = webApp.initDataUnsafe.user;
+                    usuarioActual.id_tg = tgUser.id.toString();
+                    usuarioActual.username_tg = tgUser.username ? "@" + tgUser.username : "@User_" + tgUser.id;
+                    
+                    if (tgUser.photo_url) {
+                        document.getElementById("nav-avatar").src = tgUser.photo_url;
+                    }
+                }
+            }
+            
+            console.log("Matrix Hub Terminal - ID Usuario Activo:", usuarioActual.id_tg);
 
-    if (LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
-    
-    // 3. CARGA DE DATOS SEGURA (Evita que la lista quede vacía o en null si se borra el LocalStorage)
-    const canalesLocales = localStorage.getItem("golden_canales");
-    if (!canalesLocales || canalesLocales === "[]") {
-        canales = [...DEFAULT_CHANNELS];
-        localStorage.setItem("golden_canales", JSON.stringify(canales));
-    } else {
-        canales = JSON.parse(canalesLocales);
-    }
+            const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
+                fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
+            };
 
-    usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos")) || [];
+            variablesMembresia = { ...estadoData, activado: estadoData.estadoPago === "Pagado" };
 
-    // 4. Renderizado General del Buffer
-    initMensajesBaseDatos();
-    document.getElementById("nav-username").innerText = usuarioActual.username_tg;
-    
-    actualizarMetadatosContadores();
-    actualizarEstilosSincroPremium();
-    triggerSplash();
-    
-    // Forzamos el renderizado de los paneles principales
-    aplicarFiltrosMaster(true);
-    renderAdminPanel(); // <-- CRUCIAL: Fuerza a la consola a pintar tus canales indexados desde el inicio
-    
-    renderDonadoresSlider();
-    renderDestacadosSlider();
-    initSelectorCanalesBoosters();
-    renderMembresiaPage();
-    renderPedidosLog();
+            if (LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
+            
+            const canalesLocales = localStorage.getItem("golden_canales");
+            if (!canalesLocales || canalesLocales === "[]") {
+                canales = [...DEFAULT_CHANNELS];
+                canales.forEach(c => { if(!c.pedidos_pendientes) c.pedidos_pendientes = []; });
+                localStorage.setItem("golden_canales", JSON.stringify(canales));
+            } else {
+                canales = JSON.parse(canalesLocales);
+                canales.forEach(c => { if(!c.pedidos_pendientes) c.pedidos_pendientes = []; });
+            }
 
-    // Inicialización de sliders con la nueva lógica segura
-    initSliderAutoScroll("donors-slider");
-    initSliderAutoScroll("featured-slider");
-};
+            usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos")) || [];
+
+            initMensajesBaseDatos();
+            document.getElementById("nav-username").innerText = usuarioActual.username_tg;
+            
+            actualizarMetadatosContadores();
+            actualizarEstilosSincroPremium();
+            triggerSplash();
+            
+            aplicarFiltrosMaster(true);
+            renderAdminPanel();
+            
+            renderDonadoresSlider();
+            renderDestacadosSlider();
+            initSelectorCanalesBoosters();
+            renderMembresiaPage();
+            renderPedidosLog();
+
+            initSliderAutoScroll("donors-slider");
+            initSliderAutoScroll("featured-slider");
+        };
 
         function initMensajesBaseDatos() {
             if (!localStorage.getItem("golden_mensajes_usuarios")) {
@@ -741,294 +719,261 @@ function verificarMigracionDatos() {
             }
         }
 
-        // --- MSTR RENDER CARD ENGINE ---
-        // Añadimos el cuarto parámetro con valor por defecto true
-function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = false, applyLazyLoad = true) {
-    const container = document.getElementById(targetContainerId);
-    if (!container) return;
-    container.innerHTML = "";
+        function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = false, applyLazyLoad = true) {
+            const container = document.getElementById(targetContainerId);
+            if (!container) return;
+            container.innerHTML = "";
 
-    // Solo aplicamos el slice si NO es admin Y la bandera de lazy load es true
-    if (!isOwnerConsole && applyLazyLoad) {
-        const btnLazy = document.getElementById("btn-lazy-load");
-        if (btnLazy) btnLazy.style.display = listaCanales.length <= canalesVisiblesCount ? "none" : "block";
-        listaCanales = listaCanales.slice(0, canalesVisiblesCount);
-    } else {
-        // Si no usamos lazy load, aseguramos que el botón de cargar más esté oculto
-        const btnLazy = document.getElementById("btn-lazy-load");
-        if (btnLazy) btnLazy.style.display = "none";
-    }
-
-    listaCanales.forEach(c => {
-        let isFav = usuarioActual.favoritos.includes(c.id_canal);
-        let badgesHtml = "";
-        if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
-        if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">Destacado</span>`;
-        
-        // --- NUEVA SECCIÓN DE METADATOS ---
-        let metaDataHtml = `
-            <div class="badge-row" style="margin-top:4px; gap:4px;">
-                <span class="tag-badge" style="background:#131322; border:1px solid var(--neon-cyan); color:var(--neon-cyan); font-size:0.6rem;">${c.categoria}</span>
-                <span class="tag-badge" style="background:#131322; border:1px solid var(--neon-gold); color:var(--neon-gold); font-size:0.6rem;">${c.catsub}</span>
-            </div>
-        `;
-
-        let extraButtonsHtml = "";
-        extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary" style="grid-column: span 2; margin-bottom:4px;">Visitar Canal 🌐</a>`;
-
-        if (c.ad_on) extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
-        if (c.social_chat && c.url_chat) extraButtonsHtml += `<a href="${c.url_chat}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat</a>`;
-        if (c.bot_oficial && c.url_bot) extraButtonsHtml += `<a href="${c.url_bot}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot</a>`;
-        if (c.enlace_web && c.url_web) extraButtonsHtml += `<a href="${c.url_web}" target="_blank" class="btn-cyber" style="border-color: var(--neon-green); color: var(--neon-green);">Web</a>`;
-
-        let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
-
-        // --- SISTEMA DE CONTROL DE ESTADOS PARA EL PROPIETARIO ---
-        let adminInfoSection = "";
-        if (isOwnerConsole) {
-            // Evaluamos por defecto "en revisión" si no existe la propiedad status para proteger el flujo
-            let currentStatus = c.status || "en revisión";
-            let statusBadge = "";
-
-            if (currentStatus === "en revisión") {
-                statusBadge = `<span style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-gold); color: var(--neon-gold); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-gold);">⏳ EN REVISIÓN</span>`;
-            } else if (currentStatus === "publicado") {
-                statusBadge = `<span style="background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-green);">✅ PUBLICADO</span>`;
-            } else if (currentStatus === "rechazado") {
-                statusBadge = `<span style="background: rgba(255, 0, 127, 0.1); border: 1px solid var(--neon-magenta); color: var(--neon-magenta); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-magenta);">❌ RECHAZADO</span>`;
+            if (!isOwnerConsole && applyLazyLoad) {
+                const btnLazy = document.getElementById("btn-lazy-load");
+                if (btnLazy) btnLazy.style.display = listaCanales.length <= canalesVisiblesCount ? "none" : "block";
+                listaCanales = listaCanales.slice(0, canalesVisiblesCount);
+            } else {
+                const btnLazy = document.getElementById("btn-lazy-load");
+                if (btnLazy) btnLazy.style.display = "none";
             }
 
-            adminInfoSection = `
-                <div style="margin-top: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #141424; padding-bottom: 8px;">
-                    <span style="font-size: 0.75rem; color: var(--text-dim);">Estado del Canal:</span>
-                    ${statusBadge}
-                </div>
-
-                <div class="admin-booster-info">
-                    <div>Destacado: <span class="${c.ad_on ? 'booster-on-status' : 'booster-off-status'}">${c.ad_on ? 'ON' : 'OFF'}</span></div>
-                    <div>Web URL: <span class="${c.enlace_web ? 'booster-on-status' : 'booster-off-status'}">${c.enlace_web ? 'ON' : 'OFF'}</span></div>
-                    <div>Chat: <span class="${c.social_chat ? 'booster-on-status' : 'booster-off-status'}">${c.social_chat ? 'ON' : 'OFF'}</span></div>
-                    <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
-                </div>
+            listaCanales.forEach(c => {
+                let isFav = usuarioActual.favoritos.includes(c.id_canal);
+                let badgesHtml = "";
+                if(c.isPremium) badgesHtml += `<span class="tag-badge badge-premium">Premium GPlus</span>`;
+                if(c.isDestacado) badgesHtml += `<span class="tag-badge badge-destacado">Destacado</span>`;
                 
-                <button class="btn-cyber ${currentStatus !== 'publicado' ? 'btn-disabled' : ''}" 
-                        style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px;" 
-                        onclick="${currentStatus === 'publicado' ? `invitarAPotenciar('${c.telegram_handle}')` : ''}"
-                        ${currentStatus !== 'publicado' ? 'disabled' : ''}>
-                    Potenciar Canal 🚀
-                </button>
+                let metaDataHtml = `
+                    <div class="badge-row" style="margin-top:4px; gap:4px;">
+                        <span class="tag-badge" style="background:#131322; border:1px solid var(--neon-cyan); color:var(--neon-cyan); font-size:0.6rem;">${c.categoria}</span>
+                        <span class="tag-badge" style="background:#131322; border:1px solid var(--neon-gold); color:var(--neon-gold); font-size:0.6rem;">${c.catsub}</span>
+                    </div>
+                `;
 
-                <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px; margin-bottom:10px;">
-                    <button class="btn-cyber" style="border-color:var(--neon-cyan); color:var(--neon-cyan); font-size:0.65rem;" onclick="solicitarEdicion('${c.id_canal}')">Editar ✏️</button>
-                    <button class="btn-cyber" style="border-color:var(--neon-magenta); color:var(--neon-magenta); font-size:0.65rem;" onclick="solicitarEliminacion('${c.id_canal}')">Borrar 🗑️</button>
-                </div>
-            `;
+                let extraButtonsHtml = "";
+                extraButtonsHtml += `<a href="https://t.me/${c.telegram_handle.replace('@','')}" target="_blank" class="btn-cyber btn-primary" style="grid-column: span 2; margin-bottom:4px;">Visitar Canal 🌐</a>`;
+
+                if (c.ad_on) extraButtonsHtml += `<a href="https://t.me/${MI_USUARIO_TELEGRAM}" target="_blank" class="btn-cyber" style="border-color: var(--neon-magenta); color: var(--neon-magenta);">Anunciarme</a>`;
+                if (c.social_chat && c.url_chat) extraButtonsHtml += `<a href="${c.url_chat}" target="_blank" class="btn-cyber" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">Chat</a>`;
+                if (c.bot_oficial && c.url_bot) extraButtonsHtml += `<a href="${c.url_bot}" target="_blank" class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold);">Bot</a>`;
+                if (c.enlace_web && c.url_web) extraButtonsHtml += `<a href="${c.url_web}" target="_blank" class="btn-cyber" style="border-color: var(--neon-green); color: var(--neon-green);">Web</a>`;
+
+                let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
+
+                let adminInfoSection = "";
+                if (isOwnerConsole) {
+                    let currentStatus = c.status || "en revisión";
+                    let statusBadge = "";
+
+                    if (currentStatus === "en revisión") {
+                        statusBadge = `<span style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-gold); color: var(--neon-gold); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-gold);">⏳ EN REVISIÓN</span>`;
+                    } else if (currentStatus === "publicado") {
+                        statusBadge = `<span style="background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-green);">✅ PUBLICADO</span>`;
+                    } else if (currentStatus === "rechazado") {
+                        statusBadge = `<span style="background: rgba(255, 0, 127, 0.1); border: 1px solid var(--neon-magenta); color: var(--neon-magenta); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-magenta);">❌ RECHAZADO</span>`;
+                    }
+
+                    adminInfoSection = `
+                        <div style="margin-top: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #141424; padding-bottom: 8px;">
+                            <span style="font-size: 0.75rem; color: var(--text-dim);">Estado del Canal:</span>
+                            ${statusBadge}
+                        </div>
+
+                        <div class="admin-booster-info">
+                            <div>Destacado: <span class="${c.ad_on ? 'booster-on-status' : 'booster-off-status'}">${c.ad_on ? 'ON' : 'OFF'}</span></div>
+                            <div>Web URL: <span class="${c.enlace_web ? 'booster-on-status' : 'booster-off-status'}">${c.enlace_web ? 'ON' : 'OFF'}</span></div>
+                            <div>Chat: <span class="${c.social_chat ? 'booster-on-status' : 'booster-off-status'}">${c.social_chat ? 'ON' : 'OFF'}</span></div>
+                            <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
+                        </div>
+                        
+                        <button class="btn-cyber ${currentStatus !== 'publicado' ? 'btn-disabled' : ''}" 
+                                style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px;" 
+                                onclick="${currentStatus === 'publicado' ? `invitarAPotenciar('${c.telegram_handle}')` : ''}"
+                                ${currentStatus !== 'publicado' ? 'disabled' : ''}>
+                            Potenciar Canal 🚀
+                        </button>
+
+                        <div class="btn-grid" style="grid-template-columns: 1fr 1fr; margin-top:8px; margin-bottom:10px;">
+                            <button class="btn-cyber" style="border-color:var(--neon-cyan); color:var(--neon-cyan); font-size:0.65rem;" onclick="solicitarEdicion('${c.id_canal}')">Editar ✏️</button>
+                            <button class="btn-cyber" style="border-color:var(--neon-magenta); color:var(--neon-magenta); font-size:0.65rem;" onclick="solicitarEliminacion('${c.id_canal}')">Borrar 🗑️</button>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML += `
+                    <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
+                        <div>
+                            <div class="badge-row">${badgesHtml}</div>
+                            <div class="card-header" onclick="toggleSlidingButtons('${c.id_canal}', '${targetContainerId}')">
+                                <img class="card-img" src="${c.url_imagen}">
+                                <div class="card-title-area">
+                                    <h4 style="color:#fff;">${c.titulo}</h4>
+                                    <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
+                                    ${metaDataHtml} 
+                                    <a href="${linkResenaManual}" target="_blank" class="rating-link" onclick="event.stopPropagation();">
+                                        <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
+                                    </a>
+                                </div>
+                                <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}', '${targetContainerId}')">★</span>
+                            </div>
+                            <div class="quality-container">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                    <div class="quality-bar-bg" style="width: 80%; height: 5px;">
+                                        <div class="quality-bar-fill" style="width:${c.quality}%"></div>
+                                    </div>
+                                    <span style="font-size: 0.7rem; font-weight: bold; color: var(--neon-green);">${c.quality}%</span>
+                                </div>
+                            </div>
+                            ${adminInfoSection}
+                        </div>
+                        <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
+                            <div class="btn-grid">${extraButtonsHtml}</div>
+                        </div>
+                    </div>`;
+            });
         }
 
-        container.innerHTML += `
-            <div class="card ${c.isPremium ? 'premium-highlight' : ''}">
-                <div>
-                    <div class="badge-row">${badgesHtml}</div>
-                    <div class="card-header" onclick="toggleSlidingButtons('${c.id_canal}', '${targetContainerId}')">
-                        <img class="card-img" src="${c.url_imagen}">
-                        <div class="card-title-area">
-                            <h4 style="color:#fff;">${c.titulo}</h4>
-                            <span style="font-size:0.75rem; color:var(--neon-cyan);">${c.telegram_handle}</span>
-                            ${metaDataHtml} 
-                            <a href="${linkResenaManual}" target="_blank" class="rating-link" onclick="event.stopPropagation();">
-                                <span style="font-size:0.75rem; color:var(--neon-gold); margin-top:2px;">${c.rating || '4.9'} ⭐ (${c.resenas || '120'} reseñas)</span>
-                            </a>
-                        </div>
-                        <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}', '${targetContainerId}')">★</span>
-                    </div>
-                    <div class="quality-container">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <div class="quality-bar-bg" style="width: 80%; height: 5px;">
-                                <div class="quality-bar-fill" style="width:${c.quality}%"></div>
-                            </div>
-                            <span style="font-size: 0.7rem; font-weight: bold; color: var(--neon-green);">${c.quality}%</span>
-                        </div>
-                    </div>
-                    ${adminInfoSection}
-                </div>
-                <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
-                    <div class="btn-grid">${extraButtonsHtml}</div>
-                </div>
-            </div>`;
-    });
-}
-
         function invitarAPotenciar(handle) {
-        // En lugar de copiar al portapapeles, saltamos a la página de Potenciadores
-        showToast("Redirigiendo al panel de potenciadores...");
-        switchPage('potenciadores');
-        
-        // Opcional: Si quieres seleccionar el canal automáticamente en el dropdown
-        const selector = document.getElementById("booster-channel-selector");
-        // Aquí podrías lógica adicional para encontrar el value del canal por su handle
-    }
+            showToast("Redirigiendo al panel de potenciadores...");
+            switchPage('potenciadores');
+        }
 
         function guardarCanal() {
-    const t = document.getElementById("form-canal-titulo").value;
-    const h = document.getElementById("form-canal-handle").value;
-    const cs = document.getElementById("form-canal-catsub").value;
-    const cat = document.getElementById("form-canal-categoria").value;
-    
-    const uChat = document.getElementById("form-canal-url-chat").value;
-    const uBot = document.getElementById("form-canal-url-bot").value;
-    const uWeb = document.getElementById("form-canal-url-web").value;
-    
-    if(!t || !h) return showToast("Faltan campos obligatorios.");
+            const t = document.getElementById("form-canal-titulo").value;
+            const h = document.getElementById("form-canal-handle").value;
+            const cs = document.getElementById("form-canal-catsub").value;
+            const cat = document.getElementById("form-canal-categoria").value;
+            
+            const uChat = document.getElementById("form-canal-url-chat").value;
+            const uBot = document.getElementById("form-canal-url-bot").value;
+            const uWeb = document.getElementById("form-canal-url-web").value;
+            
+            if(!t || !h) return showToast("Faltan campos obligatorios.");
 
-    // 1. Generamos el objeto del canal
-    const nuevoCanal = {
-        id_canal: "c_" + Date.now(), 
-        titulo: t, 
-        telegram_handle: h.startsWith('@') ? h : '@' + h, 
-        url_resena: "https://t.me/ListaGolden", 
-        catsub: cs, 
-        categoria: cat,
-        url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
-        id_user_telegram_admin: usuarioActual.id_tg, 
-        quality: 20, 
-        status: "en revisión", // <-- CAMBIADO: Inicia en revisión
-        rating: 5.0, 
-        resenas: 1,
-        ad_on: false,
-        social_chat: uChat ? true : false,
-        url_chat: uChat || "",
-        bot_oficial: uBot ? true : false,
-        url_bot: uBot || "",
-        enlace_web: uWeb ? true : false,
-        url_web: uWeb || ""
-    };
+            const nuevoCanal = {
+                id_canal: "c_" + Date.now(), 
+                titulo: t, 
+                telegram_handle: h.startsWith('@') ? h : '@' + h, 
+                url_resena: "https://t.me/ListaGolden", 
+                catsub: cs, 
+                categoria: cat,
+                url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
+                id_user_telegram_admin: usuarioActual.id_tg, 
+                quality: 20, 
+                status: "en revisión", 
+                rating: 5.0, 
+                resenas: 1,
+                ad_on: false,
+                social_chat: uChat ? true : false,
+                url_chat: uChat || "",
+                bot_oficial: uBot ? true : false,
+                url_bot: uBot || "",
+                enlace_web: uWeb ? true : false,
+                url_web: uWeb || "",
+                pedidos_pendientes: []
+            };
 
-    // 2. Lo inyectamos en el almacenamiento local
-    canales.push(nuevoCanal);
-    localStorage.setItem("golden_canales", JSON.stringify(canales));
-    showToast("Canal indexado de forma segura.");
+            canales.push(nuevoCanal);
+            localStorage.setItem("golden_canales", JSON.stringify(canales));
+            showToast("Canal indexado de forma segura.");
 
-    // Estructuramos el mensaje incluyendo el ID único generado por Date.now()
-    const mensajeTelegram = `📥 NUEVA INYECCIÓN DE CANAL\n\n` +
-                            `🆔 ID Único Sistema: ${nuevoCanal.id_canal}\n` + // <-- ¡Añadido aquí!
-                            `👤 Admin ID (TG): ${usuarioActual.id_tg}\n` +
-                            `🏷️ Nombre de Usuario: ${usuarioActual.username_tg}\n\n` +
-                            `📺 Canal: ${nuevoCanal.titulo}\n` +
-                            `🔗 Enlace: ${nuevoCanal.telegram_handle}\n` +
-                            `📊 Suscriptores: ${nuevoCanal.catsub}\n` +
-                            `🗂️ Categoría: ${nuevoCanal.categoria}\n\n` +
-                            `🌐 Chat adjunto: ${uChat || 'No'}\n` +
-                            `🤖 Bot adjunto: ${uBot || 'No'}\n` +
-                            `💻 Web adjunta: ${uWeb || 'No'}`;
+            const mensajeTelegram = `📥 NUEVA INYECCIÓN DE CANAL\n\n` +
+                                    `🆔 ID Único Sistema: ${nuevoCanal.id_canal}\n` + 
+                                    `👤 Admin ID (TG): ${usuarioActual.id_tg}\n` +
+                                    `🏷️ Nombre de Usuario: ${usuarioActual.username_tg}\n\n` +
+                                    `📺 Canal: ${nuevoCanal.titulo}\n` +
+                                    `🔗 Enlace: ${nuevoCanal.telegram_handle}\n` +
+                                    `📊 Suscriptores: ${nuevoCanal.catsub}\n` +
+                                    `🗂️ Categoría: ${nuevoCanal.categoria}\n\n` +
+                                    `🌐 Chat adjunto: ${uChat || 'No'}\n` +
+                                    `🤖 Bot adjunto: ${uBot || 'No'}\n` +
+                                    `💻 Web adjunta: ${uWeb || 'No'}`;
 
-    const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(mensajeTelegram)}`;
+            const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(mensajeTelegram)}`;
 
-    // Ejecución de la redirección
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
-        window.Telegram.WebApp.openTelegramLink(urlTelegram);
-    } else {
-        window.open(urlTelegram, '_blank');
-    }
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(urlTelegram);
+            } else {
+                window.open(urlTelegram, '_blank');
+            }
 
-    // 4. Limpieza y actualización visual
-    resetAdminForm();
-    actualizarMetadatosContadores();
-}
+            resetAdminForm();
+            actualizarMetadatosContadores();
+        }
 
         function solicitarEdicion(canalId) {
-    const canal = canales.find(c => c.id_canal === canalId);
-    if (!canal) return;
+            const canal = canales.find(c => c.id_canal === canalId);
+            if (!canal) return;
 
-    const msg = `✏️ SOLICITUD DE EDICIÓN\n` +
-                `Canal: ${canal.titulo} (ID: ${canalId})\n` +
-                `Nuevo Título: [Escribe aquí]\n` +
-                `Nuevo Handle: [Escribe aquí]\n` +
-                `Cambios solicitados: [Detalla qué quieres cambiar]`;
+            const msg = `✏️ SOLICITUD DE EDICIÓN\n` +
+                        `Canal: ${canal.titulo} (ID: ${canalId})\n` +
+                        `Nuevo Título: [Escribe aquí]\n` +
+                        `Nuevo Handle: [Escribe aquí]\n` +
+                        `Cambios solicitados: [Detalla qué quieres cambiar]`;
 
-    enviarSolicitudTelegram(msg);
-}
-    /**
- * Motor de verificación de ID de canales
- * @param {string} idCanal - El ID generado (ej: 'c_1719157618000')
- * @param {string} accion - 'PUBLICAR' o 'RECHAZAR'
- * @param {string} motivoRechazo - Nota opcional si es rechazado
- */
-function verificarYFlashearCanal(idCanal, accion, motivoRechazo = "") {
-    // 1. Cargar canales de la base de datos local
-    let dbCanales = JSON.parse(localStorage.getItem("golden_canales") || "[]");
-    let canalIndex = dbCanales.findIndex(c => c.id_canal === idCanal);
+            enviarSolicitudTelegram(msg);
+        }
 
-    if (canalIndex === -1) {
-        console.error("❌ ID de canal no encontrado en el buffer del sistema.");
-        return;
-    }
+        function verificarYFlashearCanal(idCanal, accion, motivoRechazo = "") {
+            let dbCanales = JSON.parse(localStorage.getItem("golden_canales") || "[]");
+            let canalIndex = dbCanales.findIndex(c => c.id_canal === idCanal);
 
-    let canal = dbCanales[canalIndex];
-    let tituloCanal = canal.titulo;
-    let idUsuarioTarget = canal.id_user_telegram_admin;
+            if (canalIndex === -1) {
+                console.error("❌ ID de canal no encontrado en el buffer del sistema.");
+                return;
+            }
 
-    // 2. Cargar sistema de notificaciones/mensajes existentes
-    let dbMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios") || "[]");
-    let nuevoMensaje = {
-        id_msg: "m_" + Date.now(),
-        user_id_target: idUsuarioTarget,
-        unread: true,
-        saved: false
-    };
+            let canal = dbCanales[canalIndex];
+            let tituloCanal = canal.titulo;
+            let idUsuarioTarget = canal.id_user_telegram_admin;
 
-    // 3. Evaluar acción de sincronización
-    if (accion === "PUBLICAR") {
-        dbCanales[canalIndex].status = "publicado";
-        
-        nuevoMensaje.titulo = "🚀 ¡Canal Publicado Exitosamente!";
-        nuevoMensaje.cuerpo = `Tu canal "${tituloCanal}" ha sido verificado con éxito por nuestro sistema de ID y ya se encuentra visible para toda la comunidad de Matrix Hub. ¡A por todas!`;
-        nuevoMensaje.tema = "Sistema";
-        
-        console.log(`✅ Canal ${idCanal} sincronizado a PUBLICADO.`);
-    } 
-    else if (accion === "RECHAZAR") {
-        dbCanales[canalIndex].status = "rechazado";
-        
-        nuevoMensaje.titulo = "⚠️ Solicitud de Canal Rechazada";
-        nuevoMensaje.cuerpo = `Lamentamos informarte que tu canal "${tituloCanal}" no pasó la moderación manual. Motivo: ${motivoRechazo || "No cumple con las directrices de la comunidad."}`;
-        nuevoMensaje.tema = "Soporte";
-        
-        console.log(`❌ Canal ${idCanal} marcado como RECHAZADO.`);
-    }
+            let dbMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios") || "[]");
+            let nuevoMensaje = {
+                id_msg: "m_" + Date.now(),
+                user_id_target: idUsuarioTarget,
+                unread: true,
+                saved: false
+            };
 
-    // 4. Guardar cambios de vuelta en LocalStorage
-    localStorage.setItem("golden_canales", JSON.stringify(dbCanales));
-    dbMensajes.unshift(nuevoMensaje); // Añadir al inicio del buzón
-    localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(dbMensajes));
+            if (accion === "PUBLICAR") {
+                dbCanales[canalIndex].status = "publicado";
+                nuevoMensaje.titulo = "🚀 ¡Canal Publicado Exitosamente!";
+                nuevoMensaje.cuerpo = `Tu canal "${tituloCanal}" ha sido verificado con éxito por nuestro sistema de ID y ya se encuentra visible para toda la comunidad de Matrix Hub. ¡A por todas!`;
+                nuevoMensaje.tema = "Sistema";
+            } 
+            else if (accion === "RECHAZAR") {
+                dbCanales[canalIndex].status = "rechazado";
+                nuevoMensaje.titulo = "⚠️ Solicitud de Canal Rechazada";
+                nuevoMensaje.cuerpo = `Lamentamos informarte que tu canal "${tituloCanal}" no pasó la moderación manual. Motivo: ${motivoRechazo || "No cumple con las directrices de la comunidad."}`;
+                nuevoMensaje.tema = "Soporte";
+            }
 
-    // 5. Sincronizar variables en memoria en vivo si la app está abierta
-    canales = dbCanales;
-    initMensajesBaseDatos(); // Recarga y actualiza campana de avisos
-    
-    // Actualizar las vistas por si el usuario está mirando la pantalla
-    if (document.getElementById('page-admin').classList.contains('active')) renderAdminPanel();
-    aplicarFiltrosMaster(false);
-}
+            localStorage.setItem("golden_canales", JSON.stringify(dbCanales));
+            dbMensajes.unshift(nuevoMensaje);
+            localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(dbMensajes));
 
-function solicitarEliminacion(canalId) {
-    const canal = canales.find(c => c.id_canal === canalId);
-    if (!canal) return;
+            canales = dbCanales;
+            initMensajesBaseDatos();
+            
+            if (document.getElementById('page-admin').classList.contains('active')) renderAdminPanel();
+            aplicarFiltrosMaster(false);
+        }
 
-    const msg = `🗑️ SOLICITUD DE ELIMINACIÓN\n` +
-                `Canal: ${canal.titulo}\n` +
-                `ID: ${canalId}\n` +
-                `Confirmación: Solicito eliminar permanentemente este canal del catálogo.`;
+        function solicitarEliminacion(canalId) {
+            const canal = canales.find(c => c.id_canal === canalId);
+            if (!canal) return;
 
-    if (confirm(`¿Estás seguro de solicitar la eliminación de ${canal.titulo}?`)) {
-        enviarSolicitudTelegram(msg);
-    }
-}
+            const msg = `🗑️ SOLICITUD DE ELIMINACIÓN\n` +
+                        `Canal: ${canal.titulo}\n` +
+                        `ID: ${canalId}\n` +
+                        `Confirmación: Solicito eliminar permanentemente este canal del catálogo.`;
 
-function enviarSolicitudTelegram(mensaje) {
-    const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(mensaje)}`;
-    window.open(urlTelegram, '_blank');
-    showToast("Solicitud generada. Abre Telegram para enviarla.");
-}
+            if (confirm(`¿Estás seguro de solicitar la eliminación de ${canal.titulo}?`)) {
+                enviarSolicitudTelegram(msg);
+            }
+        }
+
+        function enviarSolicitudTelegram(mensaje) {
+            const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlTelegram, '_blank');
+            showToast("Solicitud generada. Abre Telegram para enviarla.");
+        }
 
         function resetAdminForm() {
             document.getElementById("form-canal-titulo").value = "";
@@ -1069,63 +1014,56 @@ function enviarSolicitudTelegram(mensaje) {
         }
 
         function aplicarFiltrosMaster(resetLazyCount = false) { 
-    if (resetLazyCount) canalesVisiblesCount = 3; 
-    
-    categoriaActual = document.getElementById("select-filter-categoria").value; 
-    const orden = document.getElementById("select-filter-orden").value;
-    
-    // 1. Filtrado
-    let lista = canales.filter(c => c.status === "publicado" || !c.status); 
-    if (categoriaActual !== "todas") lista = lista.filter(c => c.categoria === categoriaActual); 
-    if (subcatActual !== "todas") lista = lista.filter(c => c.catsub === subcatActual); 
-    
-    // 2. Ordenamiento (Aquí reside la magia)
-    lista.sort((a, b) => {
-        if (orden === "golden") return b.quality - a.quality; // Mayor puntuación primero
-        if (orden === "rating") return b.rating - a.rating;  // Mayor estrellas primero
-        if (orden === "populares") return b.isPopular - a.isPopular; // booleanos: true antes que false
-        if (orden === "destacados") return b.isDestacado - a.isDestacado;
-        return 0;
-    });
+            if (resetLazyCount) canalesVisiblesCount = 3; 
+            
+            categoriaActual = document.getElementById("select-filter-categoria").value; 
+            const orden = document.getElementById("select-filter-orden").value;
+            
+            let lista = canales.filter(c => c.status === "publicado" || !c.status); 
+            if (categoriaActual !== "todas") lista = lista.filter(c => c.categoria === categoriaActual); 
+            if (subcatActual !== "todas") lista = lista.filter(c => c.catsub === subcatActual); 
+            
+            lista.sort((a, b) => {
+                if (orden === "golden") return b.quality - a.quality; 
+                if (orden === "rating") return b.rating - a.rating;  
+                if (orden === "populares") return b.isPopular - a.isPopular; 
+                if (orden === "destacados") return b.isDestacado - a.isDestacado;
+                return 0;
+            });
 
-    renderGridTemplates(lista, "catalog-container", false); 
-}
+            renderGridTemplates(lista, "catalog-container", false); 
+        }
 
         function cargarMasCanales() { canalesVisiblesCount += 3; aplicarFiltrosMaster(false); }
         function filtrarSubcat(subcat) { subcatActual = subcat; document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active')); document.getElementById(`btn-sub-${subcat}`).classList.add('active'); aplicarFiltrosMaster(true); }
+        
         function initSliderAutoScroll(containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
+            const container = document.getElementById(containerId);
+            if (!container) return;
 
-    // Función de movimiento suave
-    const scrollFunction = () => {
-        if (!container.matches(':hover')) {
-            container.scrollLeft += 1;
-            // Si llega al final, vuelve al inicio
-            if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) {
-                container.scrollLeft = 0;
-            }
+            const scrollFunction = () => {
+                if (!container.matches(':hover')) {
+                    container.scrollLeft += 1;
+                    if (container.scrollLeft >= (container.scrollWidth - container.clientWidth - 4)) {
+                        container.scrollLeft = 0;
+                    }
+                }
+            };
+
+            let scrollInterval = setInterval(scrollFunction, 30);
+
+            container.addEventListener('touchstart', () => clearInterval(scrollInterval), { passive: true });
+            container.addEventListener('touchend', () => {
+                clearInterval(scrollInterval);
+                scrollInterval = setInterval(scrollFunction, 30);
+            }, { passive: true });
+
+            container.addEventListener('mouseenter', () => clearInterval(scrollInterval));
+            container.addEventListener('mouseleave', () => {
+                clearInterval(scrollInterval);
+                scrollInterval = setInterval(scrollFunction, 30);
+            });
         }
-    };
-
-    // Iniciamos el intervalo
-    let scrollInterval = setInterval(scrollFunction, 30);
-
-    // Lógica de seguridad: Detener al tocar/hover para evitar temblores o conflictos
-    // MÓVIL
-    container.addEventListener('touchstart', () => clearInterval(scrollInterval), { passive: true });
-    container.addEventListener('touchend', () => {
-        clearInterval(scrollInterval); // Limpiamos por si acaso
-        scrollInterval = setInterval(scrollFunction, 30);
-    }, { passive: true });
-
-    // ESCRITORIO
-    container.addEventListener('mouseenter', () => clearInterval(scrollInterval));
-    container.addEventListener('mouseleave', () => {
-        clearInterval(scrollInterval);
-        scrollInterval = setInterval(scrollFunction, 30);
-    });
-}
 
         function renderDonadoresSlider() { 
             const container = document.getElementById("donors-slider"); 
@@ -1136,61 +1074,55 @@ function enviarSolicitudTelegram(mensaje) {
         }
 
         function descubrirCanalesDonador(idTg, username) { 
-    const filtrados = canales.filter(c => c.id_user_telegram_admin === idTg); 
-    const modal = document.getElementById("floating-channels-modal"); 
-    const content = document.getElementById("floating-modal-content"); 
-    
-    document.getElementById("floating-modal-title").innerText = `Canales de ${username}`; 
-    content.innerHTML = ""; 
-    
-    if(filtrados.length === 0) {
-        content.innerHTML = `<p style="color:var(--text-dim); text-align:center;">Este usuario no posee canales indexados públicos.</p>`;
-    } else {
-        filtrados.forEach(c => { 
-            // Construimos la URL del canal de Telegram
-            const urlCanal = `https://t.me/${c.telegram_handle.replace('@','')}`;
+            const filtrados = canales.filter(c => c.id_user_telegram_admin === idTg); 
+            const modal = document.getElementById("floating-channels-modal"); 
+            const content = document.getElementById("floating-modal-content"); 
             
-            content.innerHTML += `
-                <a href="${urlCanal}" target="_blank" style="text-decoration:none;">
-                    <div style="background:#131322; padding:12px; border-radius:6px; border-left: 3px solid var(--neon-cyan); transition: all 0.2s; cursor:pointer;" 
-                         onmouseover="this.style.background='#1e1e30'; this.style.borderColor='var(--neon-magenta)';" 
-                         onmouseout="this.style.background='#131322'; this.style.borderColor='var(--neon-cyan)';">
-                        <div style="color:#fff; font-weight:bold; font-size:0.9rem;">${c.titulo}</div>
-                        <div style="color:var(--neon-cyan); font-size:0.75rem;">${c.telegram_handle}</div>
-                    </div>
-                </a>`; 
-        }); 
-    }
-    modal.style.display = "flex"; 
-}
+            document.getElementById("floating-modal-title").innerText = `Canales de ${username}`; 
+            content.innerHTML = ""; 
+            
+            if(filtrados.length === 0) {
+                content.innerHTML = `<p style="color:var(--text-dim); text-align:center;">Este usuario no posee canales indexados públicos.</p>`;
+            } else {
+                filtrados.forEach(c => { 
+                    const urlCanal = `https://t.me/${c.telegram_handle.replace('@','')}`;
+                    content.innerHTML += `
+                        <a href="${urlCanal}" target="_blank" style="text-decoration:none;">
+                            <div style="background:#131322; padding:12px; border-radius:6px; border-left: 3px solid var(--neon-cyan); transition: all 0.2s; cursor:pointer;" 
+                                 onmouseover="this.style.background='#1e1e30'; this.style.borderColor='var(--neon-magenta)';" 
+                                 onmouseout="this.style.background='#131322'; this.style.borderColor='var(--neon-cyan)';">
+                                <div style="color:#fff; font-weight:bold; font-size:0.9rem;">${c.titulo}</div>
+                                <div style="color:var(--neon-cyan); font-size:0.75rem;">${c.telegram_handle}</div>
+                            </div>
+                        </a>`; 
+                }); 
+            }
+            modal.style.display = "flex"; 
+        }
 
         function renderDestacadosSlider() { 
-    const container = document.getElementById("featured-slider"); 
-    container.innerHTML = ""; 
-    
-    canales.filter(c => c.isDestacado).forEach(c => { 
-        // Asumiendo que c.url_canal existe; si no, ajusta el campo correspondiente
-        const url = c.url_canal || `https://t.me/${c.telegram_handle.replace('@','')}`;
-        
-        container.innerHTML += `
-            <div class="slider-card" style="flex: 0 0 200px; cursor: pointer;" onclick="window.open('${url}', '_blank')">
-                <div style="background:#09090f; border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center; white-space:normal; transition: transform 0.2s;">
-                    <h5 style="color:#fff; font-size:0.8rem; margin:0;">${c.titulo}</h5>
-                    <span style="font-size:0.6rem; color:var(--neon-magenta);">${c.telegram_handle}</span>
-                </div>
-            </div>`; 
-    }); 
-}
+            const container = document.getElementById("featured-slider"); 
+            container.innerHTML = ""; 
+            
+            canales.filter(c => c.isDestacado).forEach(c => { 
+                const url = c.url_canal || `https://t.me/${c.telegram_handle.replace('@','')}`;
+                container.innerHTML += `
+                    <div class="slider-card" style="flex: 0 0 200px; cursor: pointer;" onclick="window.open('${url}', '_blank')">
+                        <div style="background:#09090f; border:1px solid var(--neon-magenta); border-radius:8px; padding:10px; text-align:center; white-space:normal; transition: transform 0.2s;">
+                            <h5 style="color:#fff; font-size:0.8rem; margin:0;">${c.titulo}</h5>
+                            <span style="font-size:0.6rem; color:var(--neon-magenta);">${c.telegram_handle}</span>
+                        </div>
+                    </div>`; 
+            }); 
+        }
 
-        // --- SISTEMA Y PANTALLA DE MEMBRESÍA ACTUALIZADA ---
         function renderMembresiaPage() { 
             const container = document.getElementById("membership-content-area"); 
             if(!container) return;
 
-            // En renderMembresiaPage(), cambia esto:
-let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ? 
-    `<span style="color:var(--neon-green); font-weight:bold;">ACTIVADO</span>` : 
-    `<span style="color:var(--neon-magenta); font-weight:bold;">DESACTIVADO</span>`;
+            let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ? 
+                `<span style="color:var(--neon-green); font-weight:bold;">ACTIVADO</span>` : 
+                `<span style="color:var(--neon-magenta); font-weight:bold;">DESACTIVADO</span>`;
 
             let colorPago = "var(--text-dim)";
             if(variablesMembresia.estadoPago === "Pagado") colorPago = "var(--neon-green)";
@@ -1227,134 +1159,154 @@ let estadoActivacion = variablesMembresia.estadoPago === "Pagado" ?
             const container = document.getElementById("boosters-container"); 
             if(!container) return;
             container.innerHTML = ""; 
+
             if(!canalId) {
                 container.innerHTML = `<p style="grid-column:1/-1; color:var(--text-dim);">No tienes canales propios vinculados para potenciar.</p>`;
                 document.getElementById("golden-score-pct").innerText = `0%`; 
                 document.getElementById("golden-score-fill").style.width = `0%`;
                 return;
             }
+
             const canal = canales.find(c => c.id_canal === canalId); 
+            if (!canal.pedidos_pendientes) canal.pedidos_pendientes = [];
+
             let totalActivos = 0; 
+            
             TIENDA_POTENCIADORES.forEach(p => { 
                 let isActive = canal[p.key] === true; 
+                let isPending = canal.pedidos_pendientes.includes(p.key);
+
                 if(isActive) totalActivos++; 
+
+                let buttonHtml = "";
+                let cardClass = "";
+
+                if (isActive) {
+                    cardClass = "active-booster";
+                    buttonHtml = `<button class="btn-cyber" style="border-color:#ff3333; color:#ff3333;" onclick="solicitarModificacionBooster('${canalId}', '${p.key}', true)">Desactivar ⚡</button>`;
+                } else if (isPending) {
+                    cardClass = "pending-booster"; 
+                    buttonHtml = `<button class="btn-cyber btn-disabled" style="border-color:var(--neon-gold); color:var(--neon-gold); opacity: 0.6;" disabled>En Proceso ⏳</button>`;
+                } else {
+                    cardClass = "";
+                    buttonHtml = `<button class="btn-cyber" style="border-color:var(--neon-green); color:var(--neon-green);" onclick="solicitarModificacionBooster('${canalId}', '${p.key}', false)">Inyectar 🔋</button>`;
+                }
+
                 container.innerHTML += `
-                    <div class="booster-card ${isActive ? 'active-booster' : ''}">
+                    <div class="booster-card ${cardClass}" style="${isPending ? 'border-color: var(--neon-gold);' : ''}">
                         <div>
                             <h5 style="color:#fff; margin-bottom:4px;">${p.nombre}</h5>
                             <p style="font-size:0.7rem; color:var(--text-dim);">${p.desc}</p>
                         </div>
-                        <button class="btn-cyber" style="border-color:${isActive ? '#ff3333' : 'var(--neon-green)'}; color:${isActive ? '#ff3333' : 'var(--neon-green)'};" onclick="solicitarModificacionBooster('${canalId}', '${p.key}', ${isActive})">
-                            ${isActive ? 'Desactivar ⚡' : 'Inyectar 🔋'}
-                        </button>
+                        ${buttonHtml}
                     </div>`; 
             }); 
+            
             document.getElementById("golden-score-pct").innerText = `${totalActivos * 25}%`; 
             document.getElementById("golden-score-fill").style.width = `${totalActivos * 25}%`; 
         }
 
         function solicitarModificacionBooster(canalId, boosterKey, actualmenteActivo) { 
-    const canal = canales.find(c => c.id_canal === canalId);
-    const booster = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
-    
-    canal[boosterKey] = !actualmenteActivo; 
-    
-    // Solo registramos si es una activación (booster pasa a true)
-    if (!actualmenteActivo) {
-        registrarPedido(canal.titulo, booster.nombre);
-    }
-    
-    const msg = `🚨 PEDIDO: ${canal.titulo} | ${booster.nombre}`;
-    const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msg)}`;
-    
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.openTelegramLink(urlTelegram);
-    }
-    
-    localStorage.setItem("golden_canales", JSON.stringify(canales)); 
-    cargarPotenciadoresDelCanal(); 
-    showToast(`Solicitud de ${booster.nombre} enviada.`);
-}
+            const canal = canales.find(c => c.id_canal === canalId);
+            const booster = TIENDA_POTENCIADORES.find(p => p.key === boosterKey);
+            
+            if (!canal.pedidos_pendientes) canal.pedidos_pendientes = [];
 
-function registrarPedido(tituloCanal, nombreBooster) {
-    let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
-    
-    const boosterData = TIENDA_POTENCIADORES.find(p => p.nombre === nombreBooster);
-    const precio = boosterData ? boosterData.precio : 0;
-    
-    // Crear fecha de expiración: hoy + 30 días
-    const fechaFinObj = new Date();
-    fechaFinObj.setDate(fechaFinObj.getDate() + 30);
-    
-    logs.unshift({
-        canal: tituloCanal,
-        booster: nombreBooster,
-        precio: precio,
-        fechaFinMs: fechaFinObj.getTime() // Guardamos en milisegundos para comparar fácilmente
-    });
+            if (!actualmenteActivo) {
+                if (!canal.pedidos_pendientes.includes(boosterKey)) {
+                    canal.pedidos_pendientes.push(boosterKey);
+                }
+                registrarPedido(canal.titulo, booster.nombre);
+                showToast(`Solicitud de ${booster.nombre} enviada a revisión.`);
+            } else {
+                canal[boosterKey] = false;
+                canal.pedidos_pendientes = canal.pedidos_pendientes.filter(k => k !== boosterKey);
+                showToast(`${booster.nombre} desactivado.`);
+            }
+            
+            const msg = `🚨 PEDIDO POTENCIADOR:\n📺 Canal: ${canal.titulo}\n🆔 ID: ${canalId}\n🔋 Componente: ${booster.nombre} (${boosterKey})`;
+            const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(msg)}`;
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.openTelegramLink(urlTelegram);
+            } else {
+                window.open(urlTelegram, '_blank');
+            }
+            
+            localStorage.setItem("golden_canales", JSON.stringify(canales)); 
+            cargarPotenciadoresDelCanal(); 
+            actualizarMetadatosContadores();
+        }
 
-    localStorage.setItem("golden_pedidos_log", JSON.stringify(logs));
-    renderPedidosLog();
-}
+        function registrarPedido(tituloCanal, nombreBooster) {
+            let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
+            const boosterData = TIENDA_POTENCIADORES.find(p => p.nombre === nombreBooster);
+            const precio = boosterData ? boosterData.precio : 0;
+            
+            const fechaFinObj = new Date();
+            fechaFinObj.setDate(fechaFinObj.getDate() + 30);
+            
+            logs.unshift({
+                canal: tituloCanal,
+                booster: nombreBooster,
+                precio: precio,
+                fechaFinMs: fechaFinObj.getTime()
+            });
 
-// Asegúrate de que el renderizado muestre la variable 'l.fecha' que ahora trae todo el string
-function renderPedidosLog() {
-    const container = document.getElementById("orders-log-container");
-    let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
-    
-    const ahoraMs = new Date().getTime();
-    
-    // FILTRO AUTOMÁTICO: Solo mantenemos los que NO han expirado
-    const logsValidos = logs.filter(l => l.fechaFinMs > ahoraMs);
-    
-    // Si hubo cambios por expiración, actualizamos el almacenamiento
-    if (logsValidos.length !== logs.length) {
-        localStorage.setItem("golden_pedidos_log", JSON.stringify(logsValidos));
-        logs = logsValidos;
-    }
-    
-    container.innerHTML = logs.map(l => {
-        // Convertimos los milisegundos de nuevo a formato legible
-        const fechaLegible = new Date(l.fechaFinMs).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
-        
-        return `
-            <div class="order-row">
-                <div style="display:flex; flex-direction:column;">
-                    <span style="color:var(--text-main); font-weight:bold;">${l.canal}</span>
-                    <span style="font-size:0.7rem; color:var(--text-dim);">${l.booster}</span>
-                </div>
-                <div style="text-align:right;">
-                    <div style="color:var(--neon-gold); font-weight:bold;">⭐ ${l.precio} Stars</div>
-                    <div style="font-size:0.7rem; color:var(--neon-cyan);">Expira: ${fechaLegible}</div>
-                </div>
-            </div>
-        `;
-    }).join('') || '<p style="color:var(--text-dim); font-size:0.8rem;">No hay pedidos activos.</p>';
-}
+            localStorage.setItem("golden_pedidos_log", JSON.stringify(logs));
+            renderPedidosLog();
+        }
+
+        function renderPedidosLog() {
+            const container = document.getElementById("orders-log-container");
+            let logs = JSON.parse(localStorage.getItem("golden_pedidos_log") || "[]");
+            
+            const ahoraMs = new Date().getTime();
+            const logsValidos = logs.filter(l => l.fechaFinMs > ahoraMs);
+            
+            if (logsValidos.length !== logs.length) {
+                localStorage.setItem("golden_pedidos_log", JSON.stringify(logsValidos));
+                logs = logsValidos;
+            }
+            
+            container.innerHTML = logs.map(l => {
+                const fechaLegible = new Date(l.fechaFinMs).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+                return `
+                    <div class="order-row">
+                        <div style="display:flex; flex-direction:column;">
+                            <span style="color:var(--text-main); font-weight:bold;">${l.canal}</span>
+                            <span style="font-size:0.7rem; color:var(--text-dim);">${l.booster}</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="color:var(--neon-gold); font-weight:bold;">⭐ ${l.precio} Stars</div>
+                            <div style="font-size:0.7rem; color:var(--neon-cyan);">Expira: ${fechaLegible}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('') || '<p style="color:var(--text-dim); font-size:0.8rem;">No hay pedidos activos.</p>';
+        }
 
         function renderFavoritos() { 
-    renderGridTemplates(
-        canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), 
-        "favs-container", 
-        false, 
-        false // <-- Aquí desactiva el corte de 3 en 3
-    ); 
-}
+            renderGridTemplates(
+                canales.filter(c => usuarioActual.favoritos.includes(c.id_canal)), 
+                "favs-container", 
+                false, 
+                false 
+            ); 
+        }
         
-     function renderAdminPanel() { 
-    renderGridTemplates(
-        canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), 
-        "user-channels-list", 
-        true // Esto activa el bloque adminInfoSection que acabamos de actualizar
-    ); 
-}
+        function renderAdminPanel() { 
+            renderGridTemplates(
+                canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg), 
+                "user-channels-list", 
+                true
+            ); 
+        }
      
-        // REVISIÓN Y RE-CÁLCULO DINÁMICO DE CONTADORES GLOBALES
         function actualizarMetadatosContadores() { 
             let misCanales = canales.filter(c => c.id_user_telegram_admin === usuarioActual.id_tg);
             let totalAsoc = misCanales.length; 
             
-            // Contador Real de Potenciadores Totales Activos
             let totalBoostsActivos = 0;
             misCanales.forEach(canal => {
                 TIENDA_POTENCIADORES.forEach(p => {
@@ -1377,7 +1329,6 @@ function renderPedidosLog() {
             } 
         }
 
-        // --- SISTEMA INTERACTIVO DE MENSAJES DE TERMINAL ---
         function renderAvisosTerminal() { 
             const container = document.getElementById("notifications-container");
             const filterTopic = document.getElementById("select-msg-topic-filter").value;
@@ -1451,46 +1402,20 @@ function renderPedidosLog() {
         function closeFloatingModal() { document.getElementById("floating-channels-modal").style.display = "none"; }
         function closeRecommendation() { document.getElementById("cyber-recommend-popup").classList.remove("show"); }
     
-    function restaurarSistema() {
+        function restaurarSistema() {
+            if(!confirm("Restaurar configuración de fábrica?")) return;
 
-    if(!confirm("Restaurar configuración de fábrica?"))
-        return;
+            localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+            localStorage.setItem("golden_favoritos", JSON.stringify([]));
 
-    localStorage.setItem(
-        "golden_canales",
-        JSON.stringify(DEFAULT_CHANNELS)
-    );
+            const mensajesIniciales = BD_MENSAJES_PREDEFINIDOS.map(m => ({ ...m, unread:true, saved:false }));
+            localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(mensajesIniciales));
+            localStorage.removeItem("golden_pedidos_log");
+            sessionStorage.removeItem("campana_vista");
 
-    localStorage.setItem(
-        "golden_favoritos",
-        JSON.stringify([])
-    );
-
-    const mensajesIniciales =
-        BD_MENSAJES_PREDEFINIDOS.map(m => ({
-            ...m,
-            unread:true,
-            saved:false
-        }));
-
-    localStorage.setItem(
-        "golden_mensajes_usuarios",
-        JSON.stringify(mensajesIniciales)
-    );
-
-    sessionStorage.removeItem(
-        "campana_vista"
-    );
-
-    showToast(
-        "Sistema restaurado."
-    );
-
-    setTimeout(() => {
-        location.reload();
-    }, 1000);
-}
-        
+            showToast("Sistema restaurado.");
+            setTimeout(() => { location.reload(); }, 1000);
+        }
     </script>
 </body>
 </html>
