@@ -809,44 +809,71 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
     }
 
         function guardarCanal() {
-            const t = document.getElementById("form-canal-titulo").value;
-            const h = document.getElementById("form-canal-handle").value;
-            const cs = document.getElementById("form-canal-catsub").value;
-            const cat = document.getElementById("form-canal-categoria").value;
-            
-            const uChat = document.getElementById("form-canal-url-chat").value;
-            const uBot = document.getElementById("form-canal-url-bot").value;
-            const uWeb = document.getElementById("form-canal-url-web").value;
-            
-            if(!t || !h) return showToast("Faltan campos obligatorios.");
+    const t = document.getElementById("form-canal-titulo").value;
+    const h = document.getElementById("form-canal-handle").value;
+    const cs = document.getElementById("form-canal-catsub").value;
+    const cat = document.getElementById("form-canal-categoria").value;
+    
+    const uChat = document.getElementById("form-canal-url-chat").value;
+    const uBot = document.getElementById("form-canal-url-bot").value;
+    const uWeb = document.getElementById("form-canal-url-web").value;
+    
+    if(!t || !h) return showToast("Faltan campos obligatorios.");
 
-            canales.push({
-                id_canal: "c_" + Date.now(), 
-                titulo: t, 
-                telegram_handle: h.startsWith('@') ? h : '@' + h, 
-                url_resena: "https://t.me/ListaGolden", 
-                catsub: cs, 
-                categoria: cat,
-                url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
-                id_user_telegram_admin: usuarioActual.id_tg, 
-                quality: 20, 
-                status: "publicado", 
-                rating: 5.0, 
-                resenas: 1,
-                ad_on: false,
-                social_chat: uChat ? true : false,
-                url_chat: uChat || "",
-                bot_oficial: uBot ? true : false,
-                url_bot: uBot || "",
-                enlace_web: uWeb ? true : false,
-                url_web: uWeb || ""
-            });
+    // 1. Generamos el objeto del canal
+    const nuevoCanal = {
+        id_canal: "c_" + Date.now(), 
+        titulo: t, 
+        telegram_handle: h.startsWith('@') ? h : '@' + h, 
+        url_resena: "https://t.me/ListaGolden", 
+        catsub: cs, 
+        categoria: cat,
+        url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
+        id_user_telegram_admin: usuarioActual.id_tg, 
+        quality: 20, 
+        status: "publicado", 
+        rating: 5.0, 
+        resenas: 1,
+        ad_on: false,
+        social_chat: uChat ? true : false,
+        url_chat: uChat || "",
+        bot_oficial: uBot ? true : false,
+        url_bot: uBot || "",
+        enlace_web: uWeb ? true : false,
+        url_web: uWeb || ""
+    };
 
-            localStorage.setItem("golden_canales", JSON.stringify(canales));
-            showToast("Canal indexado de forma segura.");
-            resetAdminForm();
-            actualizarMetadatosContadores();
-        }
+    // 2. Lo inyectamos en el almacenamiento local
+    canales.push(nuevoCanal);
+    localStorage.setItem("golden_canales", JSON.stringify(canales));
+    showToast("Canal indexado de forma segura.");
+
+    // Estructuramos el mensaje incluyendo el ID único generado por Date.now()
+    const mensajeTelegram = `📥 NUEVA INYECCIÓN DE CANAL\n\n` +
+                            `🆔 ID Único Sistema: ${nuevoCanal.id_canal}\n` + // <-- ¡Añadido aquí!
+                            `👤 Admin ID (TG): ${usuarioActual.id_tg}\n` +
+                            `🏷️ Nombre de Usuario: ${usuarioActual.username_tg}\n\n` +
+                            `📺 Canal: ${nuevoCanal.titulo}\n` +
+                            `🔗 Enlace: ${nuevoCanal.telegram_handle}\n` +
+                            `📊 Suscriptores: ${nuevoCanal.catsub}\n` +
+                            `🗂️ Categoría: ${nuevoCanal.categoria}\n\n` +
+                            `🌐 Chat adjunto: ${uChat || 'No'}\n` +
+                            `🤖 Bot adjunto: ${uBot || 'No'}\n` +
+                            `💻 Web adjunta: ${uWeb || 'No'}`;
+
+    const urlTelegram = `https://t.me/${MI_USUARIO_TELEGRAM}?text=${encodeURIComponent(mensajeTelegram)}`;
+
+    // Ejecución de la redirección
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+        window.Telegram.WebApp.openTelegramLink(urlTelegram);
+    } else {
+        window.open(urlTelegram, '_blank');
+    }
+
+    // 4. Limpieza y actualización visual
+    resetAdminForm();
+    actualizarMetadatosContadores();
+}
 
         function solicitarEdicion(canalId) {
     const canal = canales.find(c => c.id_canal === canalId);
