@@ -587,18 +587,45 @@ function verificarMigracionDatos() {
     const versionGuardada = localStorage.getItem("golden_db_version");
     
     if (versionGuardada !== DB_VERSION) {
-        // Recuperar o inicializar vacío
-        let canales = JSON.parse(localStorage.getItem("golden_canales") || "[]");
+        console.log(`🤖 Detectada nueva versión de Matrix Hub: ${DB_VERSION}. Iniciando fusión de núcleos...`);
 
-        // Realizar la migración
-        let canalesActualizados = canales.map(c => ({
-            ...c,
-            nuevaPropiedad: c.nuevaPropiedad || "valor_por_defecto"
-        }));
+        // 1. Recuperar los canales que ya existen en el almacenamiento local
+        let canalesLocales = [];
+        try {
+            canalesLocales = JSON.parse(localStorage.getItem("golden_canales")) || [];
+        } catch(e) {
+            canalesLocales = [];
+        }
 
-        localStorage.setItem("golden_canales", JSON.stringify(canalesActualizados));
+        // 2. Si el almacenamiento local estaba vacío, cargamos los por defecto directamente
+        if (canalesLocales.length === 0) {
+            localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+        } else {
+            // 3. FUSIÓN INTELIGENTE: Crear un mapa con los canales locales indexados por su ID
+            const mapaCanales = new Map();
+            
+            // Metemos primero los locales (así priorizamos los datos y estados del usuario si hay choque)
+            canalesLocales.forEach(c => mapaCanales.set(c.id_canal, c));
+            
+            // Recorremos los canales por defecto del código base
+            DEFAULT_CHANNELS.forEach(c => {
+                if (!mapaCanales.has(c.id_canal)) {
+                    // Si el ID del código no existe en el local, ¡lo inyectamos!
+                    mapaCanales.set(c.id_canal, c);
+                    console.log(`📡 Inyectando nuevo canal de fábrica: ${c.titulo} (${c.id_canal})`);
+                }
+            });
+
+            // 4. Convertimos el mapa de vuelta a un Array normal
+            const listaFusionada = Array.from(mapaCanales.values());
+
+            // 5. Guardamos la lista combinada en el LocalStorage
+            localStorage.setItem("golden_canales", JSON.stringify(listaFusionada));
+        }
+
+        // Actualizamos la versión en el almacenamiento para que no se repita el proceso en la próxima carga
         localStorage.setItem("golden_db_version", DB_VERSION);
-        console.log("Sistema actualizado a la versión:", DB_VERSION);
+        console.log("⚡ Fusión completada con éxito. Base de datos sincronizada.");
     }
 }
 
