@@ -606,7 +606,7 @@ function verificarMigracionDatos() {
     // 0. MIGRACIÓN DE DATOS (El guardián)
     verificarMigracionDatos();
 
-    // 1. Inicialización de Telegram
+    // 1. Inicialización de Telegram con Recuperación Segura
     if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
         webApp.ready();
@@ -621,34 +621,46 @@ function verificarMigracionDatos() {
             }
         }
     }
+    
+    // LOG DE CONTROL: Verifica en la consola del navegador qué ID se está procesando
+    console.log("Matrix Hub Terminal - ID Usuario Activo:", usuarioActual.id_tg);
 
-    // ... (Mantén tu lógica de Membresía igual) ...
+    // 2. Lógica de Membresía
     const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
         fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
     };
 
     variablesMembresia = { ...estadoData, activado: estadoData.estadoPago === "Pagado" };
 
-    // 3. Carga de datos (Ya no necesitas el check de 'if (!localStorage)' porque verificarMigracionDatos ya asegura que existan)
     if (LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
     
-    canales = JSON.parse(localStorage.getItem("golden_canales"));
-    usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
+    // 3. CARGA DE DATOS SEGURA (Evita que la lista quede vacía o en null si se borra el LocalStorage)
+    const canalesLocales = localStorage.getItem("golden_canales");
+    if (!canalesLocales || canalesLocales === "[]") {
+        canales = [...DEFAULT_CHANNELS];
+        localStorage.setItem("golden_canales", JSON.stringify(canales));
+    } else {
+        canales = JSON.parse(canalesLocales);
+    }
 
-    // 4. Renderizado
+    usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos")) || [];
+
+    // 4. Renderizado General del Buffer
     initMensajesBaseDatos();
     document.getElementById("nav-username").innerText = usuarioActual.username_tg;
     
     actualizarMetadatosContadores();
     actualizarEstilosSincroPremium();
     triggerSplash();
+    
+    // Forzamos el renderizado de los paneles principales
     aplicarFiltrosMaster(true);
+    renderAdminPanel(); // <-- CRUCIAL: Fuerza a la consola a pintar tus canales indexados desde el inicio
+    
     renderDonadoresSlider();
     renderDestacadosSlider();
     initSelectorCanalesBoosters();
     renderMembresiaPage();
-    
-    // Renderizado de log con purga automática
     renderPedidosLog();
 
     // Inicialización de sliders con la nueva lógica segura
