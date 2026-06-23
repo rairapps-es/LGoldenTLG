@@ -718,8 +718,6 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
         if (btnLazy) btnLazy.style.display = "none";
     }
 
-    // ... (el resto de tu código igual)
-
     listaCanales.forEach(c => {
         let isFav = usuarioActual.favoritos.includes(c.id_canal);
         let badgesHtml = "";
@@ -744,9 +742,27 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
 
         let linkResenaManual = c.url_resena ? c.url_resena : "https://t.me/ListaGolden";
 
-                let adminInfoSection = "";
+        // --- SISTEMA DE CONTROL DE ESTADOS PARA EL PROPIETARIO ---
+        let adminInfoSection = "";
         if (isOwnerConsole) {
+            // Evaluamos por defecto "en revisión" si no existe la propiedad status para proteger el flujo
+            let currentStatus = c.status || "en revisión";
+            let statusBadge = "";
+
+            if (currentStatus === "en revisión") {
+                statusBadge = `<span style="background: rgba(255, 215, 0, 0.1); border: 1px solid var(--neon-gold); color: var(--neon-gold); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-gold);">⏳ EN REVISIÓN</span>`;
+            } else if (currentStatus === "publicado") {
+                statusBadge = `<span style="background: rgba(57, 255, 20, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-green);">✅ PUBLICADO</span>`;
+            } else if (currentStatus === "rechazado") {
+                statusBadge = `<span style="background: rgba(255, 0, 127, 0.1); border: 1px solid var(--neon-magenta); color: var(--neon-magenta); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-shadow: var(--cyber-glow-magenta);">❌ RECHAZADO</span>`;
+            }
+
             adminInfoSection = `
+                <div style="margin-top: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #141424; padding-bottom: 8px;">
+                    <span style="font-size: 0.75rem; color: var(--text-dim);">Estado del Canal:</span>
+                    ${statusBadge}
+                </div>
+
                 <div class="admin-booster-info">
                     <div>Destacado: <span class="${c.ad_on ? 'booster-on-status' : 'booster-off-status'}">${c.ad_on ? 'ON' : 'OFF'}</span></div>
                     <div>Web URL: <span class="${c.enlace_web ? 'booster-on-status' : 'booster-off-status'}">${c.enlace_web ? 'ON' : 'OFF'}</span></div>
@@ -754,7 +770,10 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
                     <div>Bot Oficial: <span class="${c.bot_oficial ? 'booster-on-status' : 'booster-off-status'}">${c.bot_oficial ? 'ON' : 'OFF'}</span></div>
                 </div>
                 
-                <button class="btn-cyber" style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px;" onclick="invitarAPotenciar('${c.telegram_handle}')">
+                <button class="btn-cyber ${currentStatus !== 'publicado' ? 'btn-disabled' : ''}" 
+                        style="border-color: var(--neon-gold); color: var(--neon-gold); font-size: 0.65rem; padding: 6px; width:100%; margin-top:5px;" 
+                        onclick="${currentStatus === 'publicado' ? `invitarAPotenciar('${c.telegram_handle}')` : ''}"
+                        ${currentStatus !== 'publicado' ? 'disabled' : ''}>
                     Potenciar Canal 🚀
                 </button>
 
@@ -782,13 +801,13 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
                         <span class="fav-star ${isFav ? 'active' : ''}" data-id="${c.id_canal}" onclick="event.stopPropagation(); toggleFavorito('${c.id_canal}', '${targetContainerId}')">★</span>
                     </div>
                     <div class="quality-container">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-    <div class="quality-bar-bg" style="width: 80%; height: 5px;">
-        <div class="quality-bar-fill" style="width:${c.quality}%"></div>
-    </div>
-    <span style="font-size: 0.7rem; font-weight: bold; color: var(--neon-green);">${c.quality}%</span>
-</div>
-</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <div class="quality-bar-bg" style="width: 80%; height: 5px;">
+                                <div class="quality-bar-fill" style="width:${c.quality}%"></div>
+                            </div>
+                            <span style="font-size: 0.7rem; font-weight: bold; color: var(--neon-green);">${c.quality}%</span>
+                        </div>
+                    </div>
                     ${adminInfoSection}
                 </div>
                 <div class="sliding-buttons-wrapper" id="sliding-wrap-${targetContainerId}-${c.id_canal}">
@@ -831,7 +850,7 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
         url_imagen: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&q=80",
         id_user_telegram_admin: usuarioActual.id_tg, 
         quality: 20, 
-        status: "publicado", 
+        status: "en revisión", // <-- CAMBIADO: Inicia en revisión
         rating: 5.0, 
         resenas: 1,
         ad_on: false,
@@ -886,6 +905,68 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
                 `Cambios solicitados: [Detalla qué quieres cambiar]`;
 
     enviarSolicitudTelegram(msg);
+}
+    /**
+ * Motor de verificación de ID de canales
+ * @param {string} idCanal - El ID generado (ej: 'c_1719157618000')
+ * @param {string} accion - 'PUBLICAR' o 'RECHAZAR'
+ * @param {string} motivoRechazo - Nota opcional si es rechazado
+ */
+function verificarYFlashearCanal(idCanal, accion, motivoRechazo = "") {
+    // 1. Cargar canales de la base de datos local
+    let dbCanales = JSON.parse(localStorage.getItem("golden_canales") || "[]");
+    let canalIndex = dbCanales.findIndex(c => c.id_canal === idCanal);
+
+    if (canalIndex === -1) {
+        console.error("❌ ID de canal no encontrado en el buffer del sistema.");
+        return;
+    }
+
+    let canal = dbCanales[canalIndex];
+    let tituloCanal = canal.titulo;
+    let idUsuarioTarget = canal.id_user_telegram_admin;
+
+    // 2. Cargar sistema de notificaciones/mensajes existentes
+    let dbMensajes = JSON.parse(localStorage.getItem("golden_mensajes_usuarios") || "[]");
+    let nuevoMensaje = {
+        id_msg: "m_" + Date.now(),
+        user_id_target: idUsuarioTarget,
+        unread: true,
+        saved: false
+    };
+
+    // 3. Evaluar acción de sincronización
+    if (accion === "PUBLICAR") {
+        dbCanales[canalIndex].status = "publicado";
+        
+        nuevoMensaje.titulo = "🚀 ¡Canal Publicado Exitosamente!";
+        nuevoMensaje.cuerpo = `Tu canal "${tituloCanal}" ha sido verificado con éxito por nuestro sistema de ID y ya se encuentra visible para toda la comunidad de Matrix Hub. ¡A por todas!`;
+        nuevoMensaje.tema = "Sistema";
+        
+        console.log(`✅ Canal ${idCanal} sincronizado a PUBLICADO.`);
+    } 
+    else if (accion === "RECHAZAR") {
+        dbCanales[canalIndex].status = "rechazado";
+        
+        nuevoMensaje.titulo = "⚠️ Solicitud de Canal Rechazada";
+        nuevoMensaje.cuerpo = `Lamentamos informarte que tu canal "${tituloCanal}" no pasó la moderación manual. Motivo: ${motivoRechazo || "No cumple con las directrices de la comunidad."}`;
+        nuevoMensaje.tema = "Soporte";
+        
+        console.log(`❌ Canal ${idCanal} marcado como RECHAZADO.`);
+    }
+
+    // 4. Guardar cambios de vuelta en LocalStorage
+    localStorage.setItem("golden_canales", JSON.stringify(dbCanales));
+    dbMensajes.unshift(nuevoMensaje); // Añadir al inicio del buzón
+    localStorage.setItem("golden_mensajes_usuarios", JSON.stringify(dbMensajes));
+
+    // 5. Sincronizar variables en memoria en vivo si la app está abierta
+    canales = dbCanales;
+    initMensajesBaseDatos(); // Recarga y actualiza campana de avisos
+    
+    // Actualizar las vistas por si el usuario está mirando la pantalla
+    if (document.getElementById('page-admin').classList.contains('active')) renderAdminPanel();
+    aplicarFiltrosMaster(false);
 }
 
 function solicitarEliminacion(canalId) {
