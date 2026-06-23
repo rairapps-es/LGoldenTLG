@@ -601,10 +601,10 @@ function verificarMigracionDatos() {
 }
 
         window.onload = function() {
-    // 0. MIGRACIÓN DE DATOS (El guardián)
+    // 0. MIGRACIÓN DE DATOS
     verificarMigracionDatos();
 
-    // 1. Inicialización de Telegram
+    // 1. Inicialización e Inyección PRIORITARIA de datos de Telegram
     if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
         webApp.ready();
@@ -620,36 +620,42 @@ function verificarMigracionDatos() {
         }
     }
 
-    // ... (Mantén tu lógica de Membresía igual) ...
+    // 2. Establecer Membresías basadas en el ID ya verificado
     const estadoData = ESTADOS_USUARIOS[usuarioActual.id_tg] || { 
         fechaInicio: "N/A", fechaFin: "N/A", duracion: "Gratis", plan: "Plan Libre", estadoPago: "Sin suscripción" 
     };
-
     variablesMembresia = { ...estadoData, activado: estadoData.estadoPago === "Pagado" };
 
-    // 3. Carga de datos (Ya no necesitas el check de 'if (!localStorage)' porque verificarMigracionDatos ya asegura que existan)
     if (LISTA_PREMIUM_IDS.includes(usuarioActual.id_tg)) usuarioActual.isPremium = true;
     
-    canales = JSON.parse(localStorage.getItem("golden_canales"));
-    usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos"));
+    // 3. Carga Segura de canales (Con fallback a los canales por defecto si está vacío)
+    canales = JSON.parse(localStorage.getItem("golden_canales")) || DEFAULT_CHANNELS;
+    if(!localStorage.getItem("golden_canales")) {
+        localStorage.setItem("golden_canales", JSON.stringify(DEFAULT_CHANNELS));
+    }
+    
+    usuarioActual.favoritos = JSON.parse(localStorage.getItem("golden_favoritos")) || [];
+    if(!localStorage.getItem("golden_favoritos")) {
+        localStorage.setItem("golden_favoritos", JSON.stringify([]));
+    }
 
-    // 4. Renderizado
-    initMensajesBaseDatos();
+    // 4. Renderizado Sincronizado en Cadena
     document.getElementById("nav-username").innerText = usuarioActual.username_tg;
+    initMensajesBaseDatos();
     
     actualizarMetadatosContadores();
+    actualStylesSincroPremium(); // Corregido por si mutó el nombre
     actualizarEstilosSincroPremium();
     triggerSplash();
+    
     aplicarFiltrosMaster(true);
     renderDonadoresSlider();
     renderDestacadosSlider();
     initSelectorCanalesBoosters();
     renderMembresiaPage();
-    
-    // Renderizado de log con purga automática
     renderPedidosLog();
 
-    // Inicialización de sliders con la nueva lógica segura
+    // Inicialización de sliders
     initSliderAutoScroll("donors-slider");
     initSliderAutoScroll("featured-slider");
 };
@@ -888,10 +894,10 @@ function renderGridTemplates(listaCanales, targetContainerId, isOwnerConsole = f
     } else {
         window.open(urlTelegram, '_blank');
     }
-
-    // 4. Limpieza y actualización visual
+    // 4. Limpieza y actualización visual total
     resetAdminForm();
     actualizarMetadatosContadores();
+    renderAdminPanel(); // 👈 ¡AÑADE ESTA LÍNEA AQUÍ!
 }
 
         function solicitarEdicion(canalId) {
