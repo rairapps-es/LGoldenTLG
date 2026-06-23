@@ -81,8 +81,13 @@
     flex-shrink: 0;
     min-width: 0;
     
-    /* Ayuda a que el scroll-snap no sea tan agresivo */
-    scroll-snap-align: start;
+    /* ESTO ES CRUCIAL: */
+    /* Fuerza al navegador a no intentar renderizar animaciones mientras el scroll está activo */
+    backface-visibility: hidden;
+    transform: translateZ(0); 
+    
+    /* Si tienes transiciones de hover, asegúrate de que no afecten el tamaño (width/margin) */
+    transition: transform 0.2s ease;
 }
 
         /* --- NOTIFICACIÓN RECOMENDACIÓN PREMIUM --- */
